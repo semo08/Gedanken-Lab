@@ -1,0 +1,187 @@
+/* Gedanken Lab 공통 스타일: 실험 노트 컨셉 */
+
+:root {
+  --ink: #1B1F2A;
+  --paper: #F7F6F0;
+  --muted: #5B6170;
+  --rule: #CBD2DE;
+  --dash: #8A90A0;
+  --white: #FFFFFF;
+
+  --a: #B4470F;          /* 선택 A: 주황 */
+  --a-tint: #FFF4EC;
+  --a-light: #F3C9AE;
+  --b: #1F4E9C;          /* 선택 B: 파랑 */
+  --b-dark: #163A75;
+  --b-tint: #EEF3FB;
+  --b-light: #BFD0EA;
+  --note: #FFF9E8;
+
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --sans: 'Noto Sans KR', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--sans);
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(rgba(31, 78, 156, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 78, 156, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--b); }
+a:hover { color: var(--b-dark); }
+
+h1, h2, p { margin: 0; }
+
+svg { display: block; max-width: 100%; height: auto; }
+
+:focus-visible { outline: 3px solid var(--b); outline-offset: 3px; }
+
+[hidden] { display: none !important; }
+
+/* ── 레이아웃 ── */
+
+.page { padding: 40px 24px; }
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.container--wide { max-width: 1080px; gap: 40px; }
+
+/* ── 글자 ── */
+
+.label {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--b);
+}
+
+.label--muted { font-weight: 400; color: var(--muted); }
+.label--a { color: var(--a); }
+.label--spaced { letter-spacing: 0.12em; }
+
+.lead { font-size: 17px; line-height: 1.7; color: var(--muted); }
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── 카드 ── */
+
+.card {
+  background: var(--white);
+  border: 2px solid var(--ink);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card--tight { padding: 28px; gap: 16px; }
+.card--note { background: var(--note); gap: 12px; }
+
+/* ── 링크/버튼 ── */
+
+.back-link {
+  font-family: var(--mono);
+  font-size: 14px;
+  text-decoration: none;
+  padding: 10px 0;
+  background: none;
+  border: 0;
+  color: var(--b);
+  cursor: pointer;
+}
+
+.back-link:hover { color: var(--b-dark); }
+
+.btn {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--white);
+  background: var(--b);
+  border: 2px solid var(--b);
+  padding: 14px 24px;
+  cursor: pointer;
+}
+
+.btn:hover { color: var(--white); background: var(--b-dark); border-color: var(--b-dark); }
+.btn--a { background: var(--a); border-color: var(--a); }
+.btn--a:hover { background: #923A0C; border-color: #923A0C; }
+.btn--ghost { color: var(--ink); background: var(--white); border-color: var(--ink); }
+.btn--ghost:hover { color: var(--ink); background: var(--paper); border-color: var(--ink); }
+
+/* ── 진행 바 ── */
+
+.progress { display: flex; align-items: center; gap: 12px; }
+.progress__bars { display: flex; gap: 6px; }
+.progress__bars span { width: 32px; height: 6px; background: var(--rule); }
+.progress__bars span.is-done { background: var(--b); }
+
+/* ── 선택 카드 ── */
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.choice {
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+  min-height: 120px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  transition: box-shadow 0.15s, background-color 0.15s, transform 0.15s;
+}
+
+.choice:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--rule); }
+.choice__tag { font-family: var(--mono); font-size: 13px; }
+.choice__title { font-size: 20px; font-weight: 700; }
+.choice__desc { font-size: 15px; color: var(--muted); }
+
+.choice[data-choice="A"] .choice__tag { color: var(--a); }
+.choice[data-choice="B"] .choice__tag { color: var(--b); }
+
+.choice[data-choice="A"][aria-pressed="true"] { background: var(--a-tint); box-shadow: 6px 6px 0 var(--a); transform: none; }
+.choice[data-choice="B"][aria-pressed="true"] { background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); transform: none; }
+
+/* ── 좁은 화면 ── */
+
+@media (max-width: 480px) {
+  .page { padding: 24px 16px; }
+  .card { padding: 20px; }
+  .card--tight { padding: 20px; }
+  .choices { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

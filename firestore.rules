@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /votes/{doc} {
+      allow read: if true;
+
+      // 첫 투표: 정해진 문서만, A 또는 B 하나가 1인 상태로 생성
+      allow create: if doc in ['trolley_1', 'trolley_2', 'trolley_3']
+        && request.resource.data.keys().hasOnly(['A', 'B'])
+        && request.resource.data.size() == 1
+        && request.resource.data.get('A', 0) + request.resource.data.get('B', 0) == 1;
+
+      // 이후 투표: 키 하나만, 합계가 정확히 1 증가, 줄어드는 값 없음
+      allow update: if request.resource.data.keys().hasOnly(['A', 'B'])
+        && request.resource.data.diff(resource.data).affectedKeys().size() == 1
+        && request.resource.data.get('A', 0) + request.resource.data.get('B', 0)
+           == resource.data.get('A', 0) + resource.data.get('B', 0) + 1
+        && request.resource.data.get('A', 0) >= resource.data.get('A', 0)
+        && request.resource.data.get('B', 0) >= resource.data.get('B', 0);
+    }
+  }
+}

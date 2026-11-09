@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>트롤리 딜레마 · Gedanken Lab</title>
+  <meta name="description" content="5명과 1명. 레버를 당길 것인가? 세 가지 장면에서 당신의 선택을 기록한다.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="../../css/base.css">
+  <style>
+    .scene-title { font-size: 28px; }
+    .story { font-size: 18px; line-height: 1.8; }
+    .ask { display: flex; flex-direction: column; gap: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .scene-title:focus, .report-title:focus { outline: none; }
+
+    /* 결과 */
+    .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
+    .report-title { font-size: 36px; line-height: 1.3; }
+    .report-title .type--A { color: var(--a); }
+    .report-title .type--B { color: var(--b); }
+
+    .gauge__ends { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; }
+    .gauge__track { position: relative; height: 14px; background: linear-gradient(90deg, var(--a-light), #E6E8EC 50%, var(--b-light)); }
+    .gauge__marker { position: absolute; top: -8px; width: 4px; height: 30px; background: var(--ink); transform: translateX(-50%); transition: left 0.6s ease-out; }
+    .gauge__notes { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; color: var(--muted); }
+    .gauge__notes span:last-child { text-align: right; }
+    .disclaimer { font-size: 13px; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 12px; }
+
+    .stat { display: flex; flex-direction: column; gap: 8px; }
+    .stat__head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 15px; }
+    .stat__mine { font-family: var(--mono); }
+    .stat__bar { display: flex; height: 28px; font-family: var(--mono); font-size: 13px; }
+    .stat__seg { display: flex; align-items: center; padding: 0 10px; overflow: hidden; white-space: nowrap; transition: flex-grow 0.6s ease-out; }
+    .stat__legend { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+    .stat-status { font-family: var(--mono); font-size: 14px; color: var(--muted); }
+
+    .refs { font-size: 13px; line-height: 1.7; color: var(--muted); margin: 0; padding-left: 18px; }
+    .refs cite { font-style: italic; }
+
+    @media (max-width: 480px) {
+      .scene-title { font-size: 24px; }
+      .story { font-size: 16px; }
+      .report-title { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <!-- ── 장면 1: 레버 ── -->
+    <section class="container" data-step="1">
+      <div class="row">
+        <a class="back-link" href="../../">← 실험 목록</a>
+        <div class="progress">
+          <span class="label label--muted">EXP #01 · 장면 1 / 3</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="label">관찰 기록 · 상황</span>
+        <svg role="img" aria-label="갈림길 철로. 위쪽 선로에 5명, 아래쪽 선로에 1명, 갈림길 앞에 레버" viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <path d="M20 70 H420"/><path d="M20 82 H420"/>
+          <path d="M420 70 H860"/><path d="M420 82 H860"/>
+          <path d="M420 82 L860 170"/><path d="M432 82 L860 182"/>
+          <rect x="60" y="40" width="90" height="38" rx="4" fill="#F7F6F0"/><circle cx="80" cy="84" r="7" fill="#FFFFFF"/><circle cx="130" cy="84" r="7" fill="#FFFFFF"/>
+          <path d="M160 58 H200 M185 50 L200 58 L185 66" stroke="#B4470F" stroke-width="2.5"/>
+          <g fill="#1B1F2A" stroke="none"><circle cx="640" cy="48" r="7"/><circle cx="670" cy="48" r="7"/><circle cx="700" cy="48" r="7"/><circle cx="730" cy="48" r="7"/><circle cx="760" cy="48" r="7"/></g>
+          <g stroke-width="3"><path d="M640 56 V70"/><path d="M670 56 V70"/><path d="M700 56 V70"/><path d="M730 56 V70"/><path d="M760 56 V70"/></g>
+          <circle cx="760" cy="138" r="7" fill="#1B1F2A" stroke="none"/><path d="M760 146 V160" stroke-width="3"/>
+          <path d="M400 120 L380 150" stroke="#B4470F" stroke-width="4"/><circle cx="400" cy="120" r="7" fill="#B4470F" stroke="none"/><rect x="368" y="150" width="28" height="10" fill="#1B1F2A" stroke="none"/>
+          <text x="700" y="24" font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">5명</text>
+          <text x="760" y="196" font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">1명</text>
+          <text x="380" y="186" font-family="IBM Plex Mono, monospace" font-size="14" fill="#B4470F" stroke="none" text-anchor="middle">레버</text>
+        </svg>
+        <p class="story">브레이크가 고장 난 트롤리가 달려오고 있다. 이대로 가면 선로 위의 <strong>5명</strong>이 죽는다. 당신 옆에는 레버가 있고, 당기면 트롤리는 옆 선로로 방향을 바꾼다. 그곳에는 <strong>1명</strong>이 있다.</p>
+      </div>
+      <div class="ask">
+        <h1 class="scene-title" tabindex="-1">레버를 당길 것인가?</h1>
+        <div class="choices">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">레버를 당긴다</span>
+            <span class="choice__desc">1명이 희생되고 5명이 산다</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">그대로 둔다</span>
+            <span class="choice__desc">개입하지 않는다. 5명이 희생된다</span>
+          </button>
+        </div>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 선택이 기록되었다</span>
+          <button type="button" class="btn" data-go="2">다음 장면 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 장면 2: 육교 ── -->
+    <section class="container" data-step="2" hidden>
+      <div class="row">
+        <button type="button" class="back-link" data-go="1">← 이전 장면</button>
+        <div class="progress">
+          <span class="label label--muted">EXP #01 · 장면 2 / 3</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span><span></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <span class="label">관찰 기록 · 변수 변경</span>
+          <span class="label label--muted label--a">레버 → 육교</span>
+        </div>
+        <svg role="img" aria-label="일직선 철로 위로 육교가 있고, 육교 위에 몸집이 큰 사람과 당신이 서 있다. 선로 끝에 5명" viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <path d="M20 160 H860"/><path d="M20 172 H860"/>
+          <rect x="60" y="130" width="90" height="38" rx="4" fill="#F7F6F0"/><circle cx="80" cy="174" r="7" fill="#FFFFFF"/><circle cx="130" cy="174" r="7" fill="#FFFFFF"/>
+          <path d="M160 148 H200 M185 140 L200 148 L185 156" stroke="#B4470F" stroke-width="2.5"/>
+          <path d="M330 80 H530"/><path d="M340 80 V160"/><path d="M520 80 V160"/><path d="M330 60 H530" stroke-dasharray="4 4"/>
+          <circle cx="420" cy="40" r="14" fill="#1B1F2A" stroke="none"/><rect x="404" y="52" width="32" height="28" rx="8" fill="#1B1F2A" stroke="none"/>
+          <circle cx="470" cy="50" r="8" fill="#FFFFFF" stroke="#1F4E9C" stroke-width="2.5"/><path d="M470 58 V80" stroke="#1F4E9C" stroke-width="3"/>
+          <g fill="#1B1F2A" stroke="none"><circle cx="680" cy="138" r="7"/><circle cx="710" cy="138" r="7"/><circle cx="740" cy="138" r="7"/><circle cx="770" cy="138" r="7"/><circle cx="800" cy="138" r="7"/></g>
+          <g stroke-width="3"><path d="M680 146 V160"/><path d="M710 146 V160"/><path d="M740 146 V160"/><path d="M770 146 V160"/><path d="M800 146 V160"/></g>
+          <text x="740" y="116" font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">5명</text>
+          <text x="420" y="14" font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">덩치 큰 사람</text>
+          <text x="490" y="40" font-family="IBM Plex Mono, monospace" font-size="14" fill="#1F4E9C" stroke="none">당신</text>
+        </svg>
+        <p class="story">이번엔 레버가 없다. 당신은 선로 위 육교에 서 있고, 옆에는 덩치 큰 사람이 있다. 그를 <strong>밀어 떨어뜨리면</strong> 트롤리가 멈추고 5명이 산다. 숫자는 장면 1과 똑같다. <strong>1명 vs 5명.</strong></p>
+      </div>
+      <div class="ask">
+        <h1 class="scene-title" tabindex="-1">그 사람을 밀 것인가?</h1>
+        <div class="choices">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">민다</span>
+            <span class="choice__desc">내 손으로 1명을 희생시키고 5명을 구한다</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">밀지 않는다</span>
+            <span class="choice__desc">사람을 수단으로 쓸 수는 없다</span>
+          </button>
+        </div>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 기록됨 · 장면 1과 답이 같았나?</span>
+          <button type="button" class="btn" data-go="3">다음 장면 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 장면 3: 자율주행 ── -->
+    <section class="container" data-step="3" hidden>
+      <div class="row">
+        <button type="button" class="back-link" data-go="2">← 이전 장면</button>
+        <div class="progress">
+          <span class="label label--muted">EXP #01 · 장면 3 / 3</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span><span class="is-done"></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <span class="label">관찰 기록 · 현대 버전</span>
+          <span class="label label--muted label--a">당신 → 프로그래머</span>
+        </div>
+        <svg role="img" aria-label="도로를 달리는 자율주행차. 탑승자 1명. 앞 횡단보도에 보행자 5명, 옆에는 벽" viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <path d="M20 60 H860"/><path d="M20 180 H860"/><path d="M20 120 H860" stroke-dasharray="20 14"/>
+          <g stroke-width="2"><path d="M600 64 V176"/><path d="M620 64 V176"/><path d="M640 64 V176"/><path d="M660 64 V176"/></g>
+          <rect x="100" y="80" width="130" height="56" rx="14" fill="#F7F6F0"/><rect x="150" y="90" width="44" height="22" rx="4"/><circle cx="172" cy="101" r="6" fill="#1F4E9C" stroke="none"/>
+          <circle cx="130" cy="140" r="9" fill="#FFFFFF"/><circle cx="200" cy="140" r="9" fill="#FFFFFF"/>
+          <path d="M240 108 H300 M285 100 L300 108 L285 116" stroke="#B4470F" stroke-width="2.5"/>
+          <g fill="#1B1F2A" stroke="none"><circle cx="610" cy="88" r="7"/><circle cx="630" cy="108" r="7"/><circle cx="650" cy="128" r="7"/><circle cx="615" cy="148" r="7"/><circle cx="645" cy="160" r="7"/></g>
+          <path d="M300 40 L360 20" stroke="#B4470F" stroke-dasharray="5 5"/>
+          <rect x="360" y="4" width="160" height="40" fill="#F7F6F0" stroke="#8A90A0"/>
+          <text x="440" y="29" font-family="IBM Plex Mono, monospace" font-size="13" fill="#5B6170" stroke="none" text-anchor="middle">벽 (회피 시 충돌)</text>
+          <text x="630" y="196" font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">보행자 5명</text>
+          <text x="165" y="74" font-family="IBM Plex Mono, monospace" font-size="14" fill="#1F4E9C" stroke="none" text-anchor="middle">탑승자 1명</text>
+        </svg>
+        <p class="story">당신은 자율주행차 프로그래머다. 브레이크가 고장 난 차 앞에 보행자 <strong>5명</strong>이 있다. 핸들을 꺾으면 벽에 부딪혀 <strong>탑승자 1명</strong>이 죽는다. 이 상황이 오기 <strong>전에</strong>, 차가 어떻게 판단할지 미리 정해야 한다.</p>
+      </div>
+      <div class="ask">
+        <h1 class="scene-title" tabindex="-1">자동차에 어떤 규칙을 넣을 것인가?</h1>
+        <div class="choices">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">피해를 최소화한다</span>
+            <span class="choice__desc">핸들을 꺾어 5명을 구한다. 탑승자가 희생된다</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">탑승자를 우선한다</span>
+            <span class="choice__desc">차를 산 사람을 지킨다. 보행자가 희생된다</span>
+          </button>
+        </div>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 모든 장면 기록 완료</span>
+          <button type="button" class="btn btn--a" data-go="result">실험 결과 보기 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 결과 ── -->
+    <section class="container" data-step="result" hidden>
+      <div class="report-head">
+        <span class="label label--muted label--spaced">EXP #01 · 실험 결과 보고서</span>
+        <h1 class="report-title" tabindex="-1">당신은 <span id="verdict-type"></span>에 가깝다</h1>
+        <p class="lead" id="verdict-line"></p>
+      </div>
+
+      <div class="card card--tight">
+        <span class="label">측정값 · 윤리 성향</span>
+        <div class="gauge__ends"><span style="color: var(--a)">공리주의</span><span style="color: var(--b)">의무론</span></div>
+        <div class="gauge__track" role="img" id="gauge" aria-label="">
+          <div class="gauge__marker" id="gauge-marker" style="left: 50%"></div>
+        </div>
+        <div class="gauge__notes"><span>최대 다수의 최대 행복 (벤담, 밀)</span><span>결과보다 지켜야 할 원칙 (칸트)</span></div>
+        <p class="disclaimer">3개 장면으로 본 경향일 뿐, 심리 검사가 아니에요.</p>
+      </div>
+
+      <div class="card card--tight" aria-live="polite">
+        <span class="label">비교 데이터 · 다른 실험자들</span>
+        <p class="stat-status" id="stats-status">기록 불러오는 중…</p>
+        <div id="stats" style="display: flex; flex-direction: column; gap: 20px"></div>
+      </div>
+
+      <div class="card card--tight card--note">
+        <span class="label label--a">고찰 · 생각해볼 점</span>
+        <h2 style="font-size: 22px">장면 1과 2는 숫자가 똑같다. 그런데 왜 답이 달라질까?</h2>
+        <p style="font-size: 16px; line-height: 1.8">레버는 트롤리의 <strong>방향</strong>을 바꾸지만, 육교에서는 사람을 <strong>도구</strong>로 쓴다. 철학자 필리파 풋이 처음 던진 이 질문에 주디스 자비스 톰슨이 육교 버전을 더하면서, "결과만으로 옳고 그름을 판단할 수 있는가"라는 논쟁이 시작됐다.</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span class="label label--muted">참고 문헌</span>
+        <ol class="refs">
+          <li>Philippa Foot, <cite>The Problem of Abortion and the Doctrine of the Double Effect</cite> (1967)</li>
+          <li>Judith Jarvis Thomson, <cite>The Trolley Problem</cite> (1985)</li>
+          <li>Bonnefon, Shariff &amp; Rahwan, <cite>The social dilemma of autonomous vehicles</cite>, Science (2016)</li>
+          <li>Kahane et al., <cite>Beyond sacrificial harm: A two-dimensional model of utilitarian psychology</cite>, Psychological Review (2018)</li>
+          <li>Awad et al., <cite>Universals and variations in moral decisions made in 42 countries by 70,000 participants</cite>, PNAS (2020)</li>
+        </ol>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 12px">
+        <button type="button" class="btn btn--ghost" data-restart>↺ 다시 실험하기</button>
+        <a class="btn" href="../../">다른 실험 하러 가기 →</a>
+      </div>
+    </section>
+
+  </main>
+  <script type="module" src="trolley.js"></script>
+</body>
+</html>

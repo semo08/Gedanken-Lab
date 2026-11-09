@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gedanken Lab · 사고실험 실험실</title>
+  <meta name="description" content="머릿속에서만 하던 실험, 직접 해보자.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    .masthead { align-items: flex-end; gap: 16px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
+    .masthead__text { display: flex; flex-direction: column; gap: 8px; }
+    .masthead h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; }
+
+    .experiments { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+
+    .exp {
+      color: var(--ink);
+      text-decoration: none;
+      background: var(--white);
+      border: 2px solid var(--ink);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 6px 6px 0 var(--b);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    a.exp:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--b); }
+    .exp h2 { font-size: 24px; }
+    .exp p { font-size: 15px; line-height: 1.6; color: var(--muted); }
+    .exp__tag { font-family: var(--mono); font-size: 12px; padding: 4px 10px; border: 1px solid currentColor; }
+    .exp__cta { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--b); }
+
+    .exp--soon { background: rgba(255, 255, 255, 0.6); border-style: dashed; border-color: var(--dash); box-shadow: none; }
+    .exp--soon h2 { color: var(--muted); }
+    .exp__placeholder {
+      height: 90px; display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; color: var(--muted); border: 1px dashed var(--rule);
+    }
+
+    @media (max-width: 480px) { .masthead h1 { font-size: 34px; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="container container--wide">
+      <header class="row masthead">
+        <div class="masthead__text">
+          <span class="label label--muted label--spaced">LAB NOTEBOOK · VOL.1</span>
+          <h1>사고실험 실험실</h1>
+          <p class="lead">머릿속에서만 하던 실험, 직접 해보자.</p>
+        </div>
+        <span class="label label--muted">실험 3개 · 소요 약 10분</span>
+      </header>
+
+      <div class="experiments">
+        <a class="exp" href="experiments/trolley/">
+          <div class="row">
+            <span class="label">EXPERIMENT #01</span>
+            <span class="exp__tag" style="color: var(--a)">윤리</span>
+          </div>
+          <svg aria-hidden="true" viewBox="0 0 260 90" fill="none" stroke="#1B1F2A" stroke-width="2"><path d="M10 30 H120 L250 30"/><path d="M120 30 L250 70"/><rect x="20" y="16" width="34" height="22" rx="3" fill="#FFFFFF"/><circle cx="28" cy="42" r="4" fill="#FFFFFF"/><circle cx="46" cy="42" r="4" fill="#FFFFFF"/><path d="M120 30 L110 10" stroke="#B4470F" stroke-width="3"/><circle cx="110" cy="10" r="4" fill="#B4470F" stroke="none"/></svg>
+          <h2>트롤리 딜레마</h2>
+          <p>5명과 1명. 레버를 당길 것인가? 세 가지 장면에서 당신의 선택을 기록한다.</p>
+          <span class="exp__cta">실험 시작 →</span>
+        </a>
+
+        <div class="exp exp--soon">
+          <div class="row">
+            <span class="label label--muted">EXPERIMENT #02</span>
+            <span class="exp__tag" style="color: var(--muted)">물리</span>
+          </div>
+          <div class="exp__placeholder">[ 준비 중 ]</div>
+          <h2>슈뢰딩거의 고양이</h2>
+          <p>상자를 열기 전, 고양이는 살아 있을까?</p>
+        </div>
+
+        <div class="exp exp--soon">
+          <div class="row">
+            <span class="label label--muted">EXPERIMENT #03</span>
+            <span class="exp__tag" style="color: var(--muted)">물리</span>
+          </div>
+          <div class="exp__placeholder">[ 준비 중 ]</div>
+          <h2>맥스웰의 악마</h2>
+          <p>작은 악마가 열역학 법칙을 깰 수 있을까?</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
