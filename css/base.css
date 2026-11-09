@@ -47,6 +47,32 @@ svg { display: block; max-width: 100%; height: auto; }
 
 [hidden] { display: none !important; }
 
+/* ── 상단 바 ── */
+
+.site-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  min-height: 48px;
+  padding: 0 24px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--ink);
+}
+
+.site-bar a {
+  font-family: var(--mono);
+  font-size: 14px;
+  text-decoration: none;
+  padding: 12px 0;
+}
+
+.site-bar__logo { font-weight: 600; letter-spacing: 0.12em; color: var(--ink); }
+.site-bar__logo:hover { color: var(--b); }
+
 /* ── 레이아웃 ── */
 
 .page { padding: 40px 24px; }
@@ -173,9 +199,39 @@ svg { display: block; max-width: 100%; height: auto; }
 .choice[data-choice="A"][aria-pressed="true"] { background: var(--a-tint); box-shadow: 6px 6px 0 var(--a); transform: none; }
 .choice[data-choice="B"][aria-pressed="true"] { background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); transform: none; }
 
+/* ── 실험 카드 (메인, 다른 실험) ── */
+
+.experiments { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+
+.exp {
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 6px 6px 0 var(--b);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+a.exp:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--b); }
+.exp h2 { font-size: 24px; }
+.exp p { font-size: 15px; line-height: 1.6; color: var(--muted); }
+.exp__tag { font-family: var(--mono); font-size: 12px; padding: 4px 10px; border: 1px solid currentColor; }
+.exp__cta { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--b); }
+
+.exp--soon { background: rgba(255, 255, 255, 0.6); border-style: dashed; border-color: var(--dash); box-shadow: none; }
+.exp--soon h2 { color: var(--muted); }
+.exp__placeholder {
+  height: 90px; display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 13px; color: var(--muted); border: 1px dashed var(--rule);
+}
+
 /* ── 좁은 화면 ── */
 
 @media (max-width: 480px) {
+  .site-bar { padding: 0 16px; }
   .page { padding: 24px 16px; }
   .card { padding: 20px; }
   .card--tight { padding: 20px; }

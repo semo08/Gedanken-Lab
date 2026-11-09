@@ -1,4 +1,5 @@
 import { verdict } from './verdict.js';
+import { renderOtherExperiments } from '../../js/other-experiments.js';
 
 const SCENES = [
   { step: 1, id: 'trolley_1', A: '당긴다', B: '둔다', pick: { A: '레버를 당긴다', B: '그대로 둔다' } },
@@ -134,3 +135,5 @@ for (const btn of document.querySelectorAll('[data-go]')) {
 }
 
 document.querySelector('[data-restart]').addEventListener('click', restart);
+
+renderOtherExperiments(document.getElementById('other-experiments'), 'trolley', '../../');

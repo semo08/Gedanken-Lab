@@ -20,7 +20,9 @@ Only DOM-free, Firebase-free modules (like `experiments/trolley/verdict.js`) are
 ## Architecture
 
 - Plain HTML, CSS, and vanilla JS ES modules. Don't introduce frameworks or bundlers.
-- `css/base.css` holds the shared design tokens (CSS variables) and components (`.card`, `.choice`, `.btn`, `.progress`, `.label`). Page-specific styles go in a `<style>` block in that page.
+- `css/base.css` holds the shared design tokens (CSS variables) and components (`.site-bar`, `.card`, `.choice`, `.btn`, `.progress`, `.label`, `.exp` experiment cards). Page-specific styles go in a `<style>` block in that page.
+- Every page starts with the static `<header class="site-bar">` markup (logo → main; experiment pages also get `← 메인`). It is copied into each HTML on purpose so it renders without JS.
+- `js/experiments.js` is the experiment registry (`num`, `slug`, `title`, `field`, `blurb`, `ready`). `js/other-experiments.js` renders the "다른 실험 해보기" cards on result screens from it. When adding an experiment, add it there and flip `ready`; the main page cards in `index.html` are hand-written (each has its own illustration) and must be updated separately.
 - Each experiment lives in `experiments/<name>/` as one `index.html` whose steps are `<section data-step="…">` elements; the experiment's JS shows one at a time. Keep scoring/verdict logic in a separate pure module so it can be tested in Node.
 - `js/firebase.js` is the only place that touches Firestore (SDK 13.2.0 from the gstatic CDN). It exports `vote(id, choice)` (skips if `localStorage` key `gedanken:vote:<id>` exists) and `getCounts(ids)`. Experiments load it with a dynamic `import()` so a Firebase/CDN failure only breaks the stats card, not the rest of the result.
 - Firestore: collection `votes`, one doc per question (`trolley_1`..`trolley_3`), integer fields per choice key (`A`, `B`).

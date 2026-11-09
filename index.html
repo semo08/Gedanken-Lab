@@ -15,37 +15,13 @@
     .masthead__text { display: flex; flex-direction: column; gap: 8px; }
     .masthead h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; }
 
-    .experiments { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-
-    .exp {
-      color: var(--ink);
-      text-decoration: none;
-      background: var(--white);
-      border: 2px solid var(--ink);
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      box-shadow: 6px 6px 0 var(--b);
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
-    a.exp:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--b); }
-    .exp h2 { font-size: 24px; }
-    .exp p { font-size: 15px; line-height: 1.6; color: var(--muted); }
-    .exp__tag { font-family: var(--mono); font-size: 12px; padding: 4px 10px; border: 1px solid currentColor; }
-    .exp__cta { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--b); }
-
-    .exp--soon { background: rgba(255, 255, 255, 0.6); border-style: dashed; border-color: var(--dash); box-shadow: none; }
-    .exp--soon h2 { color: var(--muted); }
-    .exp__placeholder {
-      height: 90px; display: flex; align-items: center; justify-content: center;
-      font-family: var(--mono); font-size: 13px; color: var(--muted); border: 1px dashed var(--rule);
-    }
-
     @media (max-width: 480px) { .masthead h1 { font-size: 34px; } }
   </style>
 </head>
 <body>
+  <header class="site-bar">
+    <a class="site-bar__logo" href="./">GEDANKEN LAB</a>
+  </header>
   <main class="page">
     <div class="container container--wide">
       <header class="row masthead">
