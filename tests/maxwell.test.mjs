@@ -88,3 +88,11 @@ test('여러 번 지워도 전체는 처음보다 작아지지 않는다', () =>
     assert.ok(ledger.total(room) >= 40);
   }
 });
+
+test('처음에는 양쪽 방에 빠른/느린 입자가 반씩 있어서 온도 차가 없고 엔트로피는 최대다', () => {
+  const sim = createSim();
+  assert.deepEqual(counts(sim), { fastLeft: 10, nFast: 20, slowLeft: 10, nSlow: 20 });
+  const t = temps(sim);
+  assert.ok(Math.abs(t.left - t.right) < 1e-9);
+  assert.equal(roomEntropy(counts(sim)), 40);
+});

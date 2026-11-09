@@ -14,18 +14,19 @@ export const SLOW = 90;
 // 다 섞인 상태의 평균 v²가 30°가 되도록 맞춘 눈금
 const TEMP_SCALE = 30 / ((FAST ** 2 + SLOW ** 2) / 2);
 
-function particle(fast, random) {
+function particle(fast, left, random) {
   const speed = fast ? FAST : SLOW;
   const angle = random() * Math.PI * 2;
-  let x;
-  do { x = R + random() * (W - 2 * R); } while (Math.abs(x - WALL_X) < R * 2);
+  const room = WALL_X - 3 * R; // 벽에서 조금 떨어진 곳에 놓는다
+  const x = left ? R + random() * (room - R) : W - R - random() * (room - R);
   return { x, y: R + random() * (H - 2 * R), vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, fast };
 }
 
+// 빠른/느린 입자를 양쪽 방에 번갈아 놓아서, 처음 온도 차는 0이고 방의 엔트로피는 최대에서 시작한다
 export function createSim({ nFast = 20, nSlow = 20, random = Math.random } = {}) {
   const particles = [];
-  for (let i = 0; i < nFast; i++) particles.push(particle(true, random));
-  for (let i = 0; i < nSlow; i++) particles.push(particle(false, random));
+  for (let i = 0; i < nFast; i++) particles.push(particle(true, i % 2 === 0, random));
+  for (let i = 0; i < nSlow; i++) particles.push(particle(false, i % 2 === 0, random));
   return { particles };
 }
 

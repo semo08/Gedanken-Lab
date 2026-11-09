@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Gedanken Lab is a web app where users experience famous thought experiments themselves: ethics experiments (choose, then compare your choice with other people's) and physics experiments (interact to understand the principle). `docs/PLAN.md` is the source of truth for scope, screen flow, per-experiment content, design tokens, and development stages. Read it before starting a new experiment or stage. User-facing text and the docs are in Korean.
 
-Current state: stages 1–3 are done (main page, trolley, Schrödinger's cat, Firestore vote ratios). Stage 4 (Maxwell's demon, Canvas simulation) is next. Per-feature design specs and plans live in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
+Current state: stages 1–4 are done (all three experiments with Firestore vote ratios). Stage 5 (design polish + deploy to GitHub Pages) is next. Per-feature design specs and plans live in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
 
 ## Running
 
@@ -25,7 +25,7 @@ Only DOM-free, Firebase-free modules (like `experiments/trolley/verdict.js`) are
 - `js/experiments.js` is the experiment registry (`num`, `slug`, `title`, `field`, `blurb`, `ready`). `js/other-experiments.js` renders the "다른 실험 해보기" cards on result screens from it. When adding an experiment, add it there and flip `ready`; the main page cards in `index.html` are hand-written (each has its own illustration) and must be updated separately.
 - Each experiment lives in `experiments/<name>/` as one `index.html` whose steps are `<section data-step="…">` elements; the experiment's JS shows one at a time. Keep scoring/verdict logic in a separate pure module so it can be tested in Node.
 - `js/firebase.js` is the only place that touches Firestore (SDK 13.2.0 from the gstatic CDN). It exports `vote(id, choice)` (skips if `localStorage` key `gedanken:vote:<id>` exists) and `getCounts(ids)`. Experiments load it with a dynamic `import()` so a Firebase/CDN failure only breaks the stats card, not the rest of the result.
-- Firestore: collection `votes`, one doc per question (`trolley_1`..`trolley_3` with `A`/`B`, `schrodinger` with `A`..`D`). `getCounts(ids, keys)` takes the key list (default `['A', 'B']`).
+- Firestore: collection `votes`, one doc per question (`trolley_1`..`trolley_3`, `maxwell` with `A`/`B`; `schrodinger` with `A`..`D`). `getCounts(ids, keys)` takes the key list (default `['A', 'B']`).
 
 ## Firestore rules
 
@@ -39,3 +39,4 @@ Lab-notebook look: grid-paper background, monospace `EXPERIMENT #01`-style label
 
 - When an experiment's status or a development stage changes, update the experiment table in `README.md` and the checklist in `docs/PLAN.md`.
 - The repo is public. Keep the Firebase config only in `js/firebase.js`; don't copy it into docs or specs. The web API key is restricted in Google Cloud (HTTP referrers + Cloud Firestore API only), so a new deploy domain must be added to the key's allowed referrers or Firestore calls will fail.
+- Maxwell's demon: `experiments/maxwell/sim.js` (particle physics in fixed 800×400 logical units, particles only bounce off walls so speeds never change) and `entropy.js` (room entropy + erase ledger) are pure and unit-tested; `maxwell.js` only draws and wires input. The entropy bars are a concept diagram: erasing always releases ≥ the entropy reduced since the last erase, so room + heat never drops below the start. The win threshold (`WIN_DIFF`) was tuned by simulating an ideal demon in Node; re-check playability if you change particle speeds, counts, or the door size.
