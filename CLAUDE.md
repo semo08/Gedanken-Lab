@@ -6,27 +6,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Gedanken Lab is a web app where users experience famous thought experiments themselves: ethics experiments (choose, then compare your choice with other people's) and physics experiments (interact to understand the principle). `docs/PLAN.md` is the source of truth for scope, screen flow, per-experiment content, design tokens, and development stages. Read it before starting a new experiment or stage. User-facing text and the docs are in Korean.
 
-Current state: only the planning docs exist. No application code has been written yet. Stage 1 (main page, the three trolley scenes, and the result screen without stats) is next.
+Current state: stages 1–2 are done (main page, trolley experiment, Firestore vote ratios). Stage 3 (Schrödinger's cat) is next. Per-feature design specs and plans live in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
 
 ## Running
 
-There is no build step, package manager, linter, or test suite. Because scripts use `type="module"`, the app must be served over HTTP, not opened as `file://`:
+No build step and no dependencies. `package.json` exists only for `"type": "module"` (so Node treats `.js` as ESM) and two scripts:
 
-- `npx serve .` from the repo root, or
-- VS Code Live Server on `index.html`
+- `npm start` (`npx serve .`) — serve the repo root. Pages use `type="module"`, so `file://` won't work.
+- `npm test` (`node --test "tests/*.test.mjs"`) — unit tests for pure logic. Run one file with `node --test tests/verdict.test.mjs`.
 
-## Intended architecture (from README/PLAN)
+Only DOM-free, Firebase-free modules (like `experiments/trolley/verdict.js`) are unit-tested. UI and Firestore behavior are checked in a real browser.
 
-- Stack: plain HTML, CSS, and vanilla JS ES modules. Don't introduce frameworks or bundlers.
-- `index.html` is the experiment list. Each experiment lives in its own folder under `experiments/<name>/` (e.g. `experiments/trolley/`).
-- Every experiment follows the same flow: intro → experience (choice or interaction) → result (explanation plus other people's vote ratios).
-- `js/firebase.js` is the single shared module for Firebase config and the vote functions. Experiments import from it rather than talking to Firestore directly.
-- Firestore (SDK loaded from CDN): collection `votes`, one doc per question (`trolley_1`..`trolley_3`, `schrodinger`, `maxwell`), with fields as choice keys (`A`, `B`, ...) holding counts. Vote with `setDoc(doc(db, "votes", id), { [choice]: increment(1) }, { merge: true })`. Duplicate-vote prevention is `localStorage`-based for now.
-- Animations use CSS transitions. The Maxwell's Demon simulation uses Canvas plus `requestAnimationFrame`.
+## Architecture
+
+- Plain HTML, CSS, and vanilla JS ES modules. Don't introduce frameworks or bundlers.
+- `css/base.css` holds the shared design tokens (CSS variables) and components (`.card`, `.choice`, `.btn`, `.progress`, `.label`). Page-specific styles go in a `<style>` block in that page.
+- Each experiment lives in `experiments/<name>/` as one `index.html` whose steps are `<section data-step="…">` elements; the experiment's JS shows one at a time. Keep scoring/verdict logic in a separate pure module so it can be tested in Node.
+- `js/firebase.js` is the only place that touches Firestore (SDK 13.2.0 from the gstatic CDN). It exports `vote(id, choice)` (skips if `localStorage` key `gedanken:vote:<id>` exists) and `getCounts(ids)`. Experiments load it with a dynamic `import()` so a Firebase/CDN failure only breaks the stats card, not the rest of the result.
+- Firestore: collection `votes`, one doc per question (`trolley_1`..`trolley_3`), integer fields per choice key (`A`, `B`).
+
+## Firestore rules
+
+`firestore.rules` is a copy of the rules published in the Firebase console (project `thought-lab-f6471`); editing the file does not deploy it. The rules whitelist doc IDs and keys and only allow +1 increments. Adding a new experiment's question requires adding its doc ID (and any new keys like `C`, `D`) to both the file and the console, or votes will fail with `permission-denied`.
 
 ## Design conventions
 
-A lab-notebook look: grid-paper background, monospace `EXPERIMENT #01`-style labels. Fonts are IBM Plex Mono (labels) and Noto Sans KR (body). Colors: choice A orange `#B4470F`, choice B blue `#1F4E9C`, ink `#1B1F2A`, paper `#F7F6F0`. Design mockup: https://claude.ai/artifact/HFKGWhCJsFTkhrdGtofZay
+Lab-notebook look: grid-paper background, monospace `EXPERIMENT #01`-style labels. Fonts are IBM Plex Mono (labels) and Noto Sans KR (body). Colors: choice A orange `#B4470F`, choice B blue `#1F4E9C`, ink `#1B1F2A`, paper `#F7F6F0`. Layouts must work at 390px width with no horizontal scroll. Design mockup: https://claude.ai/artifact/HFKGWhCJsFTkhrdGtofZay
 
 ## Notes
 

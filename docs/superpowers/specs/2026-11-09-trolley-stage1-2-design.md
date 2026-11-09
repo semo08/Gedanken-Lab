@@ -161,7 +161,7 @@ verdict({ 1: 'A', 2: 'B', 3: 'A' })
 
 ## 8. 검증
 
-1. `node --test tests/` — 8가지 조합의 `type`, `gauge`, `side`를 확인한다.
+1. `npm test` (`node --test "tests/*.test.mjs"`) — 8가지 조합의 `type`, `gauge`, `side`를 확인한다.
 2. `npx serve .`로 띄우고 브라우저로 메인 → 장면 1~3 → 결과까지 진행한다.
    - 이전 장면으로 돌아갔을 때 선택이 남아 있는지
    - 판정과 비교 막대가 맞게 나오는지

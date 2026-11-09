@@ -105,11 +105,14 @@ function statRow(scene, mine, { A, B }) {
   bar.setAttribute('role', 'img');
   bar.setAttribute('aria-label', `${scene.A} ${pct.A}%, ${scene.B} ${pct.B}%`);
   for (const side of ['A', 'B']) {
+    if (pct[side] === 0) continue;
     const isMine = side === mine;
     // 좁은 칸에는 글자를 넣지 않는다. 숫자는 아래 범례에 항상 있다.
-    const seg = el('div', 'stat__seg', pct[side] >= 25 ? `${scene[side]} ${pct[side]}%` : '');
+    const hasText = pct[side] >= 25;
+    const seg = el('div', 'stat__seg', hasText ? `${scene[side]} ${pct[side]}%` : '');
     seg.style.flexGrow = String(pct[side]);
     seg.style.flexBasis = '0';
+    if (!hasText) seg.style.padding = '0';
     seg.style.background = isMine ? `var(--${side.toLowerCase()})` : `var(--${side.toLowerCase()}-light)`;
     seg.style.color = isMine ? 'var(--white)' : 'var(--ink)';
     bar.append(seg);
