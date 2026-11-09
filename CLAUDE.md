@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Gedanken Lab is a web app where users experience famous thought experiments themselves: ethics experiments (choose, then compare your choice with other people's) and physics experiments (interact to understand the principle). `PLAN.md` is the source of truth for scope, screen flow, per-experiment content, design tokens, and development stages. Read it before starting a new experiment or stage. User-facing text and the docs are in Korean.
+Gedanken Lab is a web app where users experience famous thought experiments themselves: ethics experiments (choose, then compare your choice with other people's) and physics experiments (interact to understand the principle). `docs/PLAN.md` is the source of truth for scope, screen flow, per-experiment content, design tokens, and development stages. Read it before starting a new experiment or stage. User-facing text and the docs are in Korean.
 
 Current state: only the planning docs exist. No application code has been written yet. Stage 1 (main page, the three trolley scenes, and the result screen without stats) is next.
 
@@ -30,5 +30,4 @@ A lab-notebook look: grid-paper background, monospace `EXPERIMENT #01`-style lab
 
 ## Notes
 
-- README links `docs/PLAN.md`, but `PLAN.md` currently sits at the repo root.
-- When an experiment's status or a development stage changes, update the experiment table in `README.md` and the checklist in `PLAN.md`.
+- When an experiment's status or a development stage changes, update the experiment table in `README.md` and the checklist in `docs/PLAN.md`.
