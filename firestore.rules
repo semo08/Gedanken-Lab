@@ -21,7 +21,7 @@ service cloud.firestore {
       allow read: if true;
 
       // 첫 투표: 정해진 문서만, 허용된 키 하나가 1인 상태로 생성
-      allow create: if doc in ['trolley_1', 'trolley_2', 'trolley_3', 'schrodinger']
+      allow create: if doc in ['trolley_1', 'trolley_2', 'trolley_3', 'schrodinger', 'maxwell']
         && request.resource.data.keys().hasOnly(keysFor(doc))
         && request.resource.data.size() == 1
         && total(request.resource.data) == 1;
