@@ -35,11 +35,11 @@ export async function vote(id, choice) {
   rememberVote(id, choice);
 }
 
-/** @returns {Promise<Record<string, {A: number, B: number}>>} 문서나 키가 없으면 0 */
-export async function getCounts(ids) {
+/** @returns {Promise<Record<string, Record<string, number>>>} 문서나 키가 없으면 0 */
+export async function getCounts(ids, keys = ['A', 'B']) {
   const snaps = await Promise.all(ids.map((id) => getDoc(doc(db, 'votes', id))));
   return Object.fromEntries(snaps.map((snap, i) => {
     const data = snap.exists() ? snap.data() : {};
-    return [ids[i], { A: data.A ?? 0, B: data.B ?? 0 }];
+    return [ids[i], Object.fromEntries(keys.map((k) => [k, data[k] ?? 0]))];
   }));
 }

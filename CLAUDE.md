@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Gedanken Lab is a web app where users experience famous thought experiments themselves: ethics experiments (choose, then compare your choice with other people's) and physics experiments (interact to understand the principle). `docs/PLAN.md` is the source of truth for scope, screen flow, per-experiment content, design tokens, and development stages. Read it before starting a new experiment or stage. User-facing text and the docs are in Korean.
 
-Current state: stages 1–2 are done (main page, trolley experiment, Firestore vote ratios). Stage 3 (Schrödinger's cat) is next. Per-feature design specs and plans live in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
+Current state: stages 1–3 are done (main page, trolley, Schrödinger's cat, Firestore vote ratios). Stage 4 (Maxwell's demon, Canvas simulation) is next. Per-feature design specs and plans live in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
 
 ## Running
 
@@ -25,11 +25,11 @@ Only DOM-free, Firebase-free modules (like `experiments/trolley/verdict.js`) are
 - `js/experiments.js` is the experiment registry (`num`, `slug`, `title`, `field`, `blurb`, `ready`). `js/other-experiments.js` renders the "다른 실험 해보기" cards on result screens from it. When adding an experiment, add it there and flip `ready`; the main page cards in `index.html` are hand-written (each has its own illustration) and must be updated separately.
 - Each experiment lives in `experiments/<name>/` as one `index.html` whose steps are `<section data-step="…">` elements; the experiment's JS shows one at a time. Keep scoring/verdict logic in a separate pure module so it can be tested in Node.
 - `js/firebase.js` is the only place that touches Firestore (SDK 13.2.0 from the gstatic CDN). It exports `vote(id, choice)` (skips if `localStorage` key `gedanken:vote:<id>` exists) and `getCounts(ids)`. Experiments load it with a dynamic `import()` so a Firebase/CDN failure only breaks the stats card, not the rest of the result.
-- Firestore: collection `votes`, one doc per question (`trolley_1`..`trolley_3`), integer fields per choice key (`A`, `B`).
+- Firestore: collection `votes`, one doc per question (`trolley_1`..`trolley_3` with `A`/`B`, `schrodinger` with `A`..`D`). `getCounts(ids, keys)` takes the key list (default `['A', 'B']`).
 
 ## Firestore rules
 
-`firestore.rules` is a copy of the rules published in the Firebase console (project `thought-lab-f6471`); editing the file does not deploy it. The rules whitelist doc IDs and keys and only allow +1 increments. Adding a new experiment's question requires adding its doc ID (and any new keys like `C`, `D`) to both the file and the console, or votes will fail with `permission-denied`.
+`firestore.rules` is a copy of the rules published in the Firebase console (project `thought-lab-f6471`); editing the file does not deploy it, so the user must paste it into the console. The rules whitelist doc IDs (the `doc in [...]` list) and per-doc keys (`keysFor()`), and only allow +1 increments. A new question needs its doc ID added there, plus a `keysFor` entry if it uses keys other than `A`/`B`; until the console is updated its votes fail with `permission-denied` (the stats card shows an error, the rest of the result still renders).
 
 ## Design conventions
 

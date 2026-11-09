@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>슈뢰딩거의 고양이 · Gedanken Lab</title>
+  <meta name="description" content="상자를 열기 전, 고양이는 살아 있을까? 직접 상자를 열어 관측해 보자.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23F7F6F0%27/%3E%3Cpath d=%27M12 4h8M14 4v9l-7 13a2 2 0 0 0 2 3h14a2 2 0 0 0 2-3l-7-13V4%27 fill=%27none%27 stroke=%27%231B1F2A%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M10 21h12l3 5H7z%27 fill=%27%23B4470F%27/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="../../css/base.css">
+  <style>
+    .scene-title { font-size: 28px; }
+    .story { font-size: 18px; line-height: 1.8; }
+    .ask { display: flex; flex-direction: column; gap: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .scene-title:focus, .report-title:focus { outline: none; }
+
+    .choices--four { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 640px) { .choices--four { grid-template-columns: 1fr; } }
+    .choice[data-choice="C"] .choice__tag { color: var(--b); }
+    .choice[data-choice="D"] .choice__tag { color: var(--muted); }
+    .choice[data-choice="C"][aria-pressed="true"] { background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); transform: none; }
+    .choice[data-choice="D"][aria-pressed="true"] { background: #F0F1F4; box-shadow: 6px 6px 0 var(--muted); transform: none; }
+
+    /* 관측 상자 */
+    .lab { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .box { width: 100%; max-width: 400px; overflow: visible; }
+    .box .lid, .box .cat { transition: transform 0.5s ease-out, opacity 0.3s; }
+    .box .lid { transform-box: fill-box; transform-origin: center; }
+    .box .cat { transform: translateY(90px); opacity: 0; }
+    .box .mark { transition: opacity 0.2s; }
+    .box[data-state="alive"] .lid,
+    .box[data-state="dead"] .lid { transform: translate(-40px, -110px) rotate(-10deg); }
+    .box[data-state="alive"] .cat--alive,
+    .box[data-state="dead"] .cat--dead { transform: none; opacity: 1; }
+    .box:not([data-state="closed"]) .mark { opacity: 0; }
+
+    .observed { font-size: 22px; font-weight: 700; min-height: 1.5em; text-align: center; }
+    .observed--alive { color: var(--b); }
+    .observed--dead { color: var(--a); }
+    .observed--closed { color: var(--muted); font-weight: 500; font-size: 17px; }
+
+    .tally { width: 100%; display: flex; flex-direction: column; gap: 10px; border-top: 1px dashed var(--rule); padding-top: 16px; }
+    .tally__chips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 16px; }
+    .chip { width: 16px; height: 16px; border: 2px solid var(--ink); }
+    .chip--alive { background: var(--b); }
+    .chip--dead { background: var(--a-light); }
+    .tally__text { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+
+    /* 결과 */
+    .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
+    .report-title { font-size: 36px; line-height: 1.3; }
+    .report-title span { color: var(--b); }
+
+    .stances { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .stance { border: 2px dashed var(--dash); padding: 20px; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.6); }
+    .stance h3 { margin: 0; font-size: 18px; }
+    .stance p { font-size: 15px; line-height: 1.6; color: var(--muted); }
+    .stance--mine { border: 2px solid var(--ink); background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); }
+    .stance--mine p { color: var(--ink); }
+
+    .bar { display: flex; height: 28px; border: 1px solid var(--ink); }
+    .bar > div { transition: flex-grow 0.6s ease-out; }
+    .legend { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 15px; }
+    .legend li { display: flex; align-items: center; gap: 10px; }
+    .legend__swatch { width: 14px; height: 14px; border: 1px solid var(--ink); flex: none; }
+    .legend__pct { font-family: var(--mono); margin-left: auto; }
+    .legend__mine { font-family: var(--mono); font-size: 13px; color: var(--b); }
+    .stat-status, .stat-total { font-family: var(--mono); font-size: 14px; color: var(--muted); }
+
+    .refs { font-size: 13px; line-height: 1.7; color: var(--muted); margin: 0; padding-left: 18px; }
+    .refs cite { font-style: italic; }
+
+    .only-narrow { display: none; }
+
+    @media (max-width: 480px) {
+      .card svg.scene-art text { font-size: 26px; }
+      .only-wide { display: none; }
+      .only-narrow { display: inline; }
+      .scene-title { font-size: 24px; }
+      .story { font-size: 16px; }
+      .report-title { font-size: 28px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .box .lid, .box .cat { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-bar">
+    <a class="site-bar__logo" href="../../">GEDANKEN LAB</a>
+    <a href="../../">← 메인</a>
+  </header>
+  <main class="page">
+
+    <!-- ── 1단계: 상황 + 질문 ── -->
+    <section class="container" data-step="1">
+      <div class="row" style="justify-content: flex-end; min-height: 41px">
+        <div class="progress">
+          <span class="label label--muted">EXP #02 · 단계 1 / 2</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="label">관찰 기록 · 실험 장치</span>
+        <svg class="scene-art" role="img" aria-label="닫힌 상자 안에 방사성 원자, 가이거 계수기, 망치, 독약 병, 그리고 고양이가 있다" viewBox="0 0 880 250" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <rect x="140" y="40" width="600" height="180" fill="#F7F6F0"/>
+          <path d="M130 40 H750" stroke-width="4"/>
+          <!-- 방사성 원자 -->
+          <circle cx="215" cy="175" r="6" fill="#B4470F" stroke="none"/>
+          <ellipse cx="215" cy="175" rx="24" ry="9"/>
+          <ellipse cx="215" cy="175" rx="24" ry="9" transform="rotate(60 215 175)"/>
+          <ellipse cx="215" cy="175" rx="24" ry="9" transform="rotate(120 215 175)"/>
+          <!-- 가이거 계수기 -->
+          <rect x="270" y="160" width="70" height="44" rx="4" fill="#FFFFFF"/>
+          <path d="M282 192 A 18 18 0 0 1 318 192"/><path d="M300 192 L311 178" stroke="#B4470F"/>
+          <path d="M340 172 H380 V100 H392" stroke-dasharray="4 4"/>
+          <!-- 망치 -->
+          <path d="M392 100 H440"/><rect x="440" y="88" width="18" height="26" fill="#1B1F2A" stroke="none"/>
+          <!-- 독약 병 -->
+          <rect x="437" y="138" width="24" height="12" fill="#FFFFFF"/>
+          <rect x="430" y="150" width="38" height="54" rx="8" fill="#FFFFFF"/>
+          <rect x="433" y="174" width="32" height="27" rx="5" fill="#F3C9AE" stroke="none"/>
+          <!-- 고양이 -->
+          <ellipse cx="600" cy="186" rx="56" ry="26" fill="#FFFFFF"/>
+          <path d="M546 186 Q506 182 516 140"/>
+          <path d="M630 152 L634 126 L650 146 Z M664 146 L680 126 L682 152 Z" fill="#FFFFFF"/>
+          <circle cx="658" cy="162" r="24" fill="#FFFFFF"/>
+          <g fill="#1B1F2A" stroke="none"><circle cx="650" cy="158" r="3"/><circle cx="666" cy="158" r="3"/></g>
+          <path d="M654 170 Q658 174 662 170"/>
+          <!-- 라벨 -->
+          <g font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">
+            <text x="215" y="140">원자</text>
+            <text x="305" y="148">계수기</text>
+            <text x="449" y="78">망치</text>
+            <text x="449" y="244" fill="#B4470F">독약</text>
+            <text x="600" y="244">고양이</text>
+          </g>
+          <text class="only-wide" x="440" y="22" font-family="IBM Plex Mono, monospace" font-size="14" fill="#5B6170" stroke="none" text-anchor="middle">밖에서는 안을 볼 수 없는 상자</text>
+          <text class="only-narrow" x="440" y="26" font-family="IBM Plex Mono, monospace" font-size="14" fill="#5B6170" stroke="none" text-anchor="middle">닫힌 상자</text>
+        </svg>
+        <p class="story">상자 안에 고양이 한 마리와 방사성 원자 하나가 있다. 1시간 안에 이 원자가 붕괴할 확률은 정확히 <strong>50%</strong>. 붕괴하면 계수기가 감지해 망치가 독약 병을 깨뜨리고, 고양이는 죽는다. 양자역학에 따르면 관측하기 전의 원자는 <strong>붕괴한 상태와 붕괴하지 않은 상태가 겹쳐 있다.</strong> 1시간이 지났다.</p>
+      </div>
+      <div class="ask">
+        <h1 class="scene-title" tabindex="-1">상자를 열기 전, 고양이는?</h1>
+        <div class="choices choices--four">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">살아 있다</span>
+            <span class="choice__desc">우리가 모를 뿐, 이미 살아 있는 쪽으로 정해져 있다</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">죽었다</span>
+            <span class="choice__desc">우리가 모를 뿐, 이미 죽은 쪽으로 정해져 있다</span>
+          </button>
+          <button type="button" class="choice" data-choice="C" aria-pressed="false">
+            <span class="choice__tag">선택 C</span>
+            <span class="choice__title">둘 다</span>
+            <span class="choice__desc">살아 있는 상태와 죽은 상태가 동시에 겹쳐 있다</span>
+          </button>
+          <button type="button" class="choice" data-choice="D" aria-pressed="false">
+            <span class="choice__tag">선택 D</span>
+            <span class="choice__title">알 수 없다</span>
+            <span class="choice__desc">열어 보기 전에는 묻는 것 자체가 의미 없다</span>
+          </button>
+        </div>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 입장이 기록되었다</span>
+          <button type="button" class="btn" data-go="2">상자 앞으로 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2단계: 관측 ── -->
+    <section class="container" data-step="2" hidden>
+      <div class="row">
+        <button type="button" class="back-link" data-go="1">← 이전 단계</button>
+        <div class="progress">
+          <span class="label label--muted">EXP #02 · 단계 2 / 2</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <span class="label">관찰 기록 · 관측</span>
+          <span class="label label--muted label--a" id="box-number">상자 #1</span>
+        </div>
+        <h1 class="scene-title" tabindex="-1">상자를 열어 보자</h1>
+        <div class="lab">
+          <svg class="box" id="box" data-state="closed" viewBox="0 0 400 300" fill="none" stroke="#1B1F2A" stroke-width="2.5" aria-hidden="true">
+            <!-- 살아 있는 고양이 -->
+            <g class="cat cat--alive">
+              <path d="M176 104 L172 74 L198 96 Z M202 96 L228 74 L224 104 Z" fill="#FFFFFF"/>
+              <circle cx="200" cy="122" r="32" fill="#FFFFFF"/>
+              <g fill="#1B1F2A" stroke="none"><circle cx="188" cy="116" r="4"/><circle cx="212" cy="116" r="4"/></g>
+              <path d="M194 130 Q200 136 206 130" stroke-width="2"/>
+              <path d="M160 124 H178 M160 132 L178 129 M222 124 H240 M222 129 L240 132" stroke-width="1.5"/>
+            </g>
+            <!-- 쓰러진 고양이 -->
+            <g class="cat cat--dead">
+              <g transform="rotate(-14 200 128)">
+                <path d="M174 110 L156 94 L190 102 Z M210 102 L244 94 L226 110 Z" fill="#FFFFFF"/>
+                <circle cx="200" cy="128" r="32" fill="#FFFFFF"/>
+                <path d="M182 116 L194 128 M194 116 L182 128 M206 116 L218 128 M218 116 L206 128" stroke-width="2.5"/>
+                <path d="M193 140 H207" stroke-width="2"/>
+              </g>
+            </g>
+            <!-- 상자 몸통 -->
+            <rect x="80" y="150" width="240" height="140" fill="#F7F6F0"/>
+            <path d="M80 190 H320" stroke="#CBD2DE" stroke-width="1.5"/>
+            <text class="mark" x="200" y="252" font-family="IBM Plex Mono, monospace" font-size="56" font-weight="600" fill="#1B1F2A" stroke="none" text-anchor="middle">?</text>
+            <!-- 뚜껑 -->
+            <g class="lid">
+              <rect x="70" y="128" width="260" height="24" fill="#FFFFFF"/>
+              <rect x="186" y="120" width="28" height="8" fill="#1B1F2A" stroke="none"/>
+            </g>
+          </svg>
+          <p class="observed observed--closed" id="observed" aria-live="polite">닫힌 상자 · 아직 아무도 모른다</p>
+          <div class="row" style="justify-content: center">
+            <button type="button" class="btn" id="open-box">상자를 연다</button>
+            <button type="button" class="btn btn--ghost" id="reset-box" hidden>새 상자 준비</button>
+          </div>
+          <div class="tally">
+            <div class="tally__chips" id="tally-chips" aria-hidden="true"></div>
+            <p class="tally__text" id="tally-text">아직 열어 본 상자가 없다 · 3번 이상 열어 보자</p>
+          </div>
+        </div>
+      </div>
+      <div class="row next" hidden>
+        <span class="label label--muted">✓ 관측 기록 충분 · 더 열어 봐도 좋다</span>
+        <button type="button" class="btn btn--a" data-go="result">실험 결과 보기 →</button>
+      </div>
+    </section>
+
+    <!-- ── 결과 ── -->
+    <section class="container" data-step="result" hidden>
+      <div class="report-head">
+        <span class="label label--muted label--spaced">EXP #02 · 실험 결과 보고서</span>
+        <h1 class="report-title" tabindex="-1">당신은 <span id="stance-name"></span>에 가깝다</h1>
+        <p class="lead" id="stance-line"></p>
+      </div>
+
+      <div class="card card--tight">
+        <div class="row">
+          <span class="label">측정값 · 해석 지도</span>
+          <span class="label label--muted" id="my-answer"></span>
+        </div>
+        <div class="stances" id="stances"></div>
+        <p class="disclaimer" style="font-size: 13px; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 12px">세 해석 모두 지금까지의 실험 결과를 똑같이 설명한다. 어느 쪽이 맞는지는 아직 물리학자들 사이에서도 논쟁 중이다.</p>
+      </div>
+
+      <div class="card card--tight">
+        <span class="label">관측 데이터 · 당신이 연 상자들</span>
+        <div class="tally__chips" id="result-chips" aria-hidden="true"></div>
+        <p style="font-size: 17px; font-weight: 700" id="result-tally"></p>
+        <p style="font-size: 16px; line-height: 1.8">상자를 열 때마다 고양이는 <strong>살아 있거나 쓰러져 있거나, 둘 중 하나</strong>였다. 겹친 상태를 본 사람은 없다. 그런데 많이 열수록 비율은 반반에 가까워진다. 양자역학이 예측하는 것은 한 번의 결과가 아니라 바로 이 <strong>확률</strong>이다.</p>
+      </div>
+
+      <div class="card card--tight" aria-live="polite">
+        <span class="label">비교 데이터 · 다른 실험자들의 입장</span>
+        <p class="stat-status" id="stats-status">기록 불러오는 중…</p>
+        <div id="stats" style="display: flex; flex-direction: column; gap: 16px"></div>
+      </div>
+
+      <div class="card card--tight card--note">
+        <span class="label label--a">고찰 · 생각해볼 점</span>
+        <h2 style="font-size: 22px">슈뢰딩거는 이 실험으로 무엇을 말하고 싶었을까?</h2>
+        <p style="font-size: 16px; line-height: 1.8">1935년 에르빈 슈뢰딩거는 이 실험을 양자역학을 설명하려고가 아니라 <strong>비판하려고</strong> 만들었다. 원자 하나의 중첩을 그대로 받아들이면, 고양이처럼 큰 물체도 "살아 있으면서 죽어 있는" 상태가 되어야 한다. 그는 그것이 말이 안 된다고 보았다.</p>
+        <p style="font-size: 16px; line-height: 1.8">오늘날에는 상자 속 고양이처럼 큰 물체는 공기 분자, 빛 등 주변과 끊임없이 부딪히면서 중첩이 순식간에 깨진다고 설명한다(<strong>결어긋남</strong>). 하지만 그것만으로 "왜 하나의 결과만 보이는가"가 완전히 풀리지는 않았고, 그래서 해석 논쟁은 계속되고 있다.</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span class="label label--muted">참고 문헌</span>
+        <ol class="refs">
+          <li>Erwin Schrödinger, <cite>Die gegenwärtige Situation in der Quantenmechanik</cite>, Naturwissenschaften (1935)</li>
+          <li>Einstein, Podolsky &amp; Rosen, <cite>Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?</cite>, Physical Review (1935)</li>
+          <li>David Bohm, <cite>A Suggested Interpretation of the Quantum Theory in Terms of "Hidden" Variables</cite>, Physical Review (1952)</li>
+          <li>Hugh Everett III, <cite>"Relative State" Formulation of Quantum Mechanics</cite>, Reviews of Modern Physics (1957)</li>
+        </ol>
+      </div>
+
+      <div>
+        <button type="button" class="btn btn--ghost" data-restart>↺ 다시 실험하기</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; border-top: 2px solid var(--ink); padding-top: 28px; margin-top: 12px">
+        <h2 style="font-size: 22px">다른 실험 해보기</h2>
+        <div class="experiments" id="other-experiments"></div>
+      </div>
+    </section>
+
+  </main>
+  <script type="module" src="schrodinger.js"></script>
+</body>
+</html>
