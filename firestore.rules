@@ -2,21 +2,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /votes/{doc} {
+      // 문서별 허용 선택지. 새 질문을 추가하면 여기에 넣는다.
+      function keysFor(id) {
+        return id == 'schrodinger' ? ['A', 'B', 'C', 'D'] : ['A', 'B'];
+      }
+
+      function total(data) {
+        return data.get('A', 0) + data.get('B', 0) + data.get('C', 0) + data.get('D', 0);
+      }
+
+      function noneDecreased() {
+        return request.resource.data.get('A', 0) >= resource.data.get('A', 0)
+          && request.resource.data.get('B', 0) >= resource.data.get('B', 0)
+          && request.resource.data.get('C', 0) >= resource.data.get('C', 0)
+          && request.resource.data.get('D', 0) >= resource.data.get('D', 0);
+      }
+
       allow read: if true;
 
-      // 첫 투표: 정해진 문서만, A 또는 B 하나가 1인 상태로 생성
-      allow create: if doc in ['trolley_1', 'trolley_2', 'trolley_3']
-        && request.resource.data.keys().hasOnly(['A', 'B'])
+      // 첫 투표: 정해진 문서만, 허용된 키 하나가 1인 상태로 생성
+      allow create: if doc in ['trolley_1', 'trolley_2', 'trolley_3', 'schrodinger']
+        && request.resource.data.keys().hasOnly(keysFor(doc))
         && request.resource.data.size() == 1
-        && request.resource.data.get('A', 0) + request.resource.data.get('B', 0) == 1;
+        && total(request.resource.data) == 1;
 
       // 이후 투표: 키 하나만, 합계가 정확히 1 증가, 줄어드는 값 없음
-      allow update: if request.resource.data.keys().hasOnly(['A', 'B'])
+      allow update: if request.resource.data.keys().hasOnly(keysFor(doc))
         && request.resource.data.diff(resource.data).affectedKeys().size() == 1
-        && request.resource.data.get('A', 0) + request.resource.data.get('B', 0)
-           == resource.data.get('A', 0) + resource.data.get('B', 0) + 1
-        && request.resource.data.get('A', 0) >= resource.data.get('A', 0)
-        && request.resource.data.get('B', 0) >= resource.data.get('B', 0);
+        && total(request.resource.data) == total(resource.data) + 1
+        && noneDecreased();
     }
   }
 }
