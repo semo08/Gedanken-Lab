@@ -32,19 +32,7 @@ gedanken-lab/
 ## 2. Firebase
 
 - SDK는 CDN의 ES 모듈로 불러온다: `https://www.gstatic.com/firebasejs/<버전>/firebase-app.js`, `.../firebase-firestore.js`. PLAN.md의 13.2.0이 실제로 있는지 구현 때 확인하고, 없으면 최신 안정 버전을 쓴다.
-- config는 `js/firebase.js`에 그대로 커밋한다. 웹 config는 공개 값이고, 보안은 규칙이 맡는다. Analytics는 초기화하지 않는다.
-
-```js
-const firebaseConfig = {
-  apiKey: "AIzaSyCYIObhrbmtlN7SSe_aHS_dQGvhCDaSSQY",
-  authDomain: "thought-lab-f6471.firebaseapp.com",
-  projectId: "thought-lab-f6471",
-  storageBucket: "thought-lab-f6471.firebasestorage.app",
-  messagingSenderId: "752855277616",
-  appId: "1:752855277616:web:d0caba5d57287a64c34df5",
-  measurementId: "G-CHX9YV4FGH"
-};
-```
+- config(프로젝트 `thought-lab-f6471`)는 `js/firebase.js`에만 둔다. 웹 config는 클라이언트에 공개되는 값이고, 데이터 보호는 보안 규칙이, 키 남용 방지는 Google Cloud 콘솔의 API 키 제한(웹사이트 리퍼러 + Cloud Firestore API만 허용)이 맡는다. Analytics는 초기화하지 않는다.
 
 ### API
 

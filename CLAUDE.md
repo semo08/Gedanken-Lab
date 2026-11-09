@@ -38,3 +38,4 @@ Lab-notebook look: grid-paper background, monospace `EXPERIMENT #01`-style label
 ## Notes
 
 - When an experiment's status or a development stage changes, update the experiment table in `README.md` and the checklist in `docs/PLAN.md`.
+- The repo is public. Keep the Firebase config only in `js/firebase.js`; don't copy it into docs or specs. The web API key is restricted in Google Cloud (HTTP referrers + Cloud Firestore API only), so a new deploy domain must be added to the key's allowed referrers or Firestore calls will fail.
