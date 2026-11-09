@@ -2,6 +2,8 @@
 
 > *Experience famous thought experiments yourself.*
 
+🔗 **사이트:** https://semo08.github.io/Gedanken-Lab/
+
 **Gedanken**은 독일어로 "생각"이라는 뜻이다. 아인슈타인이 사고실험을 *Gedankenexperiment*라고 부른 데서 이름을 따왔다.
 
 ## 실험 목록
