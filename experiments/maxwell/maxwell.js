@@ -5,6 +5,7 @@ import { renderOtherExperiments } from '../../js/other-experiments.js';
 const VOTE_ID = 'maxwell';
 const WIN_DIFF = 12;      // "2법칙을 깼다?!" 기준 온도 차 (완벽한 악마 기준 중앙값 약 20초)
 const CAPACITY = 8;       // 반전 이후 악마의 기억 용량(비트)
+const SKIP_AFTER = 5;     // 기록이 이만큼 쌓여야 건너뛰기를 보여 준다(0비트로 반전하면 지울 기억이 없다)
 const MAX_ENTROPY = 40;   // 입자 40개가 다 섞였을 때
 const SCALE = MAX_ENTROPY * 2; // 장부 막대의 눈금
 
@@ -120,6 +121,8 @@ function update() {
   $('room-value').textContent = `${room.toFixed(1)} / 처음 ${state.ledger.start.toFixed(1)}`;
   $('room-fill').style.width = pct(room, MAX_ENTROPY);
   $('room-start').style.left = pct(state.ledger.start, MAX_ENTROPY);
+
+  if (state.phase === 'sort') $('skip').hidden = state.ledger.stored < SKIP_AFTER;
 
   if (state.phase === 'sort' && !state.bannerShown && diff >= WIN_DIFF) {
     state.bannerShown = true;
@@ -324,6 +327,7 @@ function restart() {
   $('ledger').hidden = true;
   $('to-result').hidden = true;
   $('sort-footer').hidden = false;
+  $('skip').hidden = true;
   $('hint').textContent = '문 근처에 빠른 입자가 오른쪽에서 다가올 때 열어 보자';
   show(1);
 }

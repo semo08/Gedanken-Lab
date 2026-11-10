@@ -26,7 +26,11 @@
     .temp--right .temp__value { color: var(--b); }
     .temp-diff { font-family: var(--mono); font-size: 13px; color: var(--muted); text-align: center; padding-bottom: 6px; }
 
-    .chamber { width: 100%; aspect-ratio: 2 / 1; display: block; border: 2px solid var(--ink); background: var(--white); }
+    /* 노트북처럼 낮은 화면에서도 캔버스와 문 버튼이 한 화면에 들어오게 높이를 제한한다 (2:1 비율 유지) */
+    .chamber {
+      width: 100%; max-width: max(400px, calc((100vh - 470px) * 2)); margin-inline: auto;
+      aspect-ratio: 2 / 1; display: block; border: 2px solid var(--ink); background: var(--white);
+    }
 
     .controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
     .legend-inline { display: flex; gap: 16px; font-size: 14px; color: var(--muted); }
@@ -204,7 +208,7 @@
 
         <div class="row" id="sort-footer">
           <span class="label label--muted" id="hint">문 근처에 빠른 입자가 오른쪽에서 다가올 때 열어 보자</span>
-          <button type="button" class="skip" id="skip">어려우면 건너뛰기</button>
+          <button type="button" class="skip" id="skip" hidden>어려우면 건너뛰기</button>
         </div>
       </div>
 

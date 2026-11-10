@@ -34,6 +34,8 @@ body {
     linear-gradient(90deg, rgba(31, 78, 156, 0.08) 1px, transparent 1px);
   background-size: 24px 24px;
   -webkit-text-size-adjust: 100%;
+  word-break: keep-all; /* 한글을 단어 중간에서 줄바꿈하지 않는다 */
+  overflow-wrap: break-word; /* 화면보다 긴 단어만 예외로 자른다 */
 }
 
 a { color: var(--b); }
