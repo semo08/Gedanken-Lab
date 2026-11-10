@@ -4,7 +4,9 @@ service cloud.firestore {
     match /votes/{doc} {
       // 문서별 허용 선택지. 새 질문을 추가하면 여기에 넣는다.
       function keysFor(id) {
-        return id == 'schrodinger' ? ['A', 'B', 'C', 'D'] : ['A', 'B'];
+        return id == 'schrodinger' ? ['A', 'B', 'C', 'D']
+          : id in ['twin', 'chinese_room'] ? ['A', 'B', 'C']
+          : ['A', 'B'];
       }
 
       function total(data) {
@@ -21,7 +23,10 @@ service cloud.firestore {
       allow read: if true;
 
       // 첫 투표: 정해진 문서만, 허용된 키 하나가 1인 상태로 생성
-      allow create: if doc in ['trolley_1', 'trolley_2', 'trolley_3', 'schrodinger', 'maxwell']
+      allow create: if doc in [
+          'trolley_1', 'trolley_2', 'trolley_3', 'schrodinger', 'maxwell', 'twin',
+          'imitation_1', 'imitation_2', 'imitation_3', 'imitation_turing', 'chinese_room'
+        ]
         && request.resource.data.keys().hasOnly(keysFor(doc))
         && request.resource.data.size() == 1
         && total(request.resource.data) == 1;

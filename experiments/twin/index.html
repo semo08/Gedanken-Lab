@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>쌍둥이 역설 · Gedanken Lab</title>
+  <meta name="description" content="쌍둥이 중 한 명이 빛에 가까운 속도로 먼 별에 다녀온다. 다시 만났을 때 누가 더 젊을까?">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23F7F6F0%27/%3E%3Cpath d=%27M12 4h8M14 4v9l-7 13a2 2 0 0 0 2 3h14a2 2 0 0 0 2-3l-7-13V4%27 fill=%27none%27 stroke=%27%231B1F2A%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M10 21h12l3 5H7z%27 fill=%27%23B4470F%27/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="../../css/base.css">
+  <style>
+    .scene-title { font-size: 28px; }
+    .story { font-size: 18px; line-height: 1.8; }
+    .ask { display: flex; flex-direction: column; gap: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .scene-title:focus, .report-title:focus { outline: none; }
+
+    .choices--three { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .choice[data-choice="C"] .choice__tag { color: var(--muted); }
+    .choice[data-choice="C"][aria-pressed="true"] { background: #F0F1F4; box-shadow: 6px 6px 0 var(--muted); transform: none; }
+
+    /* 여행 계획 */
+    fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+    legend { padding: 0; margin-bottom: 12px; }
+    .dests { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .dest { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px; border: 2px solid var(--ink); background: var(--white); cursor: pointer; }
+    .dest input { position: absolute; opacity: 0; pointer-events: none; }
+    .dest__name { font-weight: 700; font-size: 17px; }
+    .dest__dist { font-family: var(--mono); font-size: 14px; color: var(--a); }
+    .dest__note { font-size: 13px; color: var(--muted); }
+    .dest:has(input:checked) { background: var(--a-tint); box-shadow: 5px 5px 0 var(--a); }
+    .dest:has(input:focus-visible) { outline: 3px solid var(--b); outline-offset: 3px; }
+    .dest:has(input:disabled) { cursor: not-allowed; opacity: 0.6; }
+
+    .speed { display: flex; flex-direction: column; gap: 8px; }
+    .speed__value { font-family: var(--mono); font-size: 28px; font-weight: 600; color: var(--a); }
+    .speed input[type="range"] { width: 100%; accent-color: var(--a); min-height: 32px; }
+    /* 라벨은 JS가 실제 칸 위치에 놓는다. 손잡이 폭(약 16px)만큼 양 끝을 안쪽으로 보정 */
+    .speed__marks { position: relative; height: 16px; margin: 0 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    .speed__marks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+    .speed__marks span:first-child { transform: translateX(-30%); }
+    .speed__marks span:last-child { transform: translateX(-70%); }
+
+    .track { position: relative; height: 96px; border-top: 1px dashed var(--rule); border-bottom: 1px dashed var(--rule); }
+    .track__end { position: absolute; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .track__end--earth { left: 0; }
+    .track__end--star { right: 0; }
+    .ship { position: absolute; left: 56px; top: 50%; margin-top: -14px; width: 48px; height: 28px; }
+    .trip-status { font-family: var(--mono); font-size: 14px; color: var(--muted); min-height: 1.4em; text-align: center; }
+
+    /* 결과 */
+    .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
+    .report-title { font-size: 34px; line-height: 1.3; }
+    .verdict-tag { font-family: var(--mono); font-size: 13px; padding: 4px 10px; border: 1px solid currentColor; }
+
+    .ages { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .age { display: flex; flex-direction: column; gap: 4px; padding: 16px; border: 2px solid var(--ink); }
+    .age--earth { background: var(--b-tint); }
+    .age--ship { background: var(--a-tint); }
+    .age__value { font-family: var(--mono); font-size: 32px; font-weight: 600; line-height: 1.1; }
+    .age--earth .age__value { color: var(--b); }
+    .age--ship .age__value { color: var(--a); }
+    .age__clock { font-size: 14px; color: var(--muted); }
+    .age-diff { font-size: 17px; }
+
+    .diagram-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .diagram { width: 100%; max-width: 400px; height: auto; }
+    .diagram-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; font-size: 13px; color: var(--muted); }
+    .diagram-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch-line { width: 18px; height: 3px; display: inline-block; }
+
+    .cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .case { border: 2px dashed var(--dash); background: rgba(255, 255, 255, 0.6); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .case h3 { margin: 0; font-size: 17px; }
+    .case p { font-size: 15px; line-height: 1.7; color: var(--ink); }
+
+    .bar { display: flex; height: 28px; border: 1px solid var(--ink); }
+    .legend { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 15px; }
+    .legend li { display: flex; align-items: center; gap: 10px; }
+    .legend__swatch { width: 14px; height: 14px; border: 1px solid var(--ink); flex: none; }
+    .legend__pct { font-family: var(--mono); margin-left: auto; }
+    .legend__mine { font-family: var(--mono); font-size: 13px; color: var(--b); }
+    .stat-status, .stat-total { font-family: var(--mono); font-size: 14px; color: var(--muted); }
+
+    .refs { font-size: 13px; line-height: 1.7; color: var(--muted); margin: 0; padding-left: 18px; }
+    .refs cite { font-style: italic; }
+
+    @media (max-width: 480px) {
+      .card svg.scene-art text { font-size: 26px; }
+      .scene-title { font-size: 24px; }
+      .story { font-size: 16px; }
+      .report-title { font-size: 26px; }
+      .ages { grid-template-columns: 1fr; }
+      .age__value { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-bar">
+    <a class="site-bar__logo" href="../../">GEDANKEN LAB</a>
+    <a href="../../">← 메인</a>
+  </header>
+  <main class="page">
+
+    <!-- ── 1단계: 상황 + 예측 ── -->
+    <section class="container" data-step="1">
+      <div class="row" style="justify-content: flex-end; min-height: 41px">
+        <div class="progress">
+          <span class="label label--muted">EXP #04 · 단계 1 / 2</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="label">관찰 기록 · 상황</span>
+        <svg class="scene-art" role="img" aria-label="지구 위에 쌍둥이 두 사람이 서 있고, 한 명은 우주선을 타고 먼 별을 향해 떠난다" viewBox="0 0 880 220" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <!-- 지구 -->
+          <circle cx="150" cy="150" r="70" fill="#EEF3FB"/>
+          <path d="M100 120 Q130 105 150 125 T200 120 M95 165 Q125 155 145 175 T205 170" stroke="#1F4E9C" stroke-width="1.5"/>
+          <!-- 지구 쌍둥이 -->
+          <circle cx="150" cy="58" r="9" fill="#FFFFFF" stroke="#1F4E9C" stroke-width="2.5"/><path d="M150 67 V82" stroke="#1F4E9C" stroke-width="3"/>
+          <!-- 우주선과 우주 쌍둥이 -->
+          <g transform="translate(330 70)">
+            <path d="M0 14 L40 0 L64 14 L40 28 Z" fill="#FFFFFF"/>
+            <path d="M0 14 L-14 6 M0 14 L-14 22" stroke="#B4470F" stroke-width="2.5"/>
+            <circle cx="38" cy="14" r="5" fill="#B4470F" stroke="none"/>
+          </g>
+          <path d="M420 84 H760" stroke-dasharray="6 8"/>
+          <path d="M748 76 L760 84 L748 92" />
+          <!-- 별 -->
+          <path d="M810 64 L816 80 L834 82 L820 92 L825 110 L810 100 L795 110 L800 92 L786 82 L804 80 Z" fill="#B4470F" stroke="none"/>
+          <g font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">
+            <text x="150" y="38" fill="#1F4E9C">지구에 남는 쪽</text>
+            <text x="362" y="128" fill="#B4470F">떠나는 쪽</text>
+            <text x="810" y="140">먼 별</text>
+            <text x="590" y="70">빛에 가까운 속도</text>
+          </g>
+        </svg>
+        <p class="story">20살 쌍둥이가 있다. 한 명은 빛에 가까운 속도로 나는 우주선을 타고 먼 별에 다녀오고, 다른 한 명은 지구에 남아 기다린다. 아인슈타인의 상대성이론에 따르면 <strong>빠르게 움직이는 쪽의 시간은 느리게 간다.</strong> 그런데 우주선에서 보면 멀어졌다 돌아온 건 지구 쪽이다. 서로 상대의 시간이 느리다고 말할 수 있다면, 다시 만났을 때는 어떻게 될까?</p>
+      </div>
+      <div class="ask">
+        <h1 class="scene-title" tabindex="-1">다시 만났을 때, 누가 더 젊을까?</h1>
+        <div class="choices choices--three">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">지구에 남은 쪽</span>
+            <span class="choice__desc">우주선에서 보면 움직인 건 지구다</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">우주에 다녀온 쪽</span>
+            <span class="choice__desc">빠르게 움직인 쪽의 시간이 느리게 간다</span>
+          </button>
+          <button type="button" class="choice" data-choice="C" aria-pressed="false">
+            <span class="choice__tag">선택 C</span>
+            <span class="choice__title">똑같다</span>
+            <span class="choice__desc">서로 상대가 느리다면, 결국 비긴다</span>
+          </button>
+        </div>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 예측이 기록되었다</span>
+          <button type="button" class="btn" data-go="2">여행 준비 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 2단계: 여행 설정 + 출발 ── -->
+    <section class="container" data-step="2" hidden>
+      <div class="row">
+        <button type="button" class="back-link" data-go="1" id="back-to-1">← 이전 단계</button>
+        <div class="progress">
+          <span class="label label--muted">EXP #04 · 단계 2 / 2</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="label">관찰 기록 · 여행 계획</span>
+        <h1 class="scene-title" tabindex="-1">어디로, 얼마나 빠르게 갈까?</h1>
+
+        <fieldset>
+          <legend class="label label--muted">목적지</legend>
+          <div class="dests" id="dests"></div>
+        </fieldset>
+
+        <div class="speed">
+          <div class="row">
+            <label class="label label--muted" for="speed">우주선 속도</label>
+            <output class="speed__value" id="speed-value" for="speed"></output>
+          </div>
+          <input type="range" id="speed" min="0" max="7" step="1" value="3">
+          <div class="speed__marks" id="speed-marks" aria-hidden="true"></div>
+        </div>
+
+        <div class="track" id="track">
+          <div class="track__end track__end--earth">
+            <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="#EEF3FB" stroke="#1F4E9C" stroke-width="2"/></svg>
+            <span>지구</span>
+          </div>
+          <svg class="ship" id="ship" viewBox="0 0 48 28" aria-hidden="true" fill="none" stroke="#1B1F2A" stroke-width="2">
+            <path d="M2 14 L28 3 L46 14 L28 25 Z" fill="#FFFFFF"/>
+            <circle cx="27" cy="14" r="4" fill="#B4470F" stroke="none"/>
+          </svg>
+          <div class="track__end track__end--star">
+            <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><path d="M18 3 L22 14 L33 15 L24 22 L27 33 L18 27 L9 33 L12 22 L3 15 L14 14 Z" fill="#B4470F"/></svg>
+            <span id="star-name"></span>
+          </div>
+        </div>
+        <p class="trip-status" id="trip-status" aria-live="polite"></p>
+
+        <div class="row">
+          <span class="label label--muted" id="trip-summary"></span>
+          <button type="button" class="btn btn--a" id="launch">출발 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 결과 ── -->
+    <section class="container" data-step="result" hidden>
+      <div class="report-head">
+        <span class="label label--muted label--spaced">EXP #04 · 실험 결과 보고서</span>
+        <h1 class="report-title" tabindex="-1">다시 만났을 때, 우주에 다녀온 쪽이 더 젊었다</h1>
+        <p class="lead" id="trip-line"></p>
+      </div>
+
+      <div class="card card--tight">
+        <div class="row">
+          <span class="label">측정값 · 예측과 결과</span>
+          <span class="verdict-tag" id="verdict-tag"></span>
+        </div>
+        <p style="font-size: 17px; line-height: 1.7" id="verdict-text"></p>
+      </div>
+
+      <div class="card card--tight">
+        <span class="label">측정값 · 다시 만난 날</span>
+        <div class="ages">
+          <div class="age age--earth">
+            <span class="label label--muted">지구에 남은 쪽</span>
+            <span class="age__value" id="age-earth"></span>
+            <span class="age__clock" id="clock-earth"></span>
+          </div>
+          <div class="age age--ship">
+            <span class="label label--muted">우주에 다녀온 쪽</span>
+            <span class="age__value" id="age-ship"></span>
+            <span class="age__clock" id="clock-ship"></span>
+          </div>
+        </div>
+        <p class="age-diff" id="age-diff"></p>
+      </div>
+
+      <div class="card card--tight">
+        <span class="label">관찰 기록 · 시공간 다이어그램</span>
+        <p style="font-size: 15px; line-height: 1.7; color: var(--muted)">위로 갈수록 시간이 흐르고, 옆으로 갈수록 지구에서 멀어진다. 두 사람이 지나온 길을 그렸다. 점은 각자의 시계로 같은 시간이 흐를 때마다 찍었다.</p>
+        <div class="diagram-wrap">
+          <svg class="diagram" id="diagram" role="img"></svg>
+          <div class="diagram-legend">
+            <span><i class="swatch-line" style="background: var(--b)"></i>지구 쌍둥이</span>
+            <span><i class="swatch-line" style="background: var(--a)"></i>우주 쌍둥이</span>
+            <span><i class="swatch-line" style="background: repeating-linear-gradient(90deg, var(--dash) 0 4px, transparent 4px 7px)"></i>빛</span>
+            <span id="tick-note"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card--tight card--note">
+        <span class="label label--a">고찰 · 왜 대칭이 아닐까?</span>
+        <h2 style="font-size: 22px">방향을 바꾼 사람은 한 명뿐이다</h2>
+        <p style="font-size: 16px; line-height: 1.8">우주 쌍둥이 입장에서 보면 지구가 멀어졌다가 돌아온 셈이다. 그런데 둘의 처지는 똑같지 않다. 별에 도착해 <strong>방향을 바꾼(가속한) 사람은 우주 쌍둥이뿐</strong>이다. 지구 쌍둥이는 내내 같은 상태로 있었다.</p>
+        <p style="font-size: 16px; line-height: 1.8">다이어그램에서 보듯 두 사람이 지나온 시공간의 길이 다르다. 곧은 길(지구)보다 꺾인 길(우주선)을 따라간 시계가 덜 간다. 그래서 다시 만났을 때 나이 차가 남는다. 이 결과는 1911년 폴 랑주뱅이 쌍둥이 이야기로 소개하면서 널리 알려졌다.</p>
+        <p style="font-size: 14px; line-height: 1.7; color: var(--muted)">단순화: 이 계산은 우주선이 일정한 속도로 갔다가 별에서 순식간에 방향을 바꿔 돌아온다고 가정했다. 가속하는 동안의 시간과 중력의 효과는 넣지 않았다.</p>
+      </div>
+
+      <div class="card card--tight" aria-live="polite">
+        <span class="label">비교 데이터 · 다른 실험자들의 예측</span>
+        <p class="stat-status" id="stats-status">기록 불러오는 중…</p>
+        <div id="stats" style="display: flex; flex-direction: column; gap: 16px"></div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <span class="label">현장 기록 · 실제로 확인된 시간 지연</span>
+        <div class="cases">
+          <div class="case">
+            <span class="label label--muted">우주비행사</span>
+            <h3>국제우주정거장의 쌍둥이</h3>
+            <p>스콧 켈리는 국제우주정거장에서 340일을 보낸 뒤 지구의 쌍둥이 형 마크보다 약 5밀리초 젊어졌다. 빠른 속도로 느려진 시간에서 약한 중력으로 빨라진 시간을 뺀 값이다.</p>
+          </div>
+          <div class="case">
+            <span class="label label--muted">매일 쓰는 기술</span>
+            <h3>GPS 위성의 시계</h3>
+            <p>위성의 시계는 속도 때문에 하루 약 7μs 느려지고, 약한 중력 때문에 약 45μs 빨라져서 합하면 하루 약 38μs 빨라진다. 이걸 보정하지 않으면 위치가 하루에 약 10km씩 어긋난다.</p>
+          </div>
+          <div class="case">
+            <span class="label label--muted">1971년 10월</span>
+            <h3>하펠레–키팅 실험</h3>
+            <p>세슘 원자시계 4개를 여객기에 싣고 지구를 돌았다. 동쪽으로 돈 시계는 59ns 느려지고(예측 40ns), 서쪽으로 돈 시계는 273ns 빨라졌다(예측 275ns). 실제 시계로 확인한 첫 실험 가운데 하나다.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span class="label label--muted">참고 문헌</span>
+        <ol class="refs">
+          <li>Albert Einstein, <cite>Zur Elektrodynamik bewegter Körper</cite>, Annalen der Physik (1905)</li>
+          <li>Paul Langevin, <cite>L'évolution de l'espace et du temps</cite>, Scientia (1911)</li>
+          <li>J. C. Hafele &amp; R. E. Keating, <cite>Around-the-World Atomic Clocks</cite>, Science (1972)</li>
+        </ol>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 12px">
+        <button type="button" class="btn btn--ghost" data-restart>↺ 다시 실험하기</button>
+        <button type="button" class="btn" data-go="2">다른 목적지로 다시 여행 →</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; border-top: 2px solid var(--ink); padding-top: 28px; margin-top: 12px">
+        <h2 style="font-size: 22px">다른 실험 해보기</h2>
+        <div class="experiments" id="other-experiments"></div>
+      </div>
+    </section>
+
+  </main>
+  <script type="module" src="twin.js"></script>
+</body>
+</html>

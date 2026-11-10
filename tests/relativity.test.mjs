@@ -59,7 +59,9 @@ test('formatYears: 1년 미만은 개월, 100년 이상은 정수와 쉼표', ()
   assert.equal(formatYears(1101.1), '1,101년');
 });
 
-test('formatAge: 20살에 더해 소수 한 자리, 100살 이상은 정수', () => {
+test('formatAge: 1,000살 미만은 소수 한 자리(104.0 vs 103.6을 구별), 그 이상은 정수', () => {
+  assert.equal(formatAge(104.0), '104.0살');
+  assert.equal(formatAge(103.6), '103.6살');
   assert.equal(formatAge(20 + 6.3), '26.3살');
   assert.equal(formatAge(20 + 1101.1), '1,121살');
 });

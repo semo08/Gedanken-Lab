@@ -21,7 +21,7 @@ export function tickYears(earthYears) {
   return TICKS.find((t) => Math.floor(earthYears / t) <= 20) ?? TICKS.at(-1);
 }
 
-const PAD = { left: 48, right: 16, top: 16, bottom: 28 };
+const PAD = { left: 64, right: 16, top: 28, bottom: 28 };
 
 /**
  * 시공간 다이어그램 좌표(SVG, y는 아래로). 세로 = 지구에서 본 시간(아래 → 위), 가로 = 지구에서의 거리.
@@ -68,5 +68,6 @@ export function formatYears(years) {
 }
 
 export function formatAge(age) {
-  return age < 100 ? `${age.toFixed(1)}살` : `${Math.round(age).toLocaleString('en-US')}살`;
+  // 1,000살 미만은 소수 한 자리까지: 104.0살과 103.6살이 둘 다 104살로 보이면 차이가 사라진다
+  return age < 1000 ? `${age.toFixed(1)}살` : `${Math.round(age).toLocaleString('en-US')}살`;
 }
