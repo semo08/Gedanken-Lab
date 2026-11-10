@@ -134,7 +134,7 @@ votes (컬렉션)
 - [ ] **5단계** 디자인 다듬기 + 배포
 - [x] **6단계** 쌍둥이 역설 (설계: `docs/superpowers/specs/2026-11-10-twin-design.md`)
 - [ ] **7단계** 이미테이션 게임 (설계: `docs/superpowers/specs/2026-11-10-imitation-design.md`)
-- [ ] **8단계** 중국어 방 (설계: `docs/superpowers/specs/2026-11-10-chinese-room-design.md`)
+- [x] **8단계** 중국어 방 (설계: `docs/superpowers/specs/2026-11-10-chinese-room-design.md`)
 
 ## 9. 나중에 하고 싶은 것
 
