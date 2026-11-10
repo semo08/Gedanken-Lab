@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Gedanken Lab is a web app where users experience famous thought experiments themselves: ethics experiments (choose, then compare your choice with other people's) and physics experiments (interact to understand the principle). `docs/PLAN.md` is the source of truth for scope, screen flow, per-experiment content, design tokens, and development stages. Read it before starting a new experiment or stage. User-facing text and the docs are in Korean.
 
-Current state: experiments #01–#04 are built (trolley, Schrödinger's cat, Maxwell's demon, twin paradox) and the site is live on GitHub Pages. Stages 7–8 (#05 imitation game, #06 Chinese room) have design specs but no code yet; stage 5 polish is ongoing. Per-feature design specs and plans live in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
+Current state: experiments #01–#04 and #06 are built (trolley, Schrödinger's cat, Maxwell's demon, twin paradox, Chinese room) and the site is live on GitHub Pages. #05 imitation game (stage 7) has a design spec; it is registered in `js/experiments.js` with `ready: false` and shown as 준비 중. Stage 5 polish is ongoing. Per-feature design specs and plans live in `docs/superpowers/specs/` and `docs/superpowers/plans/`.
 
 ## Running
 
@@ -25,7 +25,7 @@ Only DOM-free, Firebase-free modules (like `experiments/trolley/verdict.js`) are
 - `js/experiments.js` is the experiment registry (`num`, `slug`, `title`, `field`, `blurb`, `ready`). `js/other-experiments.js` renders the "다른 실험 해보기" cards on result screens from it. When adding an experiment, add it there and flip `ready`; the main page cards in `index.html` are hand-written (each has its own illustration) and must be updated separately.
 - Each experiment lives in `experiments/<name>/` as one `index.html` whose steps are `<section data-step="…">` elements; the experiment's JS shows one at a time. Keep scoring/verdict logic in a separate pure module so it can be tested in Node.
 - `js/firebase.js` is the only place that touches Firestore (SDK 13.2.0 from the gstatic CDN). It exports `vote(id, choice)` (skips if `localStorage` key `gedanken:vote:<id>` exists) and `getCounts(ids)`. Experiments load it with a dynamic `import()` so a Firebase/CDN failure only breaks the stats card, not the rest of the result.
-- Firestore: collection `votes`, one doc per question (`trolley_1`..`trolley_3`, `maxwell` with `A`/`B`; `twin` with `A`..`C`; `schrodinger` with `A`..`D`). `getCounts(ids, keys)` takes the key list (default `['A', 'B']`). `js/percentages.js` turns a tally into percentages that sum to 100; use it for any stats bar with more than two choices.
+- Firestore: collection `votes`, one doc per question (`trolley_1`..`trolley_3`, `maxwell` with `A`/`B`; `twin`, `chinese_room` with `A`..`C`; `schrodinger` with `A`..`D`). `getCounts(ids, keys)` takes the key list (default `['A', 'B']`). `js/percentages.js` turns a tally into percentages that sum to 100; use it for any stats bar with more than two choices.
 
 ## Firestore rules
 

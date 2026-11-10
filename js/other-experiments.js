@@ -1,6 +1,6 @@
 import { EXPERIMENTS } from './experiments.js';
 
-const FIELD_COLOR = { 윤리: 'var(--a)', 물리: 'var(--b)' };
+const FIELD_COLOR = { 윤리: 'var(--a)', 물리: 'var(--b)', 컴퓨터: 'var(--ink)' };
 
 function el(tag, className, text) {
   const node = document.createElement(tag);

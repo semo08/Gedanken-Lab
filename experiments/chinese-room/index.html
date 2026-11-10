@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>중국어 방 · Gedanken Lab</title>
+  <meta name="description" content="모르는 글자로 된 쪽지에 규칙서만 보고 답한다. 밖에서는 유창한 대화였다면, 이 방은 이해한 걸까?">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%23F7F6F0%27/%3E%3Cpath d=%27M12 4h8M14 4v9l-7 13a2 2 0 0 0 2 3h14a2 2 0 0 0 2-3l-7-13V4%27 fill=%27none%27 stroke=%27%231B1F2A%27 stroke-width=%272.5%27/%3E%3Cpath d=%27M10 21h12l3 5H7z%27 fill=%27%23B4470F%27/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="../../css/base.css">
+  <style>
+    .scene-title { font-size: 28px; }
+    .story { font-size: 18px; line-height: 1.8; }
+    .ask { display: flex; flex-direction: column; gap: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .scene-title:focus, .report-title:focus { outline: none; }
+
+    .choices--three { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .choice[data-choice="C"] .choice__tag { color: var(--muted); }
+    .choice[data-choice="C"][aria-pressed="true"] { background: #F0F1F4; box-shadow: 6px 6px 0 var(--muted); transform: none; }
+
+    /* 기호 */
+    .glyph { width: 32px; height: 32px; flex: none; color: var(--ink); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .glyph--lg { width: 44px; height: 44px; }
+    .glyph--sm { width: 22px; height: 22px; }
+    .glyphs { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+    /* 방 안 */
+    .room { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+    .slip { background: #FFFDF6; border: 1.5px solid var(--ink); padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 3px 3px 0 var(--rule); }
+    .slip--in { transform: rotate(-1deg); }
+    .slip__body { min-height: 52px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+    .answer-slot { width: 52px; height: 52px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px dashed var(--dash); background: var(--white); padding: 0; cursor: pointer; }
+    .answer-slot--filled { border-style: solid; border-color: var(--ink); }
+    .answer-slot:disabled { cursor: default; }
+
+    .book { border: 2px solid var(--ink); background: var(--white); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .book__rule { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px dashed var(--rule); font-size: 14px; color: var(--muted); }
+    .book__rule:first-of-type { border-top: 0; }
+    .book__arrow { font-family: var(--mono); color: var(--a); font-weight: 600; }
+    .book.shake { animation: shake 0.4s; border-color: var(--a); }
+    @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+    .cards { display: grid; grid-template-columns: repeat(6, minmax(52px, 72px)); gap: 8px; } /* 12장 = 6 × 2줄 */
+    .glyph-card { aspect-ratio: 1; min-height: 52px; display: flex; align-items: center; justify-content: center; background: var(--white); border: 2px solid var(--ink); cursor: pointer; padding: 0; }
+    .glyph-card:hover { background: var(--a-tint); }
+    .glyph-card:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    .feedback { font-size: 15px; min-height: 1.6em; }
+    .feedback--ok { color: var(--b); }
+    .feedback--no { color: var(--a); }
+
+    .note-chips { display: flex; gap: 6px; }
+    .note-chips span { width: 18px; height: 22px; border: 1.5px solid var(--ink); background: var(--white); }
+    .note-chips span.is-done { background: var(--ink); }
+
+    .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+    .log li { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+    /* 방 밖 */
+    .transcript { display: flex; flex-direction: column; gap: 12px; }
+    .exchange { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .line { border: 1.5px solid var(--ink); padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+    .line--out { background: var(--b-tint); }
+    .line--room { background: var(--a-tint); }
+    .line__meaning { font-size: 17px; font-weight: 700; }
+    .quote { font-size: 20px; font-weight: 700; border-left: 0; padding: 16px 0 0; border-top: 1px dashed var(--dash); }
+
+    /* 결과 */
+    .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
+    .report-title { font-size: 36px; line-height: 1.3; }
+    .report-title span { color: var(--b); }
+    .stances { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .stance { border: 2px dashed var(--dash); padding: 20px; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.6); }
+    .stance h3 { margin: 0; font-size: 18px; }
+    .stance p { font-size: 15px; line-height: 1.6; color: var(--muted); }
+    .stance .stance__reply { font-size: 13px; border-top: 1px dashed var(--rule); padding-top: 8px; }
+    .stance--mine { border: 2px solid var(--ink); background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); }
+    .stance--mine p { color: var(--ink); }
+    .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 0; }
+    .facts div { border-top: 1px dashed var(--rule); padding-top: 10px; }
+    .facts dt { font-size: 13px; color: var(--muted); }
+    .facts dd { margin: 4px 0 0; font-family: var(--mono); font-size: 22px; font-weight: 600; }
+
+    .bar { display: flex; height: 28px; border: 1px solid var(--ink); }
+    .legend { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 15px; }
+    .legend li { display: flex; align-items: center; gap: 10px; }
+    .legend__swatch { width: 14px; height: 14px; border: 1px solid var(--ink); flex: none; }
+    .legend__pct { font-family: var(--mono); margin-left: auto; }
+    .legend__mine { font-family: var(--mono); font-size: 13px; color: var(--b); }
+    .stat-status, .stat-total { font-family: var(--mono); font-size: 14px; color: var(--muted); }
+
+    .refs { font-size: 13px; line-height: 1.7; color: var(--muted); margin: 0; padding-left: 18px; }
+    .refs cite { font-style: italic; }
+
+    @media (max-width: 720px) {
+      .room { grid-template-columns: 1fr; }
+      .exchange { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .card svg.scene-art text { font-size: 26px; }
+      .scene-title { font-size: 24px; }
+      .story { font-size: 16px; }
+      .report-title { font-size: 28px; }
+      .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .book.shake { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-bar">
+    <a class="site-bar__logo" href="../../">GEDANKEN LAB</a>
+    <a href="../../">← 메인</a>
+  </header>
+  <main class="page">
+
+    <!-- ── 1단계: 상황 ── -->
+    <section class="container" data-step="1">
+      <div class="row" style="justify-content: flex-end; min-height: 41px">
+        <div class="progress">
+          <span class="label label--muted">EXP #06 · 단계 1 / 3</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="label">관찰 기록 · 상황</span>
+        <svg class="scene-art" role="img" aria-label="작은 방 안에 사람이 규칙서를 펴 놓고 앉아 있다. 문 틈으로 모르는 기호가 적힌 쪽지가 들어온다." viewBox="0 0 880 230" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <rect x="220" y="20" width="440" height="190" fill="#FFFFFF"/>
+          <!-- 문과 틈 -->
+          <path d="M660 70 V180" stroke-width="5"/>
+          <rect x="652" y="118" width="16" height="6" fill="#F7F6F0" stroke="none"/>
+          <!-- 들어오는 쪽지 -->
+          <g transform="translate(690 104) rotate(-6)">
+            <rect width="90" height="40" fill="#FFFDF6"/>
+            <circle cx="22" cy="20" r="9"/><circle cx="22" cy="20" r="2" fill="#1B1F2A" stroke="none"/>
+            <path d="M44 28 L54 12 L64 28 Z"/><circle cx="54" cy="7" r="1.5" fill="#1B1F2A" stroke="none"/>
+          </g>
+          <path d="M800 124 H860" stroke="#B4470F" stroke-dasharray="5 5"/>
+          <!-- 사람과 책상 -->
+          <circle cx="360" cy="92" r="16" fill="#FFFFFF"/>
+          <path d="M360 108 V150 M340 128 L380 128"/>
+          <path d="M300 160 H520" stroke-width="4"/>
+          <path d="M318 160 V205 M502 160 V205"/>
+          <!-- 규칙서 -->
+          <path d="M400 156 L430 140 L460 156 L490 140 V128 L460 144 L430 128 L400 144 Z" fill="#EEF3FB" stroke="#1F4E9C"/>
+          <!-- 카드 상자 -->
+          <rect x="540" y="168" width="70" height="36" fill="#FFF4EC" stroke="#B4470F"/>
+          <path d="M552 168 V156 H568 V168 M576 168 V152 H592 V168" stroke="#B4470F"/>
+          <g font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">
+            <text x="360" y="62">당신</text>
+            <text x="445" y="120" fill="#1F4E9C">규칙서</text>
+            <text x="575" y="224" fill="#B4470F">기호 카드</text>
+            <text x="735" y="168">쪽지</text>
+            <text x="440" y="14" fill="#5B6170">밖이 보이지 않는 방</text>
+          </g>
+        </svg>
+        <p class="story">당신은 작은 방에 갇혀 있다. 방에는 규칙서 한 권과 기호 카드 상자가 있다. 기호는 <strong>한 번도 본 적 없는 글자</strong>다. 문 틈으로 기호가 적힌 쪽지가 들어오면, 규칙서에서 같은 모양을 찾아 거기 적힌 대로 카드를 골라 답 쪽지를 내보내면 된다. 기호의 뜻은 어디에도 적혀 있지 않다.</p>
+        <p style="font-size: 14px; line-height: 1.7; color: var(--muted)">철학자 존 설(1980)의 원래 실험은 중국어를 모르는 사람이 중국어 쪽지에 답하는 이야기다. 한국 사람은 한자를 조금씩 알아서, 이 실험에서는 정말로 아무도 모르는 <strong>가상의 문자</strong>를 쓴다.</p>
+      </div>
+      <div class="row">
+        <span class="label label--muted">쪽지는 모두 5장</span>
+        <button type="button" class="btn" data-go="2">방에 들어가기 →</button>
+      </div>
+    </section>
+
+    <!-- ── 2단계: 방 안 ── -->
+    <section class="container" data-step="2" hidden>
+      <div class="row">
+        <button type="button" class="back-link" data-go="1">← 이전 단계</button>
+        <div class="progress">
+          <span class="label label--muted">EXP #06 · 단계 2 / 3</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span><span></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="label">관찰 기록 · 방 안</span>
+          <div class="row" style="gap: 10px">
+            <span class="label label--muted" id="note-count"></span>
+            <div class="note-chips" id="note-chips" aria-hidden="true"></div>
+          </div>
+        </div>
+        <h1 class="scene-title" tabindex="-1">규칙서대로 답 쪽지를 만들자</h1>
+
+        <div class="room">
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div class="slip slip--in">
+              <span class="label label--muted">문 틈으로 들어온 쪽지</span>
+              <div class="slip__body" id="incoming"></div>
+            </div>
+            <div class="slip">
+              <span class="label label--a">내보낼 답 쪽지 <span style="font-weight: 400">(칸을 누르면 빠진다)</span></span>
+              <div class="slip__body" id="answer"></div>
+            </div>
+          </div>
+          <div class="book" id="book">
+            <span class="label" style="color: var(--b)">규칙서 · 위에서부터 차례로, 처음 맞는 줄을 따른다</span>
+            <div id="rules"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span class="label label--muted">기호 카드 상자 (누르면 답 쪽지에 놓인다)</span>
+          <div class="cards" id="cards"></div>
+        </div>
+
+        <p class="feedback" id="feedback" aria-live="polite"></p>
+        <div class="actions">
+          <button type="button" class="btn btn--ghost" id="clear">다시 고르기</button>
+          <button type="button" class="btn btn--a" id="send">쪽지 내보내기 →</button>
+          <button type="button" class="btn" data-go="3" id="to-outside" hidden>방 밖에서는 어떻게 보였을까? →</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--rule); padding-top: 16px">
+          <span class="label label--muted">주고받은 쪽지</span>
+          <ol class="log" id="log"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3단계: 방 밖 ── -->
+    <section class="container" data-step="3" hidden>
+      <div class="row" style="justify-content: flex-end; min-height: 41px">
+        <div class="progress">
+          <span class="label label--muted">EXP #06 · 단계 3 / 3</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span><span class="is-done"></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="label label--a">반전 · 방 밖에서 본 장면</span>
+        <h1 class="scene-title" tabindex="-1">밖에 있던 사람에게는 이런 대화였다</h1>
+        <div class="transcript" id="transcript"></div>
+        <p class="quote">“방 안 사람은 이 언어를 유창하게 하는 게 분명해!”</p>
+      </div>
+      <div class="ask">
+        <h2 style="font-size: 22px; line-height: 1.5">방 안의 당신은 이 언어를 전혀 몰랐다. 그럼 <strong>이 방</strong>은 이 언어를 이해한 걸까?</h2>
+        <div class="choices choices--three">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">아무도 이해하지 못했다</span>
+            <span class="choice__desc">사람도 규칙서도 뜻은 몰랐다</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">방 전체는 이해했다</span>
+            <span class="choice__desc">사람 + 규칙서를 합친 시스템이 이해한다</span>
+          </button>
+          <button type="button" class="choice" data-choice="C" aria-pressed="false">
+            <span class="choice__tag">선택 C</span>
+            <span class="choice__title">"이해"의 기준이 모호하다</span>
+            <span class="choice__desc">사람이 이해하는지도 행동으로만 안다</span>
+          </button>
+        </div>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 입장이 기록되었다</span>
+          <button type="button" class="btn btn--a" data-go="result">실험 결과 보기 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 결과 ── -->
+    <section class="container" data-step="result" hidden>
+      <div class="report-head">
+        <span class="label label--muted label--spaced">EXP #06 · 실험 결과 보고서</span>
+        <h1 class="report-title" tabindex="-1">당신은 <span id="stance-name"></span>에 가깝다</h1>
+        <p class="lead" id="stance-line"></p>
+      </div>
+
+      <div class="card card--tight">
+        <div class="row">
+          <span class="label">측정값 · 입장 지도</span>
+          <span class="label label--muted" id="my-answer"></span>
+        </div>
+        <div class="stances" id="stances"></div>
+        <p style="font-size: 13px; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 12px">설은 1980년 논문에서 두 반론을 직접 소개하고 다시 반박했다(카드 아래 줄). 이 논쟁은 40년이 넘은 지금도 결론이 나지 않았다.</p>
+      </div>
+
+      <div class="card card--tight" aria-live="polite">
+        <span class="label">비교 데이터 · 다른 실험자들의 입장</span>
+        <p class="stat-status" id="stats-status">기록 불러오는 중…</p>
+        <div id="stats" style="display: flex; flex-direction: column; gap: 16px"></div>
+      </div>
+
+      <div class="card card--tight">
+        <span class="label">관측 데이터 · 당신의 방 안 기록</span>
+        <dl class="facts">
+          <div><dt>주고받은 쪽지</dt><dd id="f-notes"></dd></div>
+          <div><dt>규칙서와 다르게 낸 횟수</dt><dd id="f-wrong"></dd></div>
+          <div><dt>알게 된 기호의 뜻</dt><dd>0개</dd></div>
+        </dl>
+        <p style="font-size: 16px; line-height: 1.8">당신은 기호의 뜻을 하나도 모른 채 규칙만 따랐다. 그런데 밖에서는 날씨 이야기를 하고, 차를 권하고, 고맙다는 말에 답하는 자연스러운 대화였다.</p>
+      </div>
+
+      <div class="card card--tight card--note">
+        <span class="label label--a">고찰 · 모양과 뜻</span>
+        <h2 style="font-size: 22px">사람처럼 대답하는 것과 이해하는 것은 같을까?</h2>
+        <p style="font-size: 16px; line-height: 1.8">설의 핵심 주장은 <strong>문법(기호의 모양을 다루는 규칙)만으로는 의미가 생기지 않는다</strong>는 것이다. 컴퓨터 프로그램이 하는 일이 방 안의 당신이 한 일과 같다면, 튜링 테스트를 통과할 만큼 대답을 잘해도 이해했다고 할 수는 없다는 것이다.</p>
+        <p style="font-size: 16px; line-height: 1.8">요즘 대규모 언어 모델에도 똑같은 질문이 던져지고 있다. 엄청나게 많은 글에서 익힌 규칙으로 자연스럽게 대답하지만, 그것이 이해인지는 여전히 의견이 갈린다.</p>
+        <p style="font-size: 15px; line-height: 1.7" id="imitation-link"></p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span class="label label--muted">참고 문헌</span>
+        <ol class="refs">
+          <li>John R. Searle, <cite>Minds, Brains, and Programs</cite>, Behavioral and Brain Sciences (1980)</li>
+          <li>Alan M. Turing, <cite>Computing Machinery and Intelligence</cite>, Mind (1950)</li>
+          <li>David Cole, <cite>The Chinese Room Argument</cite>, Stanford Encyclopedia of Philosophy</li>
+        </ol>
+      </div>
+
+      <div>
+        <button type="button" class="btn btn--ghost" data-restart>↺ 다시 실험하기</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; border-top: 2px solid var(--ink); padding-top: 28px; margin-top: 12px">
+        <h2 style="font-size: 22px">다른 실험 해보기</h2>
+        <div class="experiments" id="other-experiments"></div>
+      </div>
+    </section>
+
+  </main>
+  <script type="module" src="chinese-room.js"></script>
+</body>
+</html>
