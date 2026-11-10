@@ -1,5 +1,6 @@
 import { stance, STANCES } from './stance.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
+import { percentages } from '../../js/percentages.js';
 
 const VOTE_ID = 'schrodinger';
 const MIN_OPENS = 3;
@@ -142,7 +143,7 @@ async function renderStats() {
       return;
     }
     status.hidden = true;
-    const pct = percentages(tally, keys, total);
+    const pct = percentages(tally);
 
     const bar = el('div', 'bar');
     bar.setAttribute('role', 'img');
@@ -172,18 +173,6 @@ async function renderStats() {
     console.error(err);
     status.textContent = '다른 실험자들의 기록을 불러오지 못했어요.';
   }
-}
-
-// 반올림 합이 100이 되도록 가장 큰 나머지 순으로 1씩 더한다
-function percentages(tally, keys, total) {
-  const raw = keys.map((k) => ({ k, v: (tally[k] / total) * 100 }));
-  const result = Object.fromEntries(raw.map(({ k, v }) => [k, Math.floor(v)]));
-  let left = 100 - Object.values(result).reduce((a, b) => a + b, 0);
-  for (const { k } of [...raw].sort((a, b) => (b.v % 1) - (a.v % 1))) {
-    if (left-- <= 0) break;
-    result[k] += 1;
-  }
-  return result;
 }
 
 function restart() {

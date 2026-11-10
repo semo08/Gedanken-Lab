@@ -113,14 +113,15 @@ votes (컬렉션)
  ├─ trolley_1        → { A: 0, B: 0 }
  ├─ trolley_2        → { A: 0, B: 0 }
  ├─ trolley_3        → { A: 0, B: 0 }
- ├─ schrodinger      → { A: 0, B: 0, C: 0, D: 0 }   // 추후 규칙 수정 필요
+ ├─ schrodinger      → { A: 0, B: 0, C: 0, D: 0 }
  ├─ maxwell          → { A: 0, B: 0 }
- ├─ twin             → { A: 0, B: 0, C: 0 }          // 6단계, 규칙 수정 필요
- ├─ imitation_1~3    → { A: 맞힘, B: 틀림 }           // 7단계, 규칙 수정 필요
- ├─ imitation_turing → { A: 0, B: 0 }                // 7단계, 규칙 수정 필요
- └─ chinese_room     → { A: 0, B: 0, C: 0 }          // 8단계, 규칙 수정 필요
+ ├─ twin             → { A: 0, B: 0, C: 0 }
+ ├─ imitation_1~3    → { A: 맞힘, B: 틀림 }
+ ├─ imitation_turing → { A: 0, B: 0 }
+ └─ chinese_room     → { A: 0, B: 0, C: 0 }
 ```
 
+- 보안 규칙(`firestore.rules`)에는 위 문서가 모두 들어 있다. 7·8단계 문서도 6단계에서 미리 허용해 두었다.
 - 투표: `setDoc(doc(db, "votes", id), { [choice]: increment(1) }, { merge: true })`
 - 중복 투표 방지: 처음엔 `localStorage`로 간단히 처리
 
@@ -131,7 +132,7 @@ votes (컬렉션)
 - [x] **3단계** 슈뢰딩거의 고양이
 - [x] **4단계** 맥스웰의 악마 (Canvas)
 - [ ] **5단계** 디자인 다듬기 + 배포
-- [ ] **6단계** 쌍둥이 역설 (설계: `docs/superpowers/specs/2026-11-10-twin-design.md`)
+- [x] **6단계** 쌍둥이 역설 (설계: `docs/superpowers/specs/2026-11-10-twin-design.md`)
 - [ ] **7단계** 이미테이션 게임 (설계: `docs/superpowers/specs/2026-11-10-imitation-design.md`)
 - [ ] **8단계** 중국어 방 (설계: `docs/superpowers/specs/2026-11-10-chinese-room-design.md`)
 
