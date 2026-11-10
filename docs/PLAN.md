@@ -121,7 +121,7 @@ votes (컬렉션)
  └─ chinese_room     → { A: 0, B: 0, C: 0 }
 ```
 
-- 보안 규칙(`firestore.rules`)에는 위 문서가 모두 들어 있다. 7·8단계 문서도 6단계에서 미리 허용해 두었다.
+- 보안 규칙(`firestore.rules`)에는 위 문서가 모두 들어 있다.
 - 투표: `setDoc(doc(db, "votes", id), { [choice]: increment(1) }, { merge: true })`
 - 중복 투표 방지: 처음엔 `localStorage`로 간단히 처리
 
@@ -133,7 +133,7 @@ votes (컬렉션)
 - [x] **4단계** 맥스웰의 악마 (Canvas)
 - [ ] **5단계** 디자인 다듬기 + 배포
 - [x] **6단계** 쌍둥이 역설 (설계: `docs/superpowers/specs/2026-11-10-twin-design.md`)
-- [ ] **7단계** 이미테이션 게임 (설계: `docs/superpowers/specs/2026-11-10-imitation-design.md`)
+- [x] **7단계** 이미테이션 게임 (설계: `docs/superpowers/specs/2026-11-10-imitation-design.md`)
 - [x] **8단계** 중국어 방 (설계: `docs/superpowers/specs/2026-11-10-chinese-room-design.md`)
 
 ## 9. 나중에 하고 싶은 것
