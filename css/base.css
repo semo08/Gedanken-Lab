@@ -18,7 +18,7 @@
   --note: #FFF9E8;
   --c: #3F6B4F;          /* 철학 분야 (종이 배경 대비 5.7:1) */
 
-  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --mono: 'IBM Plex Mono', 'Noto Sans KR', ui-monospace, monospace; /* Plex Mono에는 한글이 없어서 한글만 Noto Sans KR로 */
   --sans: 'Noto Sans KR', system-ui, sans-serif;
 }
 
