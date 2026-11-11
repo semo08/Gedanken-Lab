@@ -31,7 +31,7 @@ Only DOM-free, Firebase-free modules (like `experiments/trolley/verdict.js`) are
 
 ## Firestore rules
 
-`firestore.rules` is a copy of the rules published in the Firebase console (project `thought-lab-f6471`); editing the file does not deploy it, so the user must paste it into the console. The rules whitelist doc IDs (the `doc in [...]` list) and per-doc keys (`keysFor()`), and `isOneVote()` only allows exactly one key to change, by exactly +1, so they work for any key names. A new question needs its doc ID added there, plus a `keysFor` entry if it uses keys other than `A`/`B`; until the console is updated its votes fail with `permission-denied` (the stats card shows an error, the rest of the result still renders).
+`firestore.rules` is a copy of the rules published in the Firebase console (project `thought-lab-f6471`); editing the file does not deploy it, so the user must paste it into the console. The rules whitelist doc IDs (the `doc in [...]` list) and per-doc keys (`keysFor()`), and `isOneVote()` only allows exactly one key to change while the sum of all keys (`total()`) goes up by exactly 1. Rules `Set`s have no `toList()`, so the changed key cannot be read by name; that is why `total()` lists every possible key. A new question needs its doc ID added there, plus a `keysFor` entry if it uses keys other than `A`/`B`, and any brand-new key name must also be added to `total()`; until the console is updated its votes fail with `permission-denied` (the stats card shows an error, the rest of the result still renders).
 
 ## Design conventions
 

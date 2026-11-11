@@ -10,11 +10,20 @@ service cloud.firestore {
           : ['A', 'B'];
       }
 
-      // 키 이름과 상관없이: 바뀐 키는 정확히 하나, 그 값은 이전 값(없으면 0) + 1.
-      // 다른 키는 바뀌지 않았으니 덮어쓰기·감소·여러 표 한꺼번에 넣기가 모두 막힌다.
-      function isOneVote(changed) {
-        return changed.size() == 1
-          && request.resource.data[changed.toList()[0]] == resource.data.get(changed.toList()[0], 0) + 1;
+      // 쓸 수 있는 모든 키의 합. keysFor()에 새 키를 넣으면 여기에도 넣는다.
+      // (규칙의 Set에는 toList()가 없어서 "바뀐 키 이름"을 꺼낼 수 없다. 그래서 합계로 검사한다)
+      function total(data) {
+        return data.get('A', 0) + data.get('B', 0) + data.get('C', 0) + data.get('D', 0)
+          + data.get('P1', 0) + data.get('P2', 0) + data.get('P3', 0) + data.get('P4', 0) + data.get('P5', 0)
+          + data.get('P6', 0) + data.get('P7', 0) + data.get('P8', 0) + data.get('P9', 0) + data.get('P10', 0)
+          + data.get('KEEP', 0);
+      }
+
+      // 바뀐 키가 정확히 하나이고 전체 합이 정확히 1 늘었다 = 그 키 하나가 정확히 1 늘었다.
+      // 다른 키는 그대로이므로 덮어쓰기·감소·여러 표 한꺼번에 넣기가 모두 막힌다.
+      function isOneVote() {
+        return request.resource.data.diff(resource.data).affectedKeys().size() == 1
+          && total(request.resource.data) == total(resource.data) + 1;
       }
 
       allow read: if true;
@@ -31,7 +40,7 @@ service cloud.firestore {
 
       // 이후 투표: 허용된 키 중 하나만 정확히 1 증가
       allow update: if request.resource.data.keys().hasOnly(keysFor(doc))
-        && isOneVote(request.resource.data.diff(resource.data).affectedKeys());
+        && isOneVote();
     }
   }
 }
