@@ -142,7 +142,7 @@
           </g>
           <text class="only-wide" x="500" y="66" font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none">← 악마</text>
         </svg>
-        <p class="story">1867년 제임스 클러크 맥스웰은 이런 상상을 했다. 같은 온도의 기체가 든 두 방 사이에 작은 문이 있고, 그 옆에 <strong>분자 하나하나를 볼 수 있는 작은 존재</strong>가 있다. 이 '악마'는 빠른 분자가 오면 문을 열어 한쪽으로 보내고, 느린 분자는 반대쪽으로 보낸다. 일을 하지 않고 문만 여닫는데도 한쪽 방은 뜨거워지고 다른 쪽은 차가워진다. 열역학 2법칙은 <strong>"고립된 계의 엔트로피는 줄어들지 않는다"</strong>고 말하는데 말이다.</p>
+        <p class="story">1867년 제임스 클러크 맥스웰은 이런 상상을 했다. 같은 온도의 기체가 든 두 방 사이에 작은 문이 있고, 그 옆에 <strong>분자 하나하나를 볼 수 있는 작은 존재</strong>가 있다. 이 '악마'는 빠른 분자가 오면 문을 열어 한쪽으로 보내고, 느린 분자는 반대쪽으로 보낸다. 일을 하지 않고 문만 여닫는데도 한쪽 방은 뜨거워지고 다른 쪽은 차가워진다. <button type="button" class="term" data-term="second-law">열역학 2법칙</button>은 <strong>"고립된 계의 <button type="button" class="term" data-term="entropy">엔트로피</button>는 줄어들지 않는다"</strong>고 말하는데 말이다.</p>
       </div>
       <div class="ask">
         <h1 class="scene-title" tabindex="-1">악마가 열역학 2법칙을 깰 수 있을까?</h1>
@@ -263,7 +263,7 @@
         </div>
         <p style="font-size: 17px; line-height: 1.7" id="verdict-text"></p>
         <dl class="facts">
-          <div><dt>통과시킨 입자 (= 기록한 비트)</dt><dd id="f-bits"></dd></div>
+          <div><dt>통과시킨 입자 (= 기록한 <button type="button" class="term" data-term="bit">비트</button>)</dt><dd id="f-bits"></dd></div>
           <div><dt>가장 큰 온도 차</dt><dd id="f-diff"></dd></div>
           <div><dt>방의 엔트로피 (처음 → 최저)</dt><dd id="f-room"></dd></div>
           <div><dt>전체 엔트로피 (처음 → 지금)</dt><dd id="f-total"></dd></div>
@@ -282,7 +282,7 @@
         <ol class="timeline">
           <li><b>1867</b><span>맥스웰이 편지에서 처음 악마를 상상한다. 2법칙이 절대 법칙이 아니라 통계적 법칙일 수 있다는 질문이었다.</span></li>
           <li><b>1929</b><span>레오 실라르드가 분자 하나짜리 엔진으로 문제를 줄인다. 그는 악마가 분자를 <strong>측정</strong>하는 데 엔트로피 비용이 든다고 보았다.</span></li>
-          <li><b>1961</b><span>롤프 란다우어가 정보를 <strong>지우는</strong> 일에는 1비트마다 최소 kT ln 2만큼의 열이 반드시 나온다는 것을 보인다.</span></li>
+          <li><b>1961</b><span>롤프 란다우어가 정보를 <strong>지우는</strong> 일에는 1비트마다 최소 <button type="button" class="term" data-term="landauer">kT ln 2</button>만큼의 열이 반드시 나온다는 것을 보인다.</span></li>
           <li><b>1982</b><span>찰스 베넷이 마침표를 찍는다. 측정은 원리적으로 공짜일 수 있지만, 기억 용량이 유한한 악마는 결국 기억을 지워야 하고, 그 열이 분류로 얻은 이득을 상쇄한다.</span></li>
           <li><b>2012</b><span>베뤼 등이 실험실에서 미세한 입자 하나의 1비트를 지울 때 나오는 열을 측정해 란다우어의 하한을 확인한다.</span></li>
         </ol>
@@ -311,5 +311,6 @@
 
   </main>
   <script type="module" src="maxwell.js"></script>
+  <script type="module" src="../../js/terms.js"></script>
 </body>
 </html>

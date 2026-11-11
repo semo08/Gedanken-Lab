@@ -142,7 +142,7 @@
           <text class="only-wide" x="440" y="22" font-family="IBM Plex Mono, monospace" font-size="14" fill="#5B6170" stroke="none" text-anchor="middle">밖에서는 안을 볼 수 없는 상자</text>
           <text class="only-narrow" x="440" y="26" font-family="IBM Plex Mono, monospace" font-size="14" fill="#5B6170" stroke="none" text-anchor="middle">닫힌 상자</text>
         </svg>
-        <p class="story">상자 안에 고양이 한 마리와 방사성 원자 하나가 있다. 1시간 안에 이 원자가 붕괴할 확률은 정확히 <strong>50%</strong>. 붕괴하면 계수기가 감지해 망치가 독약 병을 깨뜨리고, 고양이는 죽는다. 양자역학에 따르면 관측하기 전의 원자는 <strong>붕괴한 상태와 붕괴하지 않은 상태가 겹쳐 있다.</strong> 1시간이 지났다.</p>
+        <p class="story">상자 안에 고양이 한 마리와 방사성 원자 하나가 있다. 1시간 안에 이 원자가 <button type="button" class="term" data-term="radioactive-decay">붕괴</button>할 확률은 정확히 <strong>50%</strong>. 붕괴하면 계수기가 감지해 망치가 독약 병을 깨뜨리고, 고양이는 죽는다. 양자역학에 따르면 관측하기 전의 원자는 <strong>붕괴한 상태와 붕괴하지 않은 상태가 <button type="button" class="term" data-term="superposition">겹쳐 있다</button>.</strong> 1시간이 지났다.</p>
       </div>
       <div class="ask">
         <h1 class="scene-title" tabindex="-1">상자를 열기 전, 고양이는?</h1>
@@ -270,7 +270,7 @@
         <span class="label label--a">고찰 · 생각해볼 점</span>
         <h2 style="font-size: 22px">슈뢰딩거는 이 실험으로 무엇을 말하고 싶었을까?</h2>
         <p style="font-size: 16px; line-height: 1.8">1935년 에르빈 슈뢰딩거는 이 실험을 양자역학을 설명하려고가 아니라 <strong>비판하려고</strong> 만들었다. 원자 하나의 중첩을 그대로 받아들이면, 고양이처럼 큰 물체도 "살아 있으면서 죽어 있는" 상태가 되어야 한다. 그는 그것이 말이 안 된다고 보았다.</p>
-        <p style="font-size: 16px; line-height: 1.8">오늘날에는 상자 속 고양이처럼 큰 물체는 공기 분자, 빛 등 주변과 끊임없이 부딪히면서 중첩이 순식간에 깨진다고 설명한다(<strong>결어긋남</strong>). 하지만 그것만으로 "왜 하나의 결과만 보이는가"가 완전히 풀리지는 않았고, 그래서 해석 논쟁은 계속되고 있다.</p>
+        <p style="font-size: 16px; line-height: 1.8">오늘날에는 상자 속 고양이처럼 큰 물체는 공기 분자, 빛 등 주변과 끊임없이 부딪히면서 중첩이 순식간에 깨진다고 설명한다(<strong><button type="button" class="term" data-term="decoherence">결어긋남</button></strong>). 하지만 그것만으로 "왜 하나의 결과만 보이는가"가 완전히 풀리지는 않았고, 그래서 해석 논쟁은 계속되고 있다.</p>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 8px">
@@ -295,5 +295,6 @@
 
   </main>
   <script type="module" src="schrodinger.js"></script>
+  <script type="module" src="../../js/terms.js"></script>
 </body>
 </html>

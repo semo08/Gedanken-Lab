@@ -201,6 +201,60 @@ svg { display: block; max-width: 100%; height: auto; }
 .choice[data-choice="A"][aria-pressed="true"] { background: var(--a-tint); box-shadow: 6px 6px 0 var(--a); transform: none; }
 .choice[data-choice="B"][aria-pressed="true"] { background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); transform: none; }
 
+/* ── 용어 주석 (js/terms.js) ── */
+
+.term {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  border-bottom: 1.5px dotted currentColor;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+.term::after {
+  content: 'ⓘ';
+  font-size: 0.7em;
+  font-weight: 400;
+  margin-left: 1px;
+  vertical-align: super;
+  color: var(--b);
+}
+
+.term:hover, .term[aria-expanded="true"] { background: var(--b-tint); }
+
+.term-pop {
+  position: absolute;
+  z-index: 20;
+  padding: 12px 14px;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--b);
+  font-family: var(--sans);
+  color: var(--ink);
+}
+
+.term-pop strong { display: block; font-size: 15px; color: var(--b); margin-bottom: 4px; }
+.term-pop p { margin: 0; font-size: 14px; line-height: 1.7; font-weight: 400; }
+
+/* 꼬리: 기본은 말풍선 아래(용어가 아래에 있다), --below면 위 */
+.term-pop::after {
+  content: '';
+  position: absolute;
+  left: var(--arrow-x, 50%);
+  bottom: -8px;
+  width: 12px;
+  height: 12px;
+  background: var(--white);
+  border-right: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.term-pop--below::after { bottom: auto; top: -8px; transform: translateX(-50%) rotate(-135deg); }
+
 /* ── 실험 카드 (메인, 다른 실험) ── */
 
 .experiments { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
