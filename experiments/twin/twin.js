@@ -170,7 +170,7 @@ function drawDiagram(v, t) {
 
   const pts = (list) => list.map((p) => `${p.x},${p.y}`).join(' ');
   const [start, turn, end] = g.ship;
-  const font = { 'font-family': 'IBM Plex Mono, monospace', 'font-size': 12 };
+  const font = { 'font-family': 'IBM Plex Mono, Noto Sans KR, monospace', 'font-size': 12 };
 
   root.replaceChildren(
     // 축

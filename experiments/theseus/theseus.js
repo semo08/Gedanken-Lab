@@ -102,7 +102,7 @@ function drawShip(root, planks, { pile = null } = {}) {
     root.append(
       svg('rect', { x: 412, y: 112, width: 118, height: 10, fill: '#8A90A0' }),
       svg('g', { 'data-pile': '' }),
-      svg('text', { x: 471, y: 145, 'font-size': 17, 'text-anchor': 'middle', fill: '#5B6170', 'font-family': 'IBM Plex Mono, monospace' }, '헌 판자'), // 폰에서 그림이 약 0.6배로 줄어든다
+      svg('text', { x: 471, y: 145, 'font-size': 17, 'text-anchor': 'middle', fill: '#5B6170', 'font-family': 'IBM Plex Mono, Noto Sans KR, monospace' }, '헌 판자'), // 폰에서 그림이 약 0.6배로 줄어든다
     );
     renderPile(root, pile);
   }
@@ -264,13 +264,14 @@ function showResult() {
 function lineChart(counts, mineKey) {
   const total = KEYS.reduce((sum, k) => sum + counts[k], 0);
   const surv = survival(counts);
-  const X0 = 36;
-  const SLOT = 36;
+  const X0 = 42;  // "100%" 라벨 자리
+  const SLOT = 35;
   const TOP = 16;
   const BOTTOM = 176;
   const H = BOTTOM - TOP;
-  const font = { 'font-family': 'IBM Plex Mono, monospace', 'font-size': 12, fill: '#5B6170' };
-  const root = svg('svg', { viewBox: '0 0 440 210', class: 'chart', role: 'img' });
+  // 숫자는 Plex Mono, 한글(끝까지)은 Plex Mono에 없어서 Noto Sans KR로 그려지게 한다
+  const font = { 'font-family': "'IBM Plex Mono', 'Noto Sans KR', sans-serif", 'font-size': 14, fill: '#5B6170' };
+  const root = svg('svg', { viewBox: '0 0 440 196', class: 'chart', role: 'img' });
 
   const parts = [
     svg('line', { x1: X0, y1: BOTTOM, x2: X0 + SLOT * KEYS.length, y2: BOTTOM, stroke: '#1B1F2A', 'stroke-width': 1 }),
@@ -286,15 +287,13 @@ function lineChart(counts, mineKey) {
       x: X0 + j * SLOT + 5, y: BOTTOM - h, width: SLOT - 10, height: h,
       fill: isMine ? '#3F6B4F' : '#C9D9CE', stroke: isMine ? '#1B1F2A' : 'none',
     }));
-    parts.push(svg('text', { ...font, x: X0 + j * SLOT + SLOT / 2, y: BOTTOM + 16, 'text-anchor': 'middle', fill: isMine ? '#1B1F2A' : '#5B6170', 'font-weight': isMine ? 600 : 400 },
+    parts.push(svg('text', { ...font, x: X0 + j * SLOT + SLOT / 2, y: BOTTOM + 18, 'text-anchor': 'middle', fill: isMine ? '#1B1F2A' : '#5B6170', 'font-weight': isMine ? 600 : 400 },
       key === 'KEEP' ? '끝까지' : key.slice(1)));
-    if (isMine) parts.push(svg('text', { ...font, x: X0 + j * SLOT + SLOT / 2, y: BOTTOM - h - 6, 'text-anchor': 'middle', fill: '#1B1F2A', 'font-weight': 600 }, '나'));
   });
   // 생존 곡선: n장 바꾼 뒤(칸 n과 n+1 사이)에도 같은 배라고 본 비율
   const pts = surv.map((s, n) => `${X0 + n * SLOT},${BOTTOM - s * H}`).join(' ');
   parts.push(svg('polyline', { points: pts, fill: 'none', stroke: '#B4470F', 'stroke-width': 2.5, 'stroke-linejoin': 'round' }));
   surv.forEach((s, n) => parts.push(svg('circle', { cx: X0 + n * SLOT, cy: BOTTOM - s * H, r: 3, fill: '#B4470F' })));
-  parts.push(svg('text', { ...font, x: X0 + 4, y: BOTTOM + 32 }, '처음 "다른 배"라고 답한 판자'));
 
   root.append(...parts);
   const half = surv.findIndex((s) => s < 0.5);
@@ -337,6 +336,7 @@ async function renderStats() {
       };
       legend.append(
         item('#C9D9CE', '막대: 그 판자에서 처음 "다른 배"라고 한 사람'),
+        item('#3F6B4F', '진한 막대: 나의 경계선'),
         item('#B4470F', '선: 그 판자까지 바꿔도 "같은 배"라고 본 사람', true),
       );
       $('line-stats').replaceChildren(lineChart(lineCounts, mineKey), legend, el('p', 'stat-total', `${lineTotal}명 참여`));

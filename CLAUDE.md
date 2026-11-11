@@ -35,7 +35,7 @@ Only DOM-free, Firebase-free modules (like `experiments/trolley/verdict.js`) are
 
 ## Design conventions
 
-Lab-notebook look: grid-paper background, monospace `EXPERIMENT #01`-style labels. Fonts are IBM Plex Mono (labels) and Noto Sans KR (body). Colors: choice A orange `#B4470F`, choice B blue `#1F4E9C`, ink `#1B1F2A`, paper `#F7F6F0`. Layouts must work at 390px width with no horizontal scroll. Design mockup: https://claude.ai/artifact/HFKGWhCJsFTkhrdGtofZay
+Lab-notebook look: grid-paper background, monospace `EXPERIMENT #01`-style labels. Fonts are IBM Plex Mono (labels) and Noto Sans KR (body). IBM Plex Mono has no Hangul, so any font stack that uses it must list `Noto Sans KR` right after it (`--mono` does; SVG `font-family` attributes use `IBM Plex Mono, Noto Sans KR, monospace`), otherwise Korean falls back to a random system monospace font. SVG charts are drawn in a fixed viewBox, so cap their CSS width (e.g. `max-width: 480px`) or their text grows with the screen. Colors: choice A orange `#B4470F`, choice B blue `#1F4E9C`, ink `#1B1F2A`, paper `#F7F6F0`. Layouts must work at 390px width with no horizontal scroll. Design mockup: https://claude.ai/artifact/HFKGWhCJsFTkhrdGtofZay
 
 ## Notes
 
