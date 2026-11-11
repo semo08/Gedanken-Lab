@@ -255,6 +255,10 @@ svg { display: block; max-width: 100%; height: auto; }
 
 .term-pop--below::after { bottom: auto; top: -8px; transform: translateX(-50%) rotate(-135deg); }
 
+/* 선택 화면의 집계 안내 한 줄. "자세히"는 용어 말풍선(data-term="vote-notice")을 쓴다 */
+.vote-notice { margin: 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
+.vote-notice .term::after { content: none; } /* 이미 "자세히"라서 ⓘ는 뺀다 */
+
 /* ── 실험 카드 (메인, 다른 실험) ── */
 
 .experiments { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
