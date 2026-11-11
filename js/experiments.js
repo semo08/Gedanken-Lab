@@ -7,4 +7,5 @@ export const EXPERIMENTS = [
   { num: '04', slug: 'twin', title: '쌍둥이 역설', field: '물리', blurb: '쌍둥이 중 한 명이 빛에 가까운 속도로 먼 별에 다녀온다. 다시 만났을 때 누가 더 젊을까?', ready: true },
   { num: '05', slug: 'imitation', title: '이미테이션 게임', field: '컴퓨터', blurb: '대화만 보고 기계를 맞힐 수 있을까? 심판이 되어 3라운드를 판정한다.', ready: true },
   { num: '06', slug: 'chinese-room', title: '중국어 방', field: '컴퓨터', blurb: '모르는 글자로 된 쪽지에 규칙서만 보고 답한다. 밖에서 유창해 보였다면, 이 방은 이해한 걸까?', ready: true },
+  { num: '07', slug: 'theseus', title: '테세우스의 배', field: '철학', blurb: '판자를 한 장씩 새것으로 바꾼다. 언제부터 다른 배일까? 떼어 낸 헌 판자로 다시 만든 배는?', ready: true },
 ];
