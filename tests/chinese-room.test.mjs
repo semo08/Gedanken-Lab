@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { stance, STANCES } from '../experiments/chinese-room/stance.js';
-import { NOTES, PAGES, expected, check } from '../experiments/chinese-room/rules.js';
+import { NOTES, PAGES, PAGE_HINTS, expected, check } from '../experiments/chinese-room/rules.js';
 import { GLYPHS } from '../experiments/chinese-room/glyphs.js';
 
 test('입장: A 설, B 시스템 반론, C 다른 마음 반론', () => {
@@ -57,4 +57,9 @@ test('check: 순서까지 같아야 맞다', () => {
   assert.equal(check(0, ['g01', 'g02'], []), true);
   assert.equal(check(0, ['g02', 'g01'], []), false);
   assert.equal(check(0, ['g01'], []), false);
+});
+
+test('PAGE_HINTS는 PAGES의 모든 키를 가진다', () => {
+  assert.deepEqual(Object.keys(PAGE_HINTS).sort(), Object.keys(PAGES).sort());
+  for (const hint of Object.values(PAGE_HINTS)) assert.ok(typeof hint === 'string' && hint.length > 0);
 });

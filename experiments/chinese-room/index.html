@@ -42,6 +42,11 @@
     .book__rule:first-of-type { border-top: 0; }
     .book__arrow { font-family: var(--mono); color: var(--a); font-weight: 600; }
     .book.shake { animation: shake 0.4s; border-color: var(--a); }
+    .book > .label strong { color: var(--a); } /* 라벨은 이미 굵어서 굵기만으로는 강조가 안 보인다 */
+    .book__hint { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); padding: 6px 8px; }
+    /* 규칙서 페이지가 바뀌는 쪽지(3, 5)에서만: 주황 글자 + 잠깐 진해졌다 옅어지는 배경 */
+    .book__hint--changed { color: var(--a); font-weight: 700; background: var(--a-tint); animation: hint-flash 1.6s ease-out; }
+    @keyframes hint-flash { 0%, 30% { background: var(--a-light); } 100% { background: var(--a-tint); } }
     @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
     .cards { display: grid; grid-template-columns: repeat(6, minmax(52px, 72px)); gap: 8px; } /* 12장 = 6 × 2줄 */
@@ -110,6 +115,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       .book.shake { animation: none; }
+      .book__hint--changed { animation: none; }
     }
   </style>
 </head>
@@ -130,7 +136,7 @@
       </div>
       <div class="card">
         <span class="label">관찰 기록 · 상황</span>
-        <svg class="scene-art" role="img" aria-label="작은 방 안에 사람이 규칙서를 펴 놓고 앉아 있다. 문 틈으로 모르는 기호가 적힌 쪽지가 들어온다." viewBox="0 0 880 230" fill="none" stroke="#1B1F2A" stroke-width="2">
+        <svg class="scene-art" role="img" aria-label="작은 방 안에 사람이 규칙서를 펴 놓고 앉아 있다. 문 틈으로 모르는 기호가 적힌 쪽지가 들어온다." viewBox="200 -32 680 288" fill="none" stroke="#1B1F2A" stroke-width="2">
           <rect x="220" y="20" width="440" height="190" fill="#FFFFFF"/>
           <!-- 문과 틈 -->
           <path d="M660 70 V180" stroke-width="5"/>
@@ -154,10 +160,10 @@
           <path d="M552 168 V156 H568 V168 M576 168 V152 H592 V168" stroke="#B4470F"/>
           <g font-family="IBM Plex Mono, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">
             <text x="360" y="62">당신</text>
-            <text x="445" y="120" fill="#1F4E9C">규칙서</text>
-            <text x="575" y="224" fill="#B4470F">기호 카드</text>
-            <text x="735" y="168">쪽지</text>
-            <text x="440" y="14" fill="#5B6170">밖이 보이지 않는 방</text>
+            <text x="445" y="114" fill="#1F4E9C">규칙서</text>
+            <text x="575" y="246" fill="#B4470F">기호 카드</text>
+            <text x="735" y="182">쪽지</text>
+            <text x="440" y="-6" fill="#5B6170">밖이 보이지 않는 방</text>
           </g>
         </svg>
         <p class="story">당신은 작은 방에 갇혀 있다. 방에는 규칙서 한 권과 기호 카드 상자가 있다. 기호는 <strong>한 번도 본 적 없는 글자</strong>다. 문 틈으로 기호가 적힌 쪽지가 들어오면, 규칙서에서 같은 모양을 찾아 거기 적힌 대로 카드를 골라 답 쪽지를 내보내면 된다. 기호의 뜻은 어디에도 적혀 있지 않다.</p>
@@ -201,7 +207,8 @@
             </div>
           </div>
           <div class="book" id="book">
-            <span class="label" style="color: var(--b)">규칙서 · 위에서부터 차례로, 처음 맞는 줄을 따른다</span>
+            <span class="label" style="color: var(--b)">규칙서 · 맞는 줄 <strong>하나</strong>를 찾아, 오른쪽 기호를 <strong>그대로</strong> 답 쪽지에 놓는다</span>
+            <p class="book__hint" id="rule-hint" aria-live="polite"></p>
             <div id="rules"></div>
           </div>
         </div>
