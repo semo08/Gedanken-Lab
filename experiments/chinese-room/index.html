@@ -42,6 +42,11 @@
     .book__rule:first-of-type { border-top: 0; }
     .book__arrow { font-family: var(--mono); color: var(--a); font-weight: 600; }
     .book.shake { animation: shake 0.4s; border-color: var(--a); }
+    .book > .label strong { color: var(--a); } /* 라벨은 이미 굵어서 굵기만으로는 강조가 안 보인다 */
+    .book__hint { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); padding: 6px 8px; }
+    /* 규칙서 페이지가 바뀌는 쪽지(3, 5)에서만: 주황 글자 + 잠깐 진해졌다 옅어지는 배경 */
+    .book__hint--changed { color: var(--a); font-weight: 700; background: var(--a-tint); animation: hint-flash 1.6s ease-out; }
+    @keyframes hint-flash { 0%, 30% { background: var(--a-light); } 100% { background: var(--a-tint); } }
     @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
     .cards { display: grid; grid-template-columns: repeat(6, minmax(52px, 72px)); gap: 8px; } /* 12장 = 6 × 2줄 */
@@ -110,6 +115,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       .book.shake { animation: none; }
+      .book__hint--changed { animation: none; }
     }
   </style>
 </head>
@@ -201,7 +207,8 @@
             </div>
           </div>
           <div class="book" id="book">
-            <span class="label" style="color: var(--b)">규칙서 · 위에서부터 차례로, 처음 맞는 줄을 따른다</span>
+            <span class="label" style="color: var(--b)">규칙서 · 맞는 줄 <strong>하나</strong>를 찾아, 오른쪽 기호를 <strong>그대로</strong> 답 쪽지에 놓는다</span>
+            <p class="book__hint" id="rule-hint" aria-live="polite"></p>
             <div id="rules"></div>
           </div>
         </div>

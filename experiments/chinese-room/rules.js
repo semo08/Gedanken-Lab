@@ -25,6 +25,13 @@ export const PAGES = {
   ],
 };
 
+// 규칙서 페이지마다 라벨 아래에 보여 줄 안내 한 줄. 페이지가 바뀌는 쪽지(3, 5)에서 강조한다
+export const PAGE_HINTS = {
+  simple: '들어온 쪽지 전체가 왼쪽 모양과 똑같은 줄을 찾는다.',
+  condition: '이번 규칙서는 쪽지의 맨 끝 기호만 본다.',
+  memory: '이번 규칙서는 내가 직전에 내보낸 쪽지를 본다.',
+};
+
 // say/reply는 반전 화면에서 보여 줄 자연스러운 번역
 export const NOTES = [
   { incoming: ['g01'], page: 'simple', say: '안녕?', reply: '안녕, 반가워.' },

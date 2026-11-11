@@ -1,5 +1,5 @@
 import { GLYPHS, glyph } from './glyphs.js';
-import { NOTES, PAGES, expected, check } from './rules.js';
+import { NOTES, PAGES, PAGE_HINTS, expected, check } from './rules.js';
 import { stance, STANCES } from './stance.js';
 import { EXPERIMENTS } from '../../js/experiments.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
@@ -68,7 +68,9 @@ function renderRoom() {
 
   const incoming = done ? NOTES.at(-1).incoming : NOTES[note].incoming;
   $('incoming').replaceChildren(glyphRow(incoming, 'glyph--lg'));
-  renderRules(done ? NOTES.at(-1).page : NOTES[note].page);
+  // 규칙서가 앞 쪽지와 다른 페이지로 넘어간 쪽지(3, 5)에서만 안내를 강조한다
+  const pageChanged = !done && note > 0 && NOTES[note].page !== NOTES[note - 1].page;
+  renderRules(done ? NOTES.at(-1).page : NOTES[note].page, pageChanged);
   renderAnswer();
   renderCards(done);
   renderLog();
@@ -87,7 +89,10 @@ function ruleRow(rule) {
   return row;
 }
 
-function renderRules(page) {
+function renderRules(page, changed) {
+  const hint = $('rule-hint');
+  hint.textContent = PAGE_HINTS[page];
+  hint.className = changed ? 'book__hint book__hint--changed' : 'book__hint';
   $('rules').replaceChildren(...PAGES[page].map(ruleRow));
 }
 
