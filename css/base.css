@@ -16,6 +16,7 @@
   --b-tint: #EEF3FB;
   --b-light: #BFD0EA;
   --note: #FFF9E8;
+  --c: #3F6B4F;          /* 철학 분야 (종이 배경 대비 5.7:1) */
 
   --mono: 'IBM Plex Mono', ui-monospace, monospace;
   --sans: 'Noto Sans KR', system-ui, sans-serif;

@@ -126,8 +126,8 @@ votes (컬렉션)
  ├─ imitation_1~3    → { A: 맞힘, B: 틀림 }
  ├─ imitation_turing → { A: 0, B: 0 }
  ├─ chinese_room     → { A: 0, B: 0, C: 0 }
- ├─ theseus_line     → { P1: 0, …, P10: 0, KEEP: 0 }  // 9단계, 규칙 수정 필요
- └─ theseus_rebuilt  → { A: 0, B: 0, C: 0 }          // 9단계, 규칙 수정 필요
+ ├─ theseus_line     → { P1: 0, …, P10: 0, KEEP: 0 }
+ └─ theseus_rebuilt  → { A: 0, B: 0, C: 0 }
 ```
 
 - 보안 규칙(`firestore.rules`)에는 위 문서가 모두 들어 있다.
@@ -144,7 +144,7 @@ votes (컬렉션)
 - [x] **6단계** 쌍둥이 역설 (설계: `docs/superpowers/specs/2026-11-10-twin-design.md`)
 - [x] **7단계** 이미테이션 게임 (설계: `docs/superpowers/specs/2026-11-10-imitation-design.md`)
 - [x] **8단계** 중국어 방 (설계: `docs/superpowers/specs/2026-11-10-chinese-room-design.md`)
-- [ ] **9단계** 테세우스의 배 (설계: `docs/superpowers/specs/2026-11-11-theseus-design.md`)
+- [x] **9단계** 테세우스의 배 (설계: `docs/superpowers/specs/2026-11-11-theseus-design.md`)
 
 ## 9. 나중에 하고 싶은 것
 

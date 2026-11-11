@@ -5,19 +5,16 @@ service cloud.firestore {
       // 문서별 허용 선택지. 새 질문을 추가하면 여기에 넣는다.
       function keysFor(id) {
         return id == 'schrodinger' ? ['A', 'B', 'C', 'D']
-          : id in ['twin', 'chinese_room'] ? ['A', 'B', 'C']
+          : id in ['twin', 'chinese_room', 'theseus_rebuilt'] ? ['A', 'B', 'C']
+          : id == 'theseus_line' ? ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'P10', 'KEEP']
           : ['A', 'B'];
       }
 
-      function total(data) {
-        return data.get('A', 0) + data.get('B', 0) + data.get('C', 0) + data.get('D', 0);
-      }
-
-      function noneDecreased() {
-        return request.resource.data.get('A', 0) >= resource.data.get('A', 0)
-          && request.resource.data.get('B', 0) >= resource.data.get('B', 0)
-          && request.resource.data.get('C', 0) >= resource.data.get('C', 0)
-          && request.resource.data.get('D', 0) >= resource.data.get('D', 0);
+      // 키 이름과 상관없이: 바뀐 키는 정확히 하나, 그 값은 이전 값(없으면 0) + 1.
+      // 다른 키는 바뀌지 않았으니 덮어쓰기·감소·여러 표 한꺼번에 넣기가 모두 막힌다.
+      function isOneVote(changed) {
+        return changed.size() == 1
+          && request.resource.data[changed.toList()[0]] == resource.data.get(changed.toList()[0], 0) + 1;
       }
 
       allow read: if true;
@@ -25,17 +22,16 @@ service cloud.firestore {
       // 첫 투표: 정해진 문서만, 허용된 키 하나가 1인 상태로 생성
       allow create: if doc in [
           'trolley_1', 'trolley_2', 'trolley_3', 'schrodinger', 'maxwell', 'twin',
-          'imitation_1', 'imitation_2', 'imitation_3', 'imitation_turing', 'chinese_room'
+          'imitation_1', 'imitation_2', 'imitation_3', 'imitation_turing', 'chinese_room',
+          'theseus_line', 'theseus_rebuilt'
         ]
         && request.resource.data.keys().hasOnly(keysFor(doc))
         && request.resource.data.size() == 1
-        && total(request.resource.data) == 1;
+        && request.resource.data[request.resource.data.keys()[0]] == 1;
 
-      // 이후 투표: 키 하나만, 합계가 정확히 1 증가, 줄어드는 값 없음
+      // 이후 투표: 허용된 키 중 하나만 정확히 1 증가
       allow update: if request.resource.data.keys().hasOnly(keysFor(doc))
-        && request.resource.data.diff(resource.data).affectedKeys().size() == 1
-        && total(request.resource.data) == total(resource.data) + 1
-        && noneDecreased();
+        && isOneVote(request.resource.data.diff(resource.data).affectedKeys());
     }
   }
 }
