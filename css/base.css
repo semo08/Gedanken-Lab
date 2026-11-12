@@ -282,6 +282,14 @@ a.exp:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 8
 .exp__tag { font-family: var(--mono); font-size: 12px; padding: 4px 10px; border: 1px solid currentColor; }
 .exp__cta { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--b); }
 
+/* 결과 화면의 "다른 실험 해보기": 폰에서는 제목만 남겨 결과보다 길어지지 않게 한다 */
+@media (max-width: 480px) {
+  .experiments--others { gap: 12px; }
+  .experiments--others .exp { padding: 14px 18px; gap: 6px; box-shadow: 4px 4px 0 var(--b); }
+  .experiments--others .exp h2 { font-size: 19px; }
+  .experiments--others .exp p, .experiments--others .exp__cta { display: none; }
+}
+
 .exp--soon { background: rgba(255, 255, 255, 0.6); border-style: dashed; border-color: var(--dash); box-shadow: none; }
 .exp--soon h2 { color: var(--muted); }
 .exp__placeholder {
