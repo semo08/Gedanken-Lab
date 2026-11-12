@@ -14,15 +14,20 @@
     .scene-title { font-size: 28px; }
     .story { font-size: 18px; line-height: 1.8; }
     .ask { display: flex; flex-direction: column; gap: 16px; }
-    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; scroll-margin-bottom: 16px; }
     .scene-title:focus, .report-title:focus { outline: none; }
 
     .choices--four { grid-template-columns: repeat(2, 1fr); }
     @media (max-width: 640px) { .choices--four { grid-template-columns: 1fr; } }
-    .choice[data-choice="C"] .choice__tag { color: var(--b); }
-    .choice[data-choice="D"] .choice__tag { color: var(--muted); }
-    .choice[data-choice="C"][aria-pressed="true"] { background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); transform: none; }
-    .choice[data-choice="D"][aria-pressed="true"] { background: #F0F1F4; box-shadow: 6px 6px 0 var(--muted); transform: none; }
+    /* 결과 막대와 같은 색 묶음: A·B "이미 정해져 있다"는 주황, C·D "정해져 있지 않다"는 파랑 */
+    .choice[data-choice="B"] .choice__tag { color: var(--a); }
+    .choice[data-choice="C"] .choice__tag,
+    .choice[data-choice="D"] .choice__tag { color: var(--b); }
+    .choice[data-choice="B"][aria-pressed="true"] { background: var(--a-tint); box-shadow: 6px 6px 0 var(--a); transform: none; }
+    .choice[data-choice="C"][aria-pressed="true"],
+    .choice[data-choice="D"][aria-pressed="true"] { background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); transform: none; }
+
+    .card svg.scene-art { width: 100%; max-width: 720px; align-self: center; }
 
     /* 관측 상자 */
     .lab { display: flex; flex-direction: column; align-items: center; gap: 20px; }
@@ -47,7 +52,14 @@
     .chip { width: 16px; height: 16px; border: 2px solid var(--ink); }
     .chip--alive { background: var(--b); }
     .chip--dead { background: var(--a-light); }
+    .tally__chips--dense { gap: 2px; }
+    .tally__chips--dense .chip { width: 8px; height: 8px; border-width: 1px; }
     .tally__text { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+
+    /* 살아 있음 비율. 가운데 선이 50% */
+    .ratio { position: relative; height: 12px; background: var(--a-light); border: 1px solid var(--ink); }
+    .ratio__fill { height: 100%; width: 0; background: var(--b); transition: width 0.3s ease-out; }
+    .ratio__half { position: absolute; left: 50%; top: -5px; bottom: -5px; width: 2px; background: var(--ink); transform: translateX(-50%); }
 
     /* 결과 */
     .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
@@ -85,7 +97,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .box .lid, .box .cat { transition: none; }
+      .box .lid, .box .cat, .ratio__fill { transition: none; }
     }
   </style>
 </head>
@@ -106,7 +118,7 @@
       </div>
       <div class="card">
         <span class="label">관찰 기록 · 실험 장치</span>
-        <svg class="scene-art" role="img" aria-label="닫힌 상자 안에 방사성 원자, 가이거 계수기, 망치, 독약 병, 그리고 고양이가 있다" viewBox="0 0 880 250" fill="none" stroke="#1B1F2A" stroke-width="2">
+        <svg class="scene-art" role="img" aria-label="닫힌 상자 안에 방사성 원자, 가이거 계수기, 망치, 독약 병, 그리고 고양이가 있다" viewBox="120 0 640 250" fill="none" stroke="#1B1F2A" stroke-width="2">
           <rect x="140" y="40" width="600" height="180" fill="#F7F6F0"/>
           <path d="M130 40 H750" stroke-width="4"/>
           <!-- 방사성 원자 -->
@@ -223,10 +235,14 @@
           <p class="observed observed--closed" id="observed" aria-live="polite">닫힌 상자 · 아직 아무도 모른다</p>
           <div class="row" style="justify-content: center">
             <button type="button" class="btn" id="open-box">상자를 연다</button>
-            <button type="button" class="btn btn--ghost" id="reset-box" hidden>새 상자 준비</button>
+            <button type="button" class="btn btn--ghost" id="bulk-open" hidden>100개 한꺼번에 열기</button>
           </div>
           <div class="tally">
             <div class="tally__chips" id="tally-chips" aria-hidden="true"></div>
+            <div class="ratio" id="ratio" role="img" aria-label="살아 있음 비율" hidden>
+              <div class="ratio__fill" id="ratio-fill"></div>
+              <span class="ratio__half"></span>
+            </div>
             <p class="tally__text" id="tally-text">아직 열어 본 상자가 없다 · 3번 이상 열어 보자</p>
           </div>
         </div>
@@ -257,7 +273,7 @@
       <div class="card card--tight">
         <span class="label">관측 데이터 · 당신이 연 상자들</span>
         <div class="tally__chips" id="result-chips" aria-hidden="true"></div>
-        <p style="font-size: 17px; font-weight: 700" id="result-tally"></p>
+        <p style="font-size: 17px; line-height: 1.7; font-weight: 700" id="result-tally"></p>
         <p style="font-size: 16px; line-height: 1.8">상자를 열 때마다 고양이는 <strong>살아 있거나 쓰러져 있거나, 둘 중 하나</strong>였다. 겹친 상태를 본 사람은 없다. 그런데 많이 열수록 비율은 반반에 가까워진다. 양자역학이 예측하는 것은 한 번의 결과가 아니라 바로 이 <strong>확률</strong>이다.</p>
       </div>
 
