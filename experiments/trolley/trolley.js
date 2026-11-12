@@ -1,4 +1,4 @@
-import { verdict } from './verdict.js';
+import { verdict, reflection } from './verdict.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
 
 const SCENES = [
@@ -50,6 +50,7 @@ function renderVerdict() {
   type.textContent = v.type;
   type.className = `type--${v.side}`;
   document.getElementById('verdict-line').textContent = v.line;
+  document.getElementById('reflection-mine').textContent = reflection(choices);
   document.getElementById('gauge').setAttribute('aria-label',
     `공리주의와 의무론 사이에서 ${v.side === 'A' ? '공리주의' : '의무론'} 쪽에 가까움`);
   // 다음 프레임에 옮겨야 게이지가 가운데서 미끄러져 간다
@@ -126,7 +127,9 @@ function statRow(scene, mine, { A, B }) {
   }
   row.append(bar);
 
-  row.append(el('p', 'stat__legend', `${scene.A} ${pct.A}% · ${scene.B} ${pct.B}% · ${total}명 참여`));
+  // 막대에 글자가 들어간 쪽은 다시 쓰지 않는다. 좁아서 비운 쪽만 여기에 적는다
+  const hidden = ['A', 'B'].filter((side) => pct[side] > 0 && pct[side] < 25).map((side) => `${scene[side]} ${pct[side]}%`);
+  row.append(el('p', 'stat__legend', [...hidden, `${total}명 참여`].join(' · ')));
   return row;
 }
 
