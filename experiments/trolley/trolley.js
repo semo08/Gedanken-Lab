@@ -19,16 +19,22 @@ function show(step) {
 
 function pick(section, choice) {
   choices[section.dataset.step] = choice;
+  section.dataset.picked = choice; // CSS가 고른 쪽 경로를 그리고 레버를 넘긴다
   for (const btn of section.querySelectorAll('.choice')) {
     btn.setAttribute('aria-pressed', String(btn.dataset.choice === choice));
   }
-  section.querySelector('.next').hidden = false;
+  const next = section.querySelector('.next');
+  next.hidden = false;
+  // 폰에서는 선택지 아래가 화면 밖이라 "다음" 버튼이 나타난 걸 모를 수 있다
+  const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  next.scrollIntoView({ block: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
 }
 
 function restart() {
   for (const scene of SCENES) choices[scene.step] = null;
   for (const btn of document.querySelectorAll('.choice')) btn.setAttribute('aria-pressed', 'false');
   for (const next of document.querySelectorAll('.next')) next.hidden = true;
+  for (const section of sections) delete section.dataset.picked;
   show(1);
 }
 
