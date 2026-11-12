@@ -166,11 +166,17 @@ function drawDiagram(v, t) {
   const root = $('diagram');
   root.setAttribute('viewBox', `0 0 ${W} ${H}`);
   root.setAttribute('aria-label', `시공간 다이어그램. 지구 쌍둥이는 제자리에서 곧게 ${formatYears(t.earthYears)}를 지나고, `
-    + `우주 쌍둥이는 ${dest.name}에서 꺾여 돌아오며 ${formatYears(t.shipYears)}를 지난다.`);
+    + `우주 쌍둥이는 ${dest.name}에서 꺾여 돌아오며 ${formatYears(t.shipYears)}를 지난다. 점선은 빛의 길이다.`);
 
   const pts = (list) => list.map((p) => `${p.x},${p.y}`).join(' ');
   const [start, turn, end] = g.ship;
   const font = { 'font-family': 'IBM Plex Mono, Noto Sans KR, monospace', 'font-size': 12 };
+  // 빛의 길 라벨: 점선 위 y ≥ 300인 지점의 오른쪽 아래. 빠를 때 점선 끝이 '방향 전환'과 겹치지 않게 한다
+  const [l0, l1] = g.light;
+  const lightY = Math.max(l1.y, 300);
+  const lightX = l0.x + (l0.y - lightY) * ((l1.x - l0.x) / (l0.y - l1.y));
+  // 메모는 출발~꺾인 지점 구간의 바깥쪽(오른쪽 아래). 우주선 길은 늘 점선보다 왼쪽이라 오른쪽 끝에 붙이면 겹치지 않는다
+  const noteY = (start.y + turn.y) / 2;
 
   root.replaceChildren(
     // 축
@@ -191,6 +197,9 @@ function drawDiagram(v, t) {
     svg('text', { ...font, x: turn.x + 8, y: turn.y - 4, fill: '#B4470F' }, '방향 전환'),
     svg('text', { ...font, x: turn.x + 8, y: turn.y + 12, fill: '#B4470F' }, '(가속)'),
     svg('text', { ...font, x: start.x - 4, y: end.y - 10, fill: '#1B1F2A' }, '다시 만남'),
+    svg('text', { ...font, x: lightX + 12, y: lightY + 8, fill: '#8A90A0' }, '빛의 길'),
+    svg('text', { ...font, x: W - 8, y: noteY, 'text-anchor': 'end', fill: '#B4470F' }, '선은 더 길어 보여도'),
+    svg('text', { ...font, x: W - 8, y: noteY + 18, 'text-anchor': 'end', fill: '#B4470F' }, '점(시간)은 더 적다'),
   );
 
   $('tick-note').textContent = `점 하나 = 각자의 시계로 ${g.tick}년`;
