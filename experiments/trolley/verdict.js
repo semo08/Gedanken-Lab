@@ -23,3 +23,19 @@ export function verdict(choices) {
   const gauge = GAUGE_BY_A_COUNT[aCount];
   return { ...TYPES[combo], gauge, side: gauge < 50 ? 'A' : 'B' };
 }
+
+// 고찰 첫머리: 장면 1·2를 어떻게 이어 답했는지, 장면 3은 연구 결과와 나란히 놓는다
+const SAME_NUMBERS = {
+  AA: '당신은 레버도 당기고 육교에서도 밀었다. 숫자가 같으니 답도 같았다.',
+  AB: '당신은 레버는 당겼지만 육교에서는 밀지 않았다. 숫자는 같았는데 답이 갈렸다.',
+  BA: '당신은 레버는 두고 육교에서는 밀었다. 대부분의 사람과 반대로 갈린 드문 답이다.',
+  BB: '당신은 레버도 당기지 않고 육교에서도 밀지 않았다. 숫자보다 직접 개입하지 않는 쪽을 골랐다.',
+};
+const CAR_RULE = {
+  A: '자율주행차에는 피해를 줄이는 규칙을 넣었다. 2016년 연구에서 사람들은 이런 차가 옳다고 하면서도, 직접 타고 싶은 건 탑승자를 지키는 차라고 답했다.',
+  B: '자율주행차에는 탑승자를 지키는 규칙을 넣었다. 2016년 연구에서도 사람들은 피해를 줄이는 차가 옳다고 하면서, 직접 타고 싶은 건 이런 차라고 답했다.',
+};
+
+export function reflection(choices) {
+  return `${SAME_NUMBERS[`${choices[1]}${choices[2]}`]} ${CAR_RULE[choices[3]]}`;
+}

@@ -27,6 +27,7 @@ function card(exp, rootPath) {
 
 /** 현재 실험을 뺀 나머지 실험 카드를 container에 그린다. rootPath는 사이트 루트까지의 상대 경로. */
 export function renderOtherExperiments(container, currentSlug, rootPath) {
+  container.classList.add('experiments--others');
   container.replaceChildren(
     ...EXPERIMENTS.filter((exp) => exp.slug !== currentSlug).map((exp) => card(exp, rootPath)),
   );

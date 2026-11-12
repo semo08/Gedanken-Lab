@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { verdict } from '../experiments/trolley/verdict.js';
+import { verdict, reflection } from '../experiments/trolley/verdict.js';
 
 const cases = [
   ['AAA', '철저한 공리주의자', '누구의 손이든, 5명은 1명보다 무겁다.', 10, 'A'],
@@ -19,3 +19,16 @@ for (const [combo, type, line, gauge, side] of cases) {
     assert.deepEqual(verdict(choices), { type, line, gauge, side });
   });
 }
+
+test('reflection covers all 8 combinations', () => {
+  for (const combo of ['AAA', 'AAB', 'ABA', 'ABB', 'BAA', 'BAB', 'BBA', 'BBB']) {
+    const text = reflection({ 1: combo[0], 2: combo[1], 3: combo[2] });
+    assert.ok(!text.includes('undefined'), combo);
+    assert.match(text, /^당신은 레버/);
+  }
+});
+
+test('reflection ties scenes 1 and 2 to the same numbers', () => {
+  assert.match(reflection({ 1: 'A', 2: 'B', 3: 'A' }), /숫자는 같았는데 답이 갈렸다/);
+  assert.match(reflection({ 1: 'A', 2: 'A', 3: 'B' }), /탑승자를 지키는 규칙/);
+});
