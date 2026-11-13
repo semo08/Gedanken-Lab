@@ -15,6 +15,12 @@ const ANSWERS = {
   C: { label: '둘 다 진짜이거나, 둘 다 아니다', color: 'var(--c)' },
 };
 
+const PLATE_NOTE = {
+  A: '✓ 이름판은 계속 수리해 온 배에',
+  B: '✓ 이름판은 헌 판자로 만든 배에',
+  C: '✓ 이름판을 한 배에 정하지 않았다',
+};
+
 const $ = (id) => document.getElementById(id);
 const sections = [...document.querySelectorAll('[data-step]')];
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -210,6 +216,7 @@ function finishRepair() {
 function showReveal() {
   drawShip($('ship-repaired'), Array(PLANKS).fill('new'));
   const rebuilt = $('ship-rebuilt');
+  for (const ship of [$('ship-repaired'), rebuilt]) delete ship.dataset.name;
   drawShip(rebuilt, Array(PLANKS).fill('hidden'));
   // 헌 판자를 한 장씩 맞춘다(뱃머리와 이름판이 마지막)
   for (let i = 1; i <= PLANKS; i++) {
@@ -226,7 +233,19 @@ function pickRebuilt(choice) {
   for (const btn of document.querySelectorAll('#rebuilt-choices .choice')) {
     btn.setAttribute('aria-pressed', String(btn.dataset.choice === choice));
   }
-  document.querySelector('[data-step="3"] .next').hidden = false;
+  // "테세우스"라는 이름을 어느 배에 붙였는지 그림에 남긴다
+  for (const [key, ship] of [['A', $('ship-repaired')], ['B', $('ship-rebuilt')]]) {
+    ship.dataset.name = choice === 'C' ? 'unsure' : choice === key ? 'named' : 'unnamed';
+  }
+  // 폰에서는 버튼으로 스크롤하면 그림이 화면 위로 지나가니 글로도 남긴다
+  document.querySelector('[data-step="3"] .next .label').textContent = PLATE_NOTE[choice];
+  reveal(document.querySelector('[data-step="3"] .next'));
+}
+
+// 새로 나타난 버튼이 화면 밖이면 보이게 스크롤한다
+function reveal(node) {
+  node.hidden = false;
+  node.scrollIntoView({ block: 'nearest', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
 }
 
 // ── 결과 ──
