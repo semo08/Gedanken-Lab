@@ -193,12 +193,33 @@ function send() {
   setTimeout(() => {
     state.busy = false;
     renderRoom();
+    // 폰에서는 카드를 고르느라 아래에 있다. 새 쪽지와 규칙서가 보이게 올려 준다
+    $('incoming-slip').scrollIntoView({ block: 'nearest', behavior: smooth() });
   }, reduceMotion.matches ? 0 : NEXT_NOTE_MS);
 }
 
 // ── 방 밖 ──
 
+// 반전: 화면에 들어온 줄부터 차례로 뜻이 나타나고, 다 나타나면 밖 사람의 말이 나온다
+let readAt = 0;
+let unread = 0;
+const translator = new IntersectionObserver((entries) => {
+  for (const { target, isIntersecting } of entries) {
+    if (!isIntersecting) continue;
+    translator.unobserve(target);
+    const now = performance.now();
+    readAt = Math.max(now, readAt + 350);
+    setTimeout(() => {
+      target.classList.add('is-read');
+      unread -= 1;
+      if (unread === 0) setTimeout(() => $('quote').classList.add('is-read'), 500);
+    }, readAt - now);
+  }
+}, { threshold: 1 });
+
 function renderTranscript() {
+  translator.disconnect();
+  $('quote').classList.remove('is-read');
   $('transcript').replaceChildren(...NOTES.map((note, i) => {
     const row = el('div', 'exchange');
     const outside = el('div', 'line line--out');
@@ -208,6 +229,23 @@ function renderTranscript() {
     row.append(outside, room);
     return row;
   }));
+
+  const lines = [...$('transcript').querySelectorAll('.line__meaning')];
+  if (reduceMotion.matches) {
+    for (const node of [...lines, $('quote')]) node.classList.add('is-read');
+    return;
+  }
+  readAt = performance.now() + 400; // 화면이 바뀐 뒤 기호를 잠깐 보여 주고 시작한다
+  unread = lines.length;
+  for (const node of lines) translator.observe(node);
+}
+
+const smooth = () => (reduceMotion.matches ? 'auto' : 'smooth');
+
+// 새로 나타난 버튼이 화면 밖이면 보이게 스크롤한다
+function reveal(node) {
+  node.hidden = false;
+  node.scrollIntoView({ block: 'nearest', behavior: smooth() });
 }
 
 function pick(choice) {
@@ -215,7 +253,7 @@ function pick(choice) {
   for (const btn of document.querySelectorAll('[data-step="3"] .choice')) {
     btn.setAttribute('aria-pressed', String(btn.dataset.choice === choice));
   }
-  document.querySelector('[data-step="3"] .next').hidden = false;
+  reveal(document.querySelector('[data-step="3"] .next'));
 }
 
 // ── 결과 ──
