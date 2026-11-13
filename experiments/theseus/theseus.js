@@ -16,15 +16,16 @@ const ANSWERS = {
 };
 
 const PLATE_NOTE = {
-  A: '✓ 이름판은 계속 수리해 온 배에',
-  B: '✓ 이름판은 헌 판자로 만든 배에',
-  C: '✓ 이름판을 한 배에 정하지 않았다',
+  A: '✓ 테세우스라는 이름은 계속 수리해 온 배에',
+  B: '✓ 테세우스라는 이름은 헌 판자로 만든 배에',
+  C: '✓ 테세우스라는 이름을 한 배에 정하지 않았다',
 };
 
 const $ = (id) => document.getElementById(id);
 const sections = [...document.querySelectorAll('[data-step]')];
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const SVG_NS = 'http://www.w3.org/2000/svg';
+const HULL = 'M70 94 Q230 110 392 92 L386 132 L384 150 Q240 164 100 150 Q72 132 70 94 Z';
 
 let state;
 let timers = [];
@@ -64,79 +65,124 @@ function clearTimers() {
 }
 
 // ── 배 그리기 ──
-// 선체: 갑판 y 62, 바닥 y 118. 판자 1~9는 선미(x 20)부터 x 300까지 같은 폭, 판자 10은 이름판이 달린 뱃머리.
+// 고대 그리스 갤리선 옆모습. 고물(왼쪽)은 위로 말려 올라가고, 이물(오른쪽) 물밑에 충각이 있다.
+// 판자 1~9는 고물부터 같은 폭의 구획, 판자 10은 이름을 새긴 뱃머리. 구획은 선체 모양(#hull-clip)으로 잘린다.
 
-const DECK = 62;
-const KEEL = 118;
-const PLANK_W = 280 / 9;
+const INK = '#3A2F28';
+const STATIONS = [70, 100, 130, 160, 190, 220, 250, 280, 310, 340, 392];
+const WATER = 141;
+const topY = (x) => { const t = (x - 70) / 322; return (1 - t) ** 2 * 94 + 2 * t * (1 - t) * 110 + t ** 2 * 92; };
 
-function plankPoints(i) {
-  if (i === PLANKS) return '300,62 380,52 330,118 300,118';
-  const x0 = 20 + (i - 1) * PLANK_W;
-  const x1 = x0 + PLANK_W;
-  const bottomLeft = i === 1 ? 48 : x0; // 선미는 비스듬하다
-  return `${x0},${DECK} ${x1},${DECK} ${x1},${KEEL} ${bottomLeft},${KEEL}`;
-}
-
-// 헌 판자 더미 (수리 화면에만)
-const PILE = { x: 432, base: 104, step: 9, w: 52, h: 7 };
-
-function waves(width) {
-  let d = `M0 128`;
-  for (let x = 0; x < width; x += 20) d += ` q 5 -5 10 0 q 5 5 10 0`;
-  return d;
-}
+// 떼어 낸 판자가 쌓이는 자리 (돌 부두 위, 수리 화면에만)
+const PILE = { x: 476, base: 117, step: 7.5, w: 80, h: 8 };
 
 /** @param {('old'|'new'|'hidden')[]} planks */
-function drawShip(root, planks, { pile = null } = {}) {
-  const width = pile === null ? 400 : 530;
-  root.setAttribute('viewBox', `0 0 ${width} 150`);
+function drawShip(root, planks, { pile = null, stations = false } = {}) {
+  const width = pile === null ? 480 : 600;
+  const hidden = (k) => (planks[k] === 'hidden' ? ' plank--hidden' : '');
+  root.setAttribute('viewBox', `0 0 ${width} 196`);
+
+  const hull = svg('g', { 'clip-path': 'url(#hull-clip)' });
+  planks.forEach((kind, k) => {
+    const x0 = k === 0 ? 0 : STATIONS[k];
+    const x1 = k === PLANKS - 1 ? 480 : STATIONS[k + 1];
+    hull.append(svg('rect', {
+      x: x0, y: 80, width: x1 - x0, height: 90, 'data-i': k + 1,
+      class: `plank plank--${kind === 'new' ? 'new' : 'old'}${hidden(k)}`,
+    }));
+  });
+  // 판자 이음선(가로)과 구획선(세로)
+  for (const o of [14, 28, 42, 56]) {
+    hull.append(svg('path', { d: `M60 ${94 + o} Q230 ${110 + o} 400 ${92 + o}`, fill: 'none', stroke: INK, 'stroke-width': 0.6, opacity: 0.45 }));
+  }
+  for (const x of STATIONS.slice(1, -1)) hull.append(svg('path', { d: `M${x} 80 V170`, stroke: INK, 'stroke-width': 1.2 }));
+
   root.replaceChildren(
-    svg('path', { d: waves(width), fill: 'none', stroke: '#BFD0EA', 'stroke-width': 2 }),
-    // 돛대와 돛
-    svg('path', { d: 'M170 62 V8', stroke: '#1B1F2A', 'stroke-width': 3 }),
-    svg('path', { d: 'M173 12 V54 H236 Z', fill: '#FFFFFF', stroke: '#1B1F2A', 'stroke-width': 1.5 }),
-    ...planks.map((kind, k) => svg('polygon', {
-      points: plankPoints(k + 1), 'data-i': k + 1,
-      class: `plank plank--${kind === 'new' ? 'new' : 'old'}${kind === 'hidden' ? ' plank--hidden' : ''}`,
-    })),
-    // 이름판 (뱃머리 판자 위)
-    svg('rect', { x: 306, y: 76, width: 44, height: 16, fill: '#FFFFFF', stroke: '#1B1F2A', 'stroke-width': 1, 'data-plate': '', class: planks[PLANKS - 1] === 'hidden' ? 'plank--hidden' : '' }),
-    svg('text', { x: 328, y: 87.5, 'font-size': 10, 'text-anchor': 'middle', fill: '#1B1F2A', 'font-family': 'Noto Sans KR, sans-serif', 'data-plate': '', class: planks[PLANKS - 1] === 'hidden' ? 'plank--hidden' : '' }, '테세우스'),
+    // 돛대, 펼친 네모돛, 줄
+    svg('path', { d: 'M215 16 L78 94 M215 16 L390 92 M168 78 L120 100 M262 78 L310 100', stroke: '#8A90A0', 'stroke-width': 0.8, fill: 'none' }),
+    svg('path', { d: 'M215 104 V12', stroke: INK, 'stroke-width': 3 }),
+    svg('path', { d: 'M164 27 Q215 22 266 27 L262 78 Q215 88 168 78 Z', fill: '#F4EFE3', stroke: INK, 'stroke-width': 1.4, 'stroke-linejoin': 'round' }),
+    svg('path', { d: 'M189 25 Q187 55 189 81 M215 25 V83 M241 25 Q243 55 241 81', fill: 'none', stroke: INK, 'stroke-width': 0.7, opacity: 0.5 }),
+    svg('path', { d: 'M156 26 Q215 20 274 26', stroke: INK, 'stroke-width': 2.5, fill: 'none', 'stroke-linecap': 'round' }),
+    hull,
+    // 외곽선, 고물 장식, 이물 기둥, 충각, 노 구멍, 뱃머리의 눈
+    svg('path', { d: HULL, fill: 'none', stroke: INK, 'stroke-width': 2, 'stroke-linejoin': 'round' }),
+    svg('path', { d: 'M70 94 C58 80 50 64 58 54 C64 47 74 52 68 60', fill: 'none', stroke: INK, 'stroke-width': 2.5, 'stroke-linecap': 'round' }),
+    svg('path', { d: 'M392 92 L398 80', stroke: INK, 'stroke-width': 2.5, 'stroke-linecap': 'round' }),
+    svg('path', { d: 'M386 133 L432 141 L384 149 Z', fill: INK }),
+    ...STATIONS.slice(1, 9).map((x) => svg('circle', { cx: x + 15, cy: topY(x + 15) + 9, r: 2, fill: INK })),
+    svg('path', { d: 'M372 104 q7 -5 14 0 q-7 5 -14 0 Z', fill: '#FFFFFF', stroke: INK, 'stroke-width': 1 }),
+    svg('circle', { cx: 379, cy: 104, r: 1.6, fill: INK }),
+    // 뱃머리에 새긴 이름 (그리스어 '테세우스'). 그리스 문자가 있는 세리프체로 새긴 글씨처럼
+    svg('text', { x: 365, y: 126, 'font-size': 10, 'text-anchor': 'middle', 'letter-spacing': 1, fill: INK, 'font-family': 'Georgia, Times New Roman, serif', 'data-plate': '', class: hidden(PLANKS - 1).trim() }, 'ΘΗΣΕΥΣ'),
   );
+
   if (pile !== null) {
-    root.append(
-      svg('rect', { x: 412, y: 112, width: 118, height: 10, fill: '#8A90A0' }),
-      svg('g', { 'data-pile': '' }),
-      svg('text', { x: 471, y: 145, 'font-size': 17, 'text-anchor': 'middle', fill: '#5B6170', 'font-family': 'IBM Plex Mono, Noto Sans KR, monospace' }, '헌 판자'), // 폰에서 그림이 약 0.6배로 줄어든다
+    // 돌 부두: 마름돌 두 단. 아랫단은 물에 잠긴다
+    const quay = svg('g', { stroke: INK, 'stroke-width': 1, fill: '#D9D3C7' });
+    quay.append(
+      svg('rect', { x: 450, y: 126, width: 150, height: 22 }),
+      svg('rect', { x: 450, y: 148, width: 150, height: 30 }),
+      svg('path', { d: 'M486 126 v22 M532 126 v22 M574 126 v22 M466 148 v30 M510 148 v30 M556 148 v30', fill: 'none' }),
+      svg('path', { d: 'M450 126 H600', 'stroke-width': 2 }),
     );
+    root.append(quay);
+  }
+
+  // 수면: 물에 잠긴 부분은 흐리게
+  root.append(
+    svg('rect', { x: 0, y: WATER, width, height: 196 - WATER, fill: '#FFFFFF', opacity: 0.55 }),
+    svg('path', { d: `M10 ${WATER} H${width - 10}`, stroke: '#9FB6D9', 'stroke-width': 1.5 }),
+    svg('path', { d: 'M40 150 h60 M150 150 h110 M300 150 h70 M80 159 h40 M200 159 h90 M330 159 h30', stroke: '#9FB6D9', 'stroke-width': 1, opacity: 0.8 }),
+  );
+
+  if (stations) {
+    // 설계도처럼 구획 번호를 단다 (결과 화면의 판자 띠와 같은 번호)
+    const bar = svg('g', { class: 'stations', 'font-family': 'IBM Plex Mono, Noto Sans KR, monospace', fill: '#5B6170', 'text-anchor': 'middle', 'aria-hidden': 'true' });
+    bar.append(svg('path', { d: `M70 180 H392 ${STATIONS.map((x) => `M${x} 176 v8`).join(' ')}`, stroke: '#8A90A0', 'stroke-width': 0.8 }));
+    STATIONS.slice(0, PLANKS).forEach((x, k) => bar.append(svg('text', { x: (x + STATIONS[k + 1]) / 2, y: 194 }, String(k + 1))));
+    root.append(bar);
+  }
+
+  if (pile !== null) {
+    root.append(svg('g', { 'data-pile': '' }));
     renderPile(root, pile);
   }
 }
 
 function renderPile(root, n) {
-  root.querySelector('[data-pile]').replaceChildren(...Array.from({ length: n }, (_, k) => svg('rect', {
-    x: PILE.x, y: PILE.base - k * PILE.step, width: PILE.w, height: PILE.h, class: 'plank plank--old',
-  })));
+  root.querySelector('[data-pile]').replaceChildren(...Array.from({ length: n }, (_, k) => {
+    const x = PILE.x + (k % 2 ? 6 : 0);
+    const y = PILE.base - k * PILE.step;
+    return svg('path', {
+      d: `M${x} ${y + 3} Q${x + 40} ${y - 1} ${x + 80} ${y + 3} v5 Q${x + 40} ${y + 4} ${x} ${y + 8} Z`,
+      class: 'plank plank--old', 'stroke-width': 1,
+    });
+  }));
 }
 
-/** 판자 i를 떼어 더미로 보내고 새 판자를 끼운다 */
+/** 판자 i를 떼어 부두로 보내고 새 판자를 끼운다 */
 function swapPlank(root, i, ms) {
-  const poly = root.querySelector(`[data-i="${i}"]`);
+  const rect = root.querySelector(`[data-i="${i}"]`);
   if (!reduceMotion.matches) {
-    const box = poly.getBBox();
-    const flying = poly.cloneNode();
-    flying.classList.add('flying');
+    // 구획은 선체 모양으로 잘려 있으니, 잘린 조각째로 날려 보낸다
+    const x0 = i === 1 ? 62 : STATIONS[i - 1];
+    const x1 = i === PLANKS ? 400 : STATIONS[i];
+    const flying = svg('g', { class: 'flying' });
+    const piece = svg('g', { 'clip-path': 'url(#hull-clip)' });
+    piece.append(rect.cloneNode());
+    flying.append(piece);
     root.append(flying);
-    // i번째로 떼어 낸 판자는 더미의 i번째 칸으로 (빠르게 연달아 바꿔도 칸이 겹치지 않게)
-    const tx = PILE.x - box.x;
-    const ty = PILE.base - (i - 1) * PILE.step - box.y;
+    const tx = PILE.x + ((i - 1) % 2 ? 6 : 0);
+    const ty = PILE.base - (i - 1) * PILE.step; // i번째로 떼어 낸 판자는 i번째 칸으로
+    const sx = PILE.w / (x1 - x0);
+    const sy = PILE.h / 70;
     flying.animate([
       { transform: 'none' },
-      { transform: `translate(${tx}px, ${ty}px) scale(${PILE.w / box.width}, ${PILE.h / box.height})` },
+      { transform: `translate(${tx}px, ${ty}px) scale(${sx}, ${sy}) translate(${-x0}px, -92px)` },
     ], { duration: ms, easing: 'ease-in-out' }).finished.then(() => flying.remove());
   }
-  poly.classList.replace('plank--old', 'plank--new');
+  rect.classList.replace('plank--old', 'plank--new');
   later(() => { state.pile = Math.max(state.pile, i); renderPile(root, state.pile); }, ms);
 }
 
@@ -155,7 +201,7 @@ function updateCounter() {
 function startRepair() {
   clearTimers();
   state = { ...freshState(), rebuilt: state?.rebuilt ?? null };
-  drawShip($('repair-ship'), Array(PLANKS).fill('old'), { pile: 0 });
+  drawShip($('repair-ship'), Array(PLANKS).fill('old'), { pile: 0, stations: true });
   $('ask').hidden = false;
   document.querySelector('[data-step="2"] .next').hidden = true;
   updateCounter();
@@ -166,7 +212,7 @@ function replaceNext() {
   const i = state.replaced + 1;
   state.busy = true;
   setChoices(false);
-  $('status').textContent = `판자 ${i}번${i === PLANKS ? '(이름판이 달린 뱃머리)' : ''}을 떼어 내고 새 판자를 끼운다…`;
+  $('status').textContent = `판자 ${i}번${i === PLANKS ? '(이름을 새긴 뱃머리)' : ''}을 떼어 내고 새 판자를 끼운다…`;
   swapPlank($('repair-ship'), i, SWAP_MS);
   later(() => {
     state.replaced = i;
@@ -218,7 +264,7 @@ function showReveal() {
   const rebuilt = $('ship-rebuilt');
   for (const ship of [$('ship-repaired'), rebuilt]) delete ship.dataset.name;
   drawShip(rebuilt, Array(PLANKS).fill('hidden'));
-  // 헌 판자를 한 장씩 맞춘다(뱃머리와 이름판이 마지막)
+  // 헌 판자를 한 장씩 맞춘다(이름을 새긴 뱃머리가 마지막)
   for (let i = 1; i <= PLANKS; i++) {
     later(() => {
       const nodes = [rebuilt.querySelector(`[data-i="${i}"]`), ...(i === PLANKS ? rebuilt.querySelectorAll('[data-plate]') : [])];
@@ -256,7 +302,7 @@ function showResult() {
     ? '당신은 판자 10장을 다 바꿔도 끝까지 같은 배라고 봤다'
     : `당신은 ${line}번째 판자를 바꿨을 때 다른 배라고 봤다`;
   $('line-extra').textContent = line === PLANKS
-    ? '이름판이 달린 뱃머리가 바뀌는 순간 판단이 바뀌었다.'
+    ? '이름을 새긴 뱃머리가 바뀌는 순간 판단이 바뀌었다.'
     : line === 'KEEP' ? '조금씩 바뀌는 동안 한 번도 "다른 배"라고 하지 않았다.' : '';
 
   // "다른 배"라고 답한 순간의 배: 1~경계선 판자는 새것, 나머지는 원래 것(끝까지면 전부 새것)
@@ -406,7 +452,7 @@ function restart() {
 // ── 연결 ──
 
 state = freshState();
-drawShip($('intro-ship'), Array(PLANKS).fill('old'));
+drawShip($('intro-ship'), Array(PLANKS).fill('old'), { stations: true });
 
 for (const btn of document.querySelectorAll('[data-go]')) {
   btn.addEventListener('click', () => {
