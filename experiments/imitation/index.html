@@ -14,7 +14,7 @@
     .scene-title { font-size: 28px; }
     .story { font-size: 18px; line-height: 1.8; }
     .ask { display: flex; flex-direction: column; gap: 16px; }
-    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; scroll-margin-bottom: 16px; }
     .scene-title:focus, .report-title:focus { outline: none; }
 
     /* 대화 */
@@ -32,6 +32,15 @@
     .msg--Y .msg__text { background: var(--b-tint); border-color: var(--b); text-align: left; }
     .msg.is-new { animation: pop 0.25s ease-out; }
     @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .chat .msg, .ask { scroll-margin-bottom: 16px; }
+
+    /* 정답 공개 뒤 기계 답의 단서에 긋는 형광펜. 화면에 들어올 때 왼쪽부터 칠해진다 */
+    .tell { color: inherit; padding: 0 2px; background: linear-gradient(#F2CF5B, #F2CF5B) no-repeat left 90% / 0% 60%; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background-size 0.5s ease-out; scroll-margin-top: 120px; }
+    .tell.is-drawn { background-size: 100% 60%; }
+    .tell-note { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+    .tell-note::before { content: "↳ "; color: var(--muted); }
+    .tell-line { font-size: 15px; color: var(--muted); }
+    .tell-link { font: inherit; color: var(--ink); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
 
     .seats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .seat { text-align: left; font: inherit; color: var(--ink); cursor: pointer; min-height: 88px; padding: 20px; display: flex; flex-direction: column; gap: 6px; background: var(--white); border: 2px solid var(--ink); }
@@ -44,7 +53,7 @@
     .seat:disabled { cursor: default; }
     .seat:disabled:not([aria-pressed="true"]) { opacity: 0.55; }
 
-    .reveal { border: 2px solid var(--ink); background: var(--note); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .reveal { border: 2px solid var(--ink); background: var(--note); padding: 20px; display: flex; flex-direction: column; gap: 10px; scroll-margin-bottom: 16px; }
     .verdict-tag { font-family: var(--mono); font-size: 13px; padding: 4px 10px; border: 1px solid currentColor; }
     .reveal__who { font-size: 20px; font-weight: 700; }
 
@@ -88,6 +97,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       .msg.is-new { animation: none; }
+      .tell { transition: none; }
     }
   </style>
 </head>
@@ -167,6 +177,7 @@
           </div>
           <p class="reveal__who" id="reveal-who"></p>
           <p style="font-size: 16px; line-height: 1.7" id="reveal-hint"></p>
+          <p class="tell-line" id="tell-line"></p>
           <div class="acc" aria-live="polite">
             <span class="label label--muted">이 라운드 · 다른 심판들의 정답률</span>
             <div id="round-stats"><p class="stat-status">기록 불러오는 중…</p></div>

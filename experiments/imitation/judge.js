@@ -14,6 +14,12 @@ export function score(results) {
   return { correct: results.filter(Boolean).length, total: results.length };
 }
 
+/** 기계 답에서 단서 부분을 찾아 [앞, 단서, 뒤]로 나눈다. 단서가 없거나 문장에 없으면 null */
+export function splitTell(text, tell) {
+  const at = tell ? text.indexOf(tell) : -1;
+  return at < 0 ? null : [text.slice(0, at), tell, text.slice(at + tell.length)];
+}
+
 /** 대화 각본을 X, Y 자리로 배치한다 */
 export function layout(round, machineSeat) {
   return round.turns.map(({ q, human, machine }) => (

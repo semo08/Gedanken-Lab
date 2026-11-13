@@ -1,4 +1,4 @@
-import { seat, isCorrect, score, layout } from './judge.js';
+import { seat, isCorrect, score, layout, splitTell } from './judge.js';
 import { ROUNDS } from './rounds.js';
 import { EXPERIMENTS } from '../../js/experiments.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
@@ -53,11 +53,50 @@ function message(kind, who, text) {
 }
 
 function chatMessages(i) {
-  return layout(ROUNDS[i], state.seats[i]).flatMap(({ q, X, Y }) => [
-    message('judge', '심판(당신)', q),
-    message('X', 'X', X),
-    message('Y', 'Y', Y),
-  ]);
+  const machine = state.seats[i];
+  return layout(ROUNDS[i], machine).flatMap(({ q, X, Y }, turn) => {
+    const msgs = [message('judge', '심판(당신)', q), message('X', 'X', X), message('Y', 'Y', Y)];
+    msgs[machine === 'X' ? 1 : 2].dataset.turn = turn; // 기계 답: 정답 공개 때 단서를 표시한다
+    return msgs;
+  });
+}
+
+// 화면에 들어온 형광펜부터 차례로 칠한다
+let drawAt = 0;
+const drawer = new IntersectionObserver((entries) => {
+  for (const { target, isIntersecting } of entries) {
+    if (!isIntersecting) continue;
+    drawer.unobserve(target);
+    const now = performance.now();
+    drawAt = Math.max(now, drawAt + 250);
+    timers.push(setTimeout(() => target.classList.add('is-drawn'), drawAt - now));
+  }
+}, { threshold: 1 });
+
+function markTells(i) {
+  const marks = [];
+  for (const msg of $('chat').querySelectorAll('[data-turn]')) {
+    const tell = ROUNDS[i].turns[msg.dataset.turn].tell;
+    const text = msg.querySelector('.msg__text');
+    const parts = splitTell(text.textContent, tell?.text);
+    if (!parts) continue;
+    const mark = el('mark', 'tell', parts[1]);
+    text.replaceChildren(parts[0], mark, parts[2]);
+    msg.append(el('span', 'tell-note', tell.note));
+    marks.push(mark);
+  }
+  drawAt = 0;
+  for (const mark of marks) drawer.observe(mark);
+
+  const line = $('tell-line');
+  if (marks.length) {
+    const link = el('button', 'tell-link', `대화에서 단서 ${marks.length}곳 보기 ↑`);
+    link.type = 'button';
+    link.addEventListener('click', () => marks[0].scrollIntoView({ block: 'start', behavior: smooth() }));
+    line.replaceChildren(link);
+  } else {
+    line.replaceChildren('이번 대화에는 형광펜을 그을 단서가 없다.');
+  }
 }
 
 function clearTimers() {
@@ -65,11 +104,19 @@ function clearTimers() {
   timers = [];
 }
 
+const smooth = () => (reduceMotion.matches ? 'auto' : 'smooth');
+
 function showAll(messages) {
   clearTimers();
   $('chat').replaceChildren(...messages);
   $('skip-chat').hidden = true;
   $('ask').hidden = false;
+}
+
+// 새로 나타난 버튼이 화면 밖이면 보이게 스크롤한다
+function reveal(node) {
+  node.hidden = false;
+  node.scrollIntoView({ block: 'nearest', behavior: smooth() });
 }
 
 function startRound(i) {
@@ -94,7 +141,13 @@ function startRound(i) {
     timers.push(setTimeout(() => {
       msg.classList.add('is-new');
       $('chat').append(msg);
-      if (k === messages.length - 1) showAll([...$('chat').children]);
+      // 폰에서는 대화가 화면보다 길다. 새 메시지를 따라 내려간다
+      msg.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      if (k === messages.length - 1) {
+        showAll([...$('chat').children]);
+        // 대화가 끝나면 질문과 X/Y 선택지가 보이게
+        $('ask').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
     }, k * MESSAGE_MS));
   });
   $('skip-chat').onclick = () => showAll(messages);
@@ -119,8 +172,8 @@ function judge(pick) {
   $('reveal-who').textContent = `기계는 ${machine}였다 · ${round.era} ${round.label}`;
   $('reveal-hint').textContent = round.reveal;
   $('next-round').textContent = i < ROUNDS.length - 1 ? '다음 라운드 →' : '마지막 질문으로 →';
-  $('reveal').hidden = false;
-  $('reveal').scrollIntoView({ behavior: reduceMotion.matches ? 'auto' : 'smooth', block: 'nearest' });
+  markTells(i);
+  reveal($('reveal'));
   loadRoundStats(i, ok);
 }
 
@@ -135,7 +188,10 @@ function accuracyBar(tally) {
     seg.style.width = `${pct}%`;
     bar.append(seg);
   }
-  return [bar, el('p', 'stat__legend', `정답 ${tally.A}명 · 오답 ${tally.B}명 · 정답률 ${pct}%`)];
+  // 정답률은 막대 안에 적혀 있다. 막대가 좁아 비운 경우에만 아래에 적는다
+  const legend = [`정답 ${tally.A}명`, `오답 ${tally.B}명`];
+  if (pct < 15) legend.push(`정답률 ${pct}%`);
+  return [bar, el('p', 'stat__legend', legend.join(' · '))];
 }
 
 async function loadRoundStats(i, ok) {
@@ -148,7 +204,11 @@ async function loadRoundStats(i, ok) {
     const { [roundId(i)]: tally } = await getCounts([roundId(i)]);
     if (run !== state.run) return;
     state.tallies[i] = tally;
-    if (state.round === i) box.replaceChildren(...accuracyBar(tally));
+    if (state.round === i) {
+      box.replaceChildren(...accuracyBar(tally));
+      // 막대가 들어오면서 카드 높이가 바뀌어 처음 스크롤이 끊길 수 있다. 다음 버튼까지 다시 맞춘다
+      $('reveal').scrollIntoView({ block: 'nearest', behavior: smooth() });
+    }
   } catch (err) {
     if (run !== state.run) return;
     console.error(err);
@@ -169,7 +229,7 @@ function pickTuring(choice) {
   for (const btn of document.querySelectorAll('[data-step="turing"] .choice')) {
     btn.setAttribute('aria-pressed', String(btn.dataset.choice === choice));
   }
-  document.querySelector('[data-step="turing"] .next').hidden = false;
+  reveal(document.querySelector('[data-step="turing"] .next'));
 }
 
 // ── 결과 ──
@@ -243,7 +303,9 @@ async function loadTuringStats() {
       seg.style.background = color;
       bar.append(seg);
     }
-    box.replaceChildren(bar, el('p', 'stat__legend', `그렇다 ${pctA}% · 아니다 ${100 - pctA}% · ${total}명 참여`));
+    // 막대에 글자가 들어간 쪽은 다시 쓰지 않는다
+    const legend = [['그렇다', pctA], ['아니다', 100 - pctA]].filter(([, pct]) => pct > 0 && pct < 20).map(([name, pct]) => `${name} ${pct}%`);
+    box.replaceChildren(bar, el('p', 'stat__legend', [...legend, `${total}명 참여`].join(' · ')));
   } catch (err) {
     if (run !== state.run) return;
     console.error(err);
