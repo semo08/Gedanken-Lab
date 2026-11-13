@@ -14,10 +14,15 @@
     .scene-title { font-size: 28px; }
     .story { font-size: 18px; line-height: 1.8; }
     .ask { display: flex; flex-direction: column; gap: 16px; }
-    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; scroll-margin-bottom: 16px; }
     .scene-title:focus, .report-title:focus { outline: none; }
 
     .choices--three { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    /* 결과 화면·다이어그램과 같은 색: 지구에 남은 쪽(A) 파랑, 우주에 다녀온 쪽(B) 주황 */
+    .choice[data-choice="A"] .choice__tag { color: var(--b); }
+    .choice[data-choice="B"] .choice__tag { color: var(--a); }
+    .choice[data-choice="A"][aria-pressed="true"] { background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); }
+    .choice[data-choice="B"][aria-pressed="true"] { background: var(--a-tint); box-shadow: 6px 6px 0 var(--a); }
     .choice[data-choice="C"] .choice__tag { color: var(--muted); }
     .choice[data-choice="C"][aria-pressed="true"] { background: #F0F1F4; box-shadow: 6px 6px 0 var(--muted); transform: none; }
 
@@ -49,6 +54,13 @@
     .track__end--star { right: 0; }
     .ship { position: absolute; left: 56px; top: 50%; margin-top: -14px; width: 48px; height: 28px; }
     .trip-status { font-family: var(--mono); font-size: 14px; color: var(--muted); min-height: 1.4em; text-align: center; }
+    .clocks { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; scroll-margin: 16px; }
+    .clock { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 2px solid var(--ink); }
+    .clock--earth { background: var(--b-tint); }
+    .clock--ship { background: var(--a-tint); text-align: right; }
+    .clock__value { font-family: var(--mono); font-size: 30px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .clock--earth .clock__value { color: var(--b); }
+    .clock--ship .clock__value { color: var(--a); }
 
     /* 결과 */
     .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
@@ -73,7 +85,11 @@
 
     .cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
     .case { border: 2px dashed var(--dash); background: rgba(255, 255, 255, 0.6); padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .case summary { display: flex; flex-direction: column; gap: 8px; list-style: none; cursor: pointer; }
+    .case summary::-webkit-details-marker { display: none; }
     .case h3 { margin: 0; font-size: 17px; }
+    .case h3::after { content: ' +'; font-family: var(--mono); color: var(--muted); }
+    .case[open] h3::after { content: ' −'; }
     .case p { font-size: 15px; line-height: 1.7; color: var(--ink); }
 
     .bar { display: flex; height: 28px; border: 1px solid var(--ink); }
@@ -93,6 +109,12 @@
       .story { font-size: 16px; }
       .report-title { font-size: 26px; }
       .ages { grid-template-columns: 1fr; }
+      /* 목적지 4장이 세로로 쌓이면 출발 버튼이 한참 아래로 밀린다 */
+      .dests { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .dest { padding: 12px; }
+      .dest__name { font-size: 15px; }
+      .dest__note { display: none; }
+      .clock__value { font-size: 24px; }
       .age__value { font-size: 28px; }
     }
   </style>
@@ -209,6 +231,10 @@
           </div>
         </div>
         <p class="trip-status" id="trip-status" aria-live="polite"></p>
+        <div class="clocks" id="clocks" aria-hidden="true">
+          <div class="clock clock--earth"><span class="label label--muted">지구 시계</span><span class="clock__value" id="run-earth">0년</span></div>
+          <div class="clock clock--ship"><span class="label label--muted">우주선 시계</span><span class="clock__value" id="run-ship">0년</span></div>
+        </div>
 
         <div class="row">
           <span class="label label--muted" id="trip-summary"></span>
@@ -282,21 +308,18 @@
       <div style="display: flex; flex-direction: column; gap: 16px">
         <span class="label">현장 기록 · 실제로 확인된 시간 지연</span>
         <div class="cases">
-          <div class="case">
-            <span class="label label--muted">우주비행사</span>
-            <h3>국제우주정거장의 쌍둥이</h3>
+          <details class="case" open>
+            <summary><span class="label label--muted">우주비행사</span><h3>국제우주정거장의 쌍둥이</h3></summary>
             <p>스콧 켈리는 국제우주정거장에서 340일을 보낸 뒤 지구의 쌍둥이 형 마크보다 약 5밀리초 젊어졌다. 빠른 속도로 느려진 시간에서 약한 중력으로 빨라진 시간을 뺀 값이다.</p>
-          </div>
-          <div class="case">
-            <span class="label label--muted">매일 쓰는 기술</span>
-            <h3>GPS 위성의 시계</h3>
+          </details>
+          <details class="case" open>
+            <summary><span class="label label--muted">매일 쓰는 기술</span><h3>GPS 위성의 시계</h3></summary>
             <p>위성의 시계는 속도 때문에 하루 약 7μs 느려지고, 약한 중력 때문에 약 45μs 빨라져서 합하면 하루 약 38μs 빨라진다. 이걸 보정하지 않으면 위치가 하루에 약 10km씩 어긋난다.</p>
-          </div>
-          <div class="case">
-            <span class="label label--muted">1971년 10월</span>
-            <h3>하펠레–키팅 실험</h3>
+          </details>
+          <details class="case" open>
+            <summary><span class="label label--muted">1971년 10월</span><h3>하펠레–키팅 실험</h3></summary>
             <p>세슘 원자시계 4개를 여객기에 싣고 지구를 돌았다. 동쪽으로 돈 시계는 59ns 느려지고(예측 40ns), 서쪽으로 돈 시계는 273ns 빨라졌다(예측 275ns). 실제 시계로 확인한 첫 실험 가운데 하나다.</p>
-          </div>
+          </details>
         </div>
       </div>
 
