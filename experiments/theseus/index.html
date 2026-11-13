@@ -29,38 +29,40 @@
 
     /* 배 */
     .ship-art { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; } /* 넓은 화면에서 배와 글자가 같이 커지지 않게 */
-    .plank { stroke: var(--ink); stroke-width: 1.5; transition: fill 0.4s; }
-    .plank--old { fill: var(--a-light); }
-    .plank--new { fill: var(--b-light); }
+    .plank { stroke: #3A2F28; stroke-width: 0; }
+    .plank--old { fill: url(#wood-old); }
+    .plank--new { fill: url(#wood-new); }
+    [data-pile] .plank { stroke-width: 1; }
+    .stations { font-size: 12px; }
     .plank--hidden { opacity: 0; }
     .plank--appear { animation: appear 0.35s ease-out both; }
     @keyframes appear { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
-    .flying { transform-box: fill-box; transform-origin: 0 0; }
+    .flying { transform-box: view-box; transform-origin: 0 0; }
 
     .counter { font-family: var(--mono); font-size: 14px; color: var(--muted); }
     .counter strong { color: var(--b); }
     .status { font-size: 16px; min-height: 1.7em; color: var(--muted); }
 
-    .fleet { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .fleet figure { margin: 0; display: flex; flex-direction: column; gap: 8px; border: 1.5px solid var(--rule); padding: 12px; background: var(--white); }
-    .fleet figcaption { font-weight: 700; font-size: 16px; }
+    /* 두 배를 같은 물 위에 나란히. 아래 설명의 색 줄이 선택지·결과 막대 색과 이어진다 */
+    .fleet { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+    .fleet figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+    .fleet figcaption { font-weight: 700; font-size: 16px; padding-left: 10px; border-left: 3px solid var(--b); }
+    .fleet figure + figure figcaption { border-color: var(--a); }
     .fleet figcaption span { display: block; font-weight: 400; font-size: 13px; color: var(--muted); }
-    /* 답을 고르면 이름판이 고른 배에만 남는다. C는 두 이름판 모두 점선 */
-    .ship-art [data-plate] { transition: stroke 0.5s, fill 0.5s; }
+    /* 답을 고르면 뱃머리의 이름이 고른 배에만 남고, 다른 배는 한발 물러난다. C는 두 이름 모두 흐리게 */
+    .ship-art [data-plate] { transition: fill 0.5s; }
     .ship-art[data-name="unnamed"] text[data-plate] { fill: transparent; } /* opacity는 조립 애니메이션이 쥐고 있어서 색으로 지운다 */
-    .ship-art[data-name="unnamed"] rect[data-plate] { stroke: var(--dash); }
-    .ship-art[data-name="named"] rect[data-plate] { stroke-width: 2; }
-    .ship-art[data-name="unsure"] rect[data-plate] { stroke-dasharray: 3 2; }
-    .ship-art[data-name="unsure"] text[data-plate] { fill: var(--muted); }
-    .fleet figure { transition: border-color 0.5s; }
-    .fleet figure:has([data-name="named"]) { border-color: var(--ink); }
+    .ship-art[data-name="unsure"] text[data-plate] { fill: #8A7A6A; }
+    .fleet figure { transition: opacity 0.5s; }
+    .fleet figure:has([data-name="unnamed"]) { opacity: 0.55; }
+    .fleet figure:has([data-name="named"]) figcaption { border-left-width: 6px; }
 
     /* 결과 */
     .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
     .report-title { font-size: 34px; line-height: 1.35; }
     .strip { display: flex; gap: 4px; }
-    .strip span { flex: 1; height: 18px; border: 1.5px solid var(--ink); background: var(--a-light); }
-    .strip span.is-new { background: var(--b-light); }
+    .strip span { flex: 1; height: 18px; border: 1.5px solid #3A2F28; background: #B59A82; } /* 배 그림의 나뭇빛 */
+    .strip span.is-new { background: #EFD9B0; }
     .strip span.is-line { outline: 3px solid var(--c); outline-offset: 2px; }
     .strip-legend { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted); }
 
@@ -91,8 +93,9 @@
       .fleet { grid-template-columns: 1fr; }
     }
     @media (max-width: 480px) {
-      /* 그림이 작아지니 이름판만 키운다 */
-      .ship-art [data-plate] { transform-box: fill-box; transform-origin: center; scale: 1.7; }
+      /* 그림이 작아지니 뱃머리 이름과 구획 번호만 키운다 */
+      .ship-art [data-plate] { transform-box: fill-box; transform-origin: center; scale: 1.5; }
+      .stations { font-size: 22px; }
     }
     @media (max-width: 480px) {
       .scene-title { font-size: 24px; }
@@ -111,6 +114,14 @@
     <a class="site-bar__logo" href="../../">GEDANKEN LAB</a>
     <a href="../../">← 메인</a>
   </header>
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="hull-clip"><path d="M70 94 Q230 110 392 92 L386 132 L384 150 Q240 164 100 150 Q72 132 70 94 Z"/></clipPath>
+      <!-- 헌 판자: 바랜 회갈색에 촘촘한 결, 새 판자: 갓 켠 밝은 나무에 옅은 결 -->
+      <pattern id="wood-old" width="40" height="5" patternUnits="userSpaceOnUse"><rect width="40" height="5" fill="#B59A82"/><path d="M0 2.5 q10 -0.9 20 0 t20 0" fill="none" stroke="#87705D" stroke-width="0.8" opacity="0.7"/></pattern>
+      <pattern id="wood-new" width="40" height="9" patternUnits="userSpaceOnUse"><rect width="40" height="9" fill="#EFD9B0"/><path d="M0 4.5 q10 -0.9 20 0 t20 0" fill="none" stroke="#D8BC88" stroke-width="0.8" opacity="0.6"/></pattern>
+    </defs>
+  </svg>
   <main class="page">
 
     <!-- ── 1단계: 상황 ── -->
@@ -123,9 +134,9 @@
       </div>
       <div class="card">
         <span class="label">관찰 기록 · 상황</span>
-        <svg class="ship-art" id="intro-ship" role="img" aria-label="부두에 정박한 배. 선체가 판자 10장으로 나뉘어 있고, 뱃머리에 테세우스라는 이름판이 달려 있다."></svg>
+        <svg class="ship-art" id="intro-ship" role="img" aria-label="물 위에 뜬 고대 그리스의 배. 선체가 판자 10장으로 나뉘어 있고, 뱃머리에 테세우스라는 이름이 새겨져 있다."></svg>
         <p class="story">영웅 테세우스가 타고 돌아온 배를 아테네 사람들은 기념으로 오래 보존했다. 판자가 썩으면 하나씩 떼어 내고 새 판자로 갈아 끼웠다. 그렇게 오래 고치다 보면, 이 배는 <strong>언제까지 테세우스의 배일까?</strong></p>
-        <p style="font-size: 14px; line-height: 1.7; color: var(--muted)">고대 그리스의 작가 플루타르코스가 『테세우스 전』에 남긴 이야기다. 이 배의 판자는 10장이고, 마지막 10번째는 이름판이 달린 뱃머리다.</p>
+        <p style="font-size: 14px; line-height: 1.7; color: var(--muted)">고대 그리스의 작가 플루타르코스가 『테세우스 전』에 남긴 이야기다. 이 배의 판자는 10장이고, 마지막 10번째는 그리스어로 '테세우스(ΘΗΣΕΥΣ)'라는 이름을 새긴 뱃머리다.</p>
       </div>
       <div class="row">
         <span class="label label--muted">판자 10장 · 약 3분</span>
@@ -186,11 +197,11 @@
         <div class="fleet">
           <figure>
             <svg class="ship-art" id="ship-repaired" role="img" aria-label="계속 수리해 온 배. 판자 10장이 모두 새것이다."></svg>
-            <figcaption>계속 수리해 온 배<span>판자 10장 모두 새것, 이름판도 새것</span></figcaption>
+            <figcaption>계속 수리해 온 배<span>판자 10장 모두 새것, 이름 새긴 뱃머리도 새것</span></figcaption>
           </figure>
           <figure>
             <svg class="ship-art" id="ship-rebuilt" role="img" aria-label="헌 판자로 다시 만든 배. 판자 10장이 모두 원래 것이다."></svg>
-            <figcaption>헌 판자로 다시 만든 배<span>판자 10장 모두 원래 것, 원래 이름판</span></figcaption>
+            <figcaption>헌 판자로 다시 만든 배<span>판자 10장 모두 원래 것, 이름 새긴 원래 뱃머리</span></figcaption>
           </figure>
         </div>
         <p style="font-size: 14px; line-height: 1.7; color: var(--muted)">이 두 번째 배는 17세기 영국 철학자 토머스 홉스가 원래 이야기에 덧붙인 것이다.</p>
@@ -232,8 +243,8 @@
       <div class="card card--tight">
         <span class="label">측정값 · 나의 경계선</span>
         <div class="strip" id="strip" aria-hidden="true"></div>
-        <div class="strip-legend" aria-hidden="true"><span>선미 · 1</span><span>10 · 뱃머리(이름판)</span></div>
-        <p style="font-size: 15px; line-height: 1.7; color: var(--muted)">주황은 원래 판자, 파랑은 새 판자. 초록 테두리가 처음 "다른 배"라고 답한 판자다.</p>
+        <div class="strip-legend" aria-hidden="true"><span>선미 · 1</span><span>10 · 뱃머리(이름)</span></div>
+        <p style="font-size: 15px; line-height: 1.7; color: var(--muted)">어두운 나무는 원래 판자, 밝은 나무는 새 판자. 초록 테두리가 처음 "다른 배"라고 답한 판자다.</p>
       </div>
 
       <div class="card card--tight" aria-live="polite">
