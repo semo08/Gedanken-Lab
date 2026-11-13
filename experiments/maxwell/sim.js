@@ -34,7 +34,7 @@ function inDoorway(y) {
   return y >= DOOR_TOP + R && y <= DOOR_BOTTOM - R;
 }
 
-/** dt초만큼 움직인다. @returns 이번 스텝에 문을 통과한 입자 목록 [{ fast, toLeft }] */
+/** dt초만큼 움직인다. @returns 이번 스텝에 문을 통과한 입자 목록 [{ fast, toLeft, p }] */
 export function step(sim, dt, doorOpen) {
   dt = Math.min(dt, 0.05); // 탭 전환 후 큰 dt로 벽을 뚫지 않게
   const crossed = [];
@@ -56,11 +56,29 @@ export function step(sim, dt, doorOpen) {
     }
 
     const nowLeft = nx < WALL_X;
-    if (nowLeft !== wasLeft) crossed.push({ fast: p.fast, toLeft: nowLeft });
+    if (nowLeft !== wasLeft) crossed.push({ fast: p.fast, toLeft: nowLeft, p });
     p.x = nx;
     p.y = ny;
   }
   return crossed;
+}
+
+/** 목표(빠른 입자는 왼쪽, 느린 입자는 오른쪽)에 맞는 통과인가 */
+export function goodCrossing({ fast, toLeft }) {
+  return fast === toLeft;
+}
+
+/**
+ * 악마의 눈: 지금 문을 열면 목표에 맞게 넘어갈 입자인가.
+ * 벽까지 horizon초 안에 닿고, 닿는 높이가 문 안이면 true. 위아래 벽에서 튕기는 경우는 무시한다.
+ */
+export function worthOpening(p, horizon = 0.5) {
+  const left = p.x < WALL_X;
+  if (p.fast === left) return false; // 이미 맞는 방에 있다
+  // 벽 중심까지 잰다. 문 틈 안에 들어온 입자도 다 넘어갈 때까지 표시해야 문을 일찍 닫지 않는다
+  const t = (WALL_X - p.x) / p.vx;
+  if (!(t >= 0 && t <= horizon)) return false; // 벽에서 멀어지는 중이거나 아직 멀다
+  return inDoorway(p.y + p.vy * t);
 }
 
 /** 각 방의 온도(평균 v² 눈금). 빈 방은 null. */

@@ -1,15 +1,17 @@
-import { createSim, step, temps, counts, W, H, WALL_X, DOOR_TOP, DOOR_BOTTOM, R } from './sim.js';
+import { createSim, step, temps, counts, goodCrossing, worthOpening, W, H, WALL_X, DOOR_TOP, DOOR_BOTTOM, R } from './sim.js';
 import { roomEntropy, createLedger } from './entropy.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
 
 const VOTE_ID = 'maxwell';
 const WIN_DIFF = 12;      // "2법칙을 깼다?!" 기준 온도 차 (완벽한 악마 기준 중앙값 약 20초)
 const CAPACITY = 8;       // 반전 이후 악마의 기억 용량(비트)
-const SKIP_AFTER = 5;     // 기록이 이만큼 쌓여야 건너뛰기를 보여 준다(0비트로 반전하면 지울 기억이 없다)
+const SKIP_SECONDS = 20;  // 분류를 이만큼 해 보면 건너뛰기를 보여 준다
+const FLASH_SECONDS = 0.4; // 통과한 입자 둘레에 퍼지는 고리
 const MAX_ENTROPY = 40;   // 입자 40개가 다 섞였을 때
 const SCALE = MAX_ENTROPY * 2; // 장부 막대의 눈금
 
-const COLOR = { ink: '#1B1F2A', a: '#B4470F', b: '#1F4E9C', rule: '#CBD2DE', white: '#FFFFFF', muted: '#5B6170' };
+const COLOR = { ink: '#1B1F2A', a: '#B4470F', b: '#1F4E9C', c: '#3F6B4F', rule: '#CBD2DE', white: '#FFFFFF', muted: '#5B6170' };
+const HINT = '빠른 입자는 오른쪽에서, 느린 입자는 왼쪽에서 문에 다가올 때 열자';
 
 const $ = (id) => document.getElementById(id);
 const sections = [...document.querySelectorAll('[data-step]')];
@@ -36,6 +38,8 @@ function freshState() {
     minRoom: start,
     bannerShown: false,
     shownBits: -1,
+    sortTime: 0,   // 분류 단계에서 흐른 시간(초)
+    flashes: [],   // 방금 문을 통과한 입자 [{ p, good, age }]
   };
 }
 
@@ -53,7 +57,14 @@ function pick(choice) {
   for (const btn of document.querySelectorAll('[data-step="1"] .choice')) {
     btn.setAttribute('aria-pressed', String(btn.dataset.choice === choice));
   }
-  document.querySelector('[data-step="1"] .next').hidden = false;
+  reveal(document.querySelector('[data-step="1"] .next'));
+}
+
+// 새로 나타난 버튼이 화면 밖이면 보이게 스크롤한다
+function reveal(el) {
+  el.hidden = false;
+  const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ block: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
 }
 
 // ── 문 ──
@@ -96,7 +107,13 @@ function tick(now) {
   for (const c of step(state.sim, dt, open)) {
     state.crossings += 1;
     state.ledger.record();
+    state.flashes.push({ p: c.p, good: goodCrossing(c), age: 0 });
   }
+  // 탭을 오래 비웠다 돌아와도 시간이 한꺼번에 흐르지 않게 끊는다
+  const elapsed = Math.min(dt, 0.1);
+  if (state.phase === 'sort') state.sortTime += elapsed;
+  for (const f of state.flashes) f.age += elapsed;
+  state.flashes = state.flashes.filter((f) => f.age < FLASH_SECONDS);
   update(open);
   draw(open);
   frame = requestAnimationFrame(tick);
@@ -122,7 +139,7 @@ function update() {
   $('room-fill').style.width = pct(room, MAX_ENTROPY);
   $('room-start').style.left = pct(state.ledger.start, MAX_ENTROPY);
 
-  if (state.phase === 'sort') $('skip').hidden = state.ledger.stored < SKIP_AFTER;
+  if (state.phase === 'sort') $('skip').hidden = state.sortTime < SKIP_SECONDS;
 
   if (state.phase === 'sort' && !state.bannerShown && diff >= WIN_DIFF) {
     state.bannerShown = true;
@@ -163,7 +180,7 @@ function updateLedger(room) {
 
 // ── 반전 ──
 
-function reveal() {
+function showLedger() {
   state.phase = 'reveal';
   $('banner').hidden = true;
   $('sort-footer').hidden = true;
@@ -185,7 +202,7 @@ function erase() {
   $('ledger-msg').textContent = `기억 ${bits}비트를 지우자 열 ${released.toFixed(1)}만큼이 주변으로 빠져나갔다. `
     + '방에서 줄인 엔트로피 이상이 열로 빠져나가서, 방과 버린 열을 합친 전체 엔트로피는 처음보다 줄지 않았다. '
     + (first ? `이제 기억 용량 ${CAPACITY}비트로 계속 분류해 봐도 좋다.` : '');
-  $('to-result').hidden = false;
+  reveal($('to-result'));
   update();
 }
 
@@ -238,6 +255,26 @@ function draw(open) {
   ctx.beginPath(); ctx.arc(-4, -1, 2.2, 0, Math.PI * 2); ctx.arc(4, -1, 2.2, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
+  // 악마의 눈: 지금 열면 목표에 맞게 넘어올 입자에 점선 고리
+  ctx.strokeStyle = COLOR.c;
+  ctx.lineWidth = 2 * k;
+  ctx.setLineDash([4 * k, 3 * k]);
+  for (const p of state.sim.particles) {
+    if (!worthOpening(p)) continue;
+    ctx.beginPath(); ctx.arc(p.x, p.y, (R + 7) * k, 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // 방금 통과한 입자: 잘 보냈으면 초록, 반대로 보냈으면 회색 고리가 퍼진다
+  for (const { p, good, age } of state.flashes) {
+    const t = age / FLASH_SECONDS;
+    ctx.globalAlpha = 1 - t;
+    ctx.strokeStyle = good ? COLOR.c : COLOR.muted;
+    ctx.lineWidth = 2.5 * k;
+    ctx.beginPath(); ctx.arc(p.x, p.y, (R + 4 + 16 * t) * k, 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
   // 입자
   for (const p of state.sim.particles) {
     ctx.beginPath();
@@ -259,9 +296,12 @@ function showResult() {
   const tag = $('verdict-tag');
   tag.textContent = right ? '예측 적중' : '예측 빗나감';
   tag.style.color = right ? 'var(--b)' : 'var(--a)';
+  // "2법칙을 깼다?!"를 실제로 봤는지에 따라 말을 바꾼다
   $('verdict-text').textContent = right
     ? '당신은 "깰 수 없다"고 예측했다. 맞다. 숨은 대가는 악마의 기억에 있었다.'
-    : '당신은 "깰 수 있다"고 예측했다. 실험 중에는 정말 그래 보였다. 이 착각을 풀기까지 물리학자들도 100년이 넘게 걸렸다.';
+    : state.bannerShown
+      ? '당신은 "깰 수 있다"고 예측했다. 실험 중에는 정말 그래 보였다. 이 착각을 풀기까지 물리학자들도 100년이 넘게 걸렸다.'
+      : '당신은 "깰 수 있다"고 예측했다. 이번에는 온도 차를 크게 벌리지 못했지만, 완벽한 악마라면 해낼 수 있다. 그래도 기억을 지우는 대가 때문에 2법칙은 지켜진다.';
   $('f-bits').textContent = `${state.crossings}개`;
   $('f-diff').textContent = `${Math.round(state.maxDiff)}°`;
   $('f-room').textContent = `${state.ledger.start.toFixed(1)} → ${state.minRoom.toFixed(1)}`;
@@ -309,7 +349,9 @@ async function renderStats() {
     }
     const legend = document.createElement('p');
     legend.className = 'stat__legend';
-    legend.textContent = `${label.A} ${share.A}% · ${label.B} ${share.B}% · ${total}명 참여 · 나의 예측: ${label[prediction]}`;
+    // 막대에 글자가 들어간 쪽은 다시 쓰지 않는다. 좁아서 비운 쪽만 적는다
+    const hidden = ['A', 'B'].filter((side) => share[side] > 0 && share[side] < 25).map((side) => `${label[side]} ${share[side]}%`);
+    legend.textContent = [...hidden, `${total}명 참여`, `나의 예측: ${label[prediction]}`].join(' · ');
     list.replaceChildren(bar, legend);
   } catch (err) {
     if (run !== statsRun) return;
@@ -328,7 +370,7 @@ function restart() {
   $('to-result').hidden = true;
   $('sort-footer').hidden = false;
   $('skip').hidden = true;
-  $('hint').textContent = '문 근처에 빠른 입자가 오른쪽에서 다가올 때 열어 보자';
+  $('hint').textContent = HINT;
   show(1);
 }
 
@@ -364,8 +406,8 @@ document.addEventListener('keyup', (e) => {
 document.addEventListener('visibilitychange', () => { if (document.hidden) setHeld(false); });
 window.addEventListener('resize', () => { if (frame) resizeCanvas(); });
 
-$('reveal').addEventListener('click', reveal);
-$('skip').addEventListener('click', reveal);
+$('reveal').addEventListener('click', showLedger);
+$('skip').addEventListener('click', showLedger);
 $('erase').addEventListener('click', erase);
 document.querySelector('[data-restart]').addEventListener('click', restart);
 
