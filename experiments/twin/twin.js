@@ -38,6 +38,7 @@ function show(step) {
   for (const s of sections) s.hidden = s.dataset.step !== String(step);
   window.scrollTo(0, 0);
   document.querySelector(`[data-step="${step}"] h1`).focus({ preventScroll: true });
+  if (String(step) === '2') syncPlan(); // 다시 여행할 때 두 시계를 0으로 돌린다
 }
 
 function el(tag, className, text) {
@@ -54,7 +55,13 @@ function pick(choice) {
   for (const btn of document.querySelectorAll('[data-step="1"] .choice')) {
     btn.setAttribute('aria-pressed', String(btn.dataset.choice === choice));
   }
-  document.querySelector('[data-step="1"] .next').hidden = false;
+  reveal(document.querySelector('[data-step="1"] .next'));
+}
+
+// 새로 나타난 버튼이 화면 밖이면 보이게 스크롤한다
+function reveal(node) {
+  node.hidden = false;
+  node.scrollIntoView({ block: 'nearest', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
 }
 
 // ── 2단계: 여행 계획 ──
@@ -85,6 +92,8 @@ function syncPlan() {
   $('speed').setAttribute('aria-valuetext', speedLabel(v));
   $('star-name').textContent = dest.name;
   $('trip-summary').textContent = `${dest.name}까지 ${distLabel(dest)} · ${speedLabel(v)}로 왕복`;
+  $('run-earth').textContent = '0년';
+  $('run-ship').textContent = '0년';
 }
 
 function setTravelling(on) {
@@ -97,6 +106,9 @@ function launch() {
   if (reduceMotion.matches) { showResult(); return; }
 
   setTravelling(true);
+  // 폰에서는 출발 버튼이 아래에 있어 트랙이 화면 밖일 수 있다. 우주선과 두 시계가 보이게 한다
+  $('clocks').scrollIntoView({ block: 'end', behavior: 'smooth' });
+  const t = trip(dest.ly, speed());
   const ship = $('ship');
   const dx = $('track').clientWidth - ship.clientWidth - 112; // 양 끝 아이콘 자리를 뺀 거리
   const status = $('trip-status');
@@ -112,11 +124,25 @@ function launch() {
     setTimeout(() => { status.textContent = `${dest.name} 도착 · 방향을 바꾼다`; }, TRIP_MS * 0.42),
     setTimeout(() => { status.textContent = '지구로 돌아오는 중'; }, TRIP_MS * 0.58),
   ];
+  // 두 시계가 같은 4초 동안 서로 다른 빠르기로 간다
+  const begin = performance.now();
+  const tickClocks = (now) => {
+    const p = Math.min(1, (now - begin) / TRIP_MS);
+    $('run-earth').textContent = formatYears(p * t.earthYears);
+    $('run-ship').textContent = formatYears(p * t.shipYears);
+    if (p < 1) requestAnimationFrame(tickClocks);
+  };
+  requestAnimationFrame(tickClocks);
+
   anim.finished.then(() => {
     timers.forEach(clearTimeout);
-    status.textContent = '';
-    setTravelling(false);
-    showResult();
+    status.textContent = '다시 만났다';
+    // 멈춘 두 시계를 잠깐 보여 준 뒤 결과로 넘어간다
+    setTimeout(() => {
+      status.textContent = '';
+      setTravelling(false);
+      showResult();
+    }, 900);
   });
 }
 
@@ -274,6 +300,9 @@ for (const btn of document.querySelectorAll('[data-go]')) {
 $('speed').addEventListener('input', (e) => { speedIndex = Number(e.target.value); syncPlan(); });
 $('launch').addEventListener('click', launch);
 document.querySelector('[data-restart]').addEventListener('click', restart);
+
+// 폰에서는 현장 기록을 접어 둔다(제목을 누르면 펼쳐진다)
+if (matchMedia('(max-width: 480px)').matches) for (const d of document.querySelectorAll('details.case')) d.open = false;
 
 renderDestinations();
 renderSpeedMarks();
