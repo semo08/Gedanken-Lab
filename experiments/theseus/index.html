@@ -14,16 +14,21 @@
     .scene-title { font-size: 28px; }
     .story { font-size: 18px; line-height: 1.8; }
     .ask { display: flex; flex-direction: column; gap: 16px; }
-    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; scroll-margin-bottom: 16px; }
     .scene-title:focus, .report-title:focus { outline: none; }
 
     .choices--three { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
     .choice[data-choice="C"] .choice__tag { color: var(--c); }
     .choice[data-choice="C"][aria-pressed="true"] { background: #EEF4F0; box-shadow: 6px 6px 0 var(--c); transform: none; }
     .choice:disabled { cursor: default; opacity: 0.55; }
+    /* 반전 질문: 그림·결과와 같은 색. 수리해 온 배(새 판자) 파랑, 헌 판자로 만든 배 주황 */
+    #rebuilt-choices .choice[data-choice="A"] .choice__tag { color: var(--b); }
+    #rebuilt-choices .choice[data-choice="B"] .choice__tag { color: var(--a); }
+    #rebuilt-choices .choice[data-choice="A"][aria-pressed="true"] { background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); }
+    #rebuilt-choices .choice[data-choice="B"][aria-pressed="true"] { background: var(--a-tint); box-shadow: 6px 6px 0 var(--a); }
 
     /* 배 */
-    .ship-art { width: 100%; height: auto; display: block; }
+    .ship-art { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; } /* 넓은 화면에서 배와 글자가 같이 커지지 않게 */
     .plank { stroke: var(--ink); stroke-width: 1.5; transition: fill 0.4s; }
     .plank--old { fill: var(--a-light); }
     .plank--new { fill: var(--b-light); }
@@ -40,6 +45,15 @@
     .fleet figure { margin: 0; display: flex; flex-direction: column; gap: 8px; border: 1.5px solid var(--rule); padding: 12px; background: var(--white); }
     .fleet figcaption { font-weight: 700; font-size: 16px; }
     .fleet figcaption span { display: block; font-weight: 400; font-size: 13px; color: var(--muted); }
+    /* 답을 고르면 이름판이 고른 배에만 남는다. C는 두 이름판 모두 점선 */
+    .ship-art [data-plate] { transition: stroke 0.5s, fill 0.5s; }
+    .ship-art[data-name="unnamed"] text[data-plate] { fill: transparent; } /* opacity는 조립 애니메이션이 쥐고 있어서 색으로 지운다 */
+    .ship-art[data-name="unnamed"] rect[data-plate] { stroke: var(--dash); }
+    .ship-art[data-name="named"] rect[data-plate] { stroke-width: 2; }
+    .ship-art[data-name="unsure"] rect[data-plate] { stroke-dasharray: 3 2; }
+    .ship-art[data-name="unsure"] text[data-plate] { fill: var(--muted); }
+    .fleet figure { transition: border-color 0.5s; }
+    .fleet figure:has([data-name="named"]) { border-color: var(--ink); }
 
     /* 결과 */
     .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
@@ -77,6 +91,10 @@
       .fleet { grid-template-columns: 1fr; }
     }
     @media (max-width: 480px) {
+      /* 그림이 작아지니 이름판만 키운다 */
+      .ship-art [data-plate] { transform-box: fill-box; transform-origin: center; scale: 1.7; }
+    }
+    @media (max-width: 480px) {
       .scene-title { font-size: 24px; }
       .story { font-size: 16px; }
       .report-title { font-size: 26px; }
@@ -84,6 +102,7 @@
     @media (prefers-reduced-motion: reduce) {
       .plank { transition: none; }
       .plank--appear { animation: none; }
+      .ship-art [data-plate], .fleet figure { transition: none; }
     }
   </style>
 </head>
