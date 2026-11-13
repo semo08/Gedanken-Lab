@@ -14,7 +14,7 @@
     .scene-title { font-size: 28px; }
     .story { font-size: 18px; line-height: 1.8; }
     .ask { display: flex; flex-direction: column; gap: 16px; }
-    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; scroll-margin-bottom: 16px; }
     .scene-title:focus, .report-title:focus { outline: none; }
 
     .choices--three { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
@@ -28,9 +28,13 @@
     .glyphs { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 
     /* 방 안 */
-    .room { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+    /* 넓은 화면: 왼쪽에 들어온 쪽지와 카드, 오른쪽에 규칙서. 폰: 쪽지 → 규칙서 → 카드 */
+    .room { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "in book" "deck book"; gap: 20px; }
+    .slip--in { grid-area: in; }
+    .book { grid-area: book; align-self: start; }
+    .deck { grid-area: deck; display: flex; flex-direction: column; gap: 10px; }
     .slip { background: #FFFDF6; border: 1.5px solid var(--ink); padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 3px 3px 0 var(--rule); }
-    .slip--in { transform: rotate(-1deg); }
+    .slip--in { transform: rotate(-1deg); align-self: start; scroll-margin-top: 72px; } /* 위에 붙은 사이트 바 아래로 */
     .slip__body { min-height: 52px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
     .answer-slot { width: 52px; height: 52px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px dashed var(--dash); background: var(--white); padding: 0; cursor: pointer; }
@@ -49,13 +53,16 @@
     @keyframes hint-flash { 0%, 30% { background: var(--a-light); } 100% { background: var(--a-tint); } }
     @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
-    .cards { display: grid; grid-template-columns: repeat(6, minmax(52px, 72px)); gap: 8px; } /* 12장 = 6 × 2줄 */
+    .cards { display: grid; grid-template-columns: repeat(6, minmax(0, 72px)); gap: 8px; } /* 12장 = 6 × 2줄 */
     .glyph-card { aspect-ratio: 1; min-height: 52px; display: flex; align-items: center; justify-content: center; background: var(--white); border: 2px solid var(--ink); cursor: pointer; padding: 0; }
     .glyph-card:hover { background: var(--a-tint); }
     .glyph-card:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
-    .feedback { font-size: 15px; min-height: 1.6em; }
+    .desk { position: sticky; bottom: 0; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 20px; align-items: end;
+            margin: 0 -32px; padding: 16px 32px; background: var(--white); border-top: 2px solid var(--ink); }
+    .desk__side { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-end; }
+    .feedback { font-size: 15px; min-height: 1.6em; text-align: right; }
     .feedback--ok { color: var(--b); }
     .feedback--no { color: var(--a); }
 
@@ -74,6 +81,9 @@
     .line--room { background: var(--a-tint); }
     .line__meaning { font-size: 17px; font-weight: 700; }
     .quote { font-size: 20px; font-weight: 700; border-left: 0; padding: 16px 0 0; border-top: 1px dashed var(--dash); }
+    /* 반전: 기호만 보이다가 한 줄씩 뜻이 나타난다 */
+    .line__meaning, .quote { transition: opacity 0.4s ease-out, transform 0.4s ease-out; }
+    .line__meaning:not(.is-read), .quote:not(.is-read) { opacity: 0; transform: translateY(6px); }
 
     /* 결과 */
     .report-head { display: flex; flex-direction: column; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 20px; }
@@ -103,8 +113,7 @@
     .refs cite { font-style: italic; }
 
     @media (max-width: 720px) {
-      .room { grid-template-columns: 1fr; }
-      .exchange { grid-template-columns: 1fr; }
+      .room { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "in" "book" "deck"; }
     }
     @media (max-width: 480px) {
       .card svg.scene-art text { font-size: 26px; }
@@ -112,10 +121,27 @@
       .story { font-size: 16px; }
       .report-title { font-size: 28px; }
       .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      /* 책상은 화면을 가리니 얇게 */
+      .desk { grid-template-columns: 1fr; gap: 8px; margin: 0 -20px; padding: 10px 20px; }
+      .desk .slip { padding: 8px 12px; gap: 6px; box-shadow: none; }
+      .desk .slip__body { min-height: 44px; }
+      .desk .answer-slot { width: 44px; height: 44px; }
+      .desk .answer-slot .glyph { width: 32px; height: 32px; }
+      .desk__side { align-items: stretch; gap: 6px; }
+      .feedback { text-align: left; font-size: 14px; min-height: 0; }
+      .feedback:empty { display: none; }
+      .actions { flex-wrap: nowrap; }
+      .actions .btn { padding-inline: 14px; white-space: nowrap; }
+      .actions .btn:not(.btn--ghost) { flex: 1; }
+      /* 폰에서도 주고받은 쪽지를 나란히 */
+      .exchange { gap: 8px; }
+      .line { padding: 10px; }
+      .line__meaning { font-size: 15px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .book.shake { animation: none; }
       .book__hint--changed { animation: none; }
+      .line__meaning, .quote { transition: none; }
     }
   </style>
 </head>
@@ -196,33 +222,35 @@
         <h1 class="scene-title" tabindex="-1">규칙서대로 답 쪽지를 만들자</h1>
 
         <div class="room">
-          <div style="display: flex; flex-direction: column; gap: 16px">
-            <div class="slip slip--in">
-              <span class="label label--muted">문 틈으로 들어온 쪽지</span>
-              <div class="slip__body" id="incoming"></div>
-            </div>
-            <div class="slip">
-              <span class="label label--a">내보낼 답 쪽지 <span style="font-weight: 400">(칸을 누르면 빠진다)</span></span>
-              <div class="slip__body" id="answer"></div>
-            </div>
+          <div class="slip slip--in" id="incoming-slip">
+            <span class="label label--muted">문 틈으로 들어온 쪽지</span>
+            <div class="slip__body" id="incoming"></div>
           </div>
           <div class="book" id="book">
             <span class="label" style="color: var(--b)">규칙서 · 맞는 줄 <strong>하나</strong>를 찾아, 오른쪽 기호를 <strong>그대로</strong> 답 쪽지에 놓는다</span>
             <p class="book__hint" id="rule-hint" aria-live="polite"></p>
             <div id="rules"></div>
           </div>
+          <div class="deck">
+            <span class="label label--muted">기호 카드 상자 (누르면 답 쪽지에 놓인다)</span>
+            <div class="cards" id="cards"></div>
+          </div>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 10px">
-          <span class="label label--muted">기호 카드 상자 (누르면 답 쪽지에 놓인다)</span>
-          <div class="cards" id="cards"></div>
-        </div>
-
-        <p class="feedback" id="feedback" aria-live="polite"></p>
-        <div class="actions">
-          <button type="button" class="btn btn--ghost" id="clear">다시 고르기</button>
-          <button type="button" class="btn btn--a" id="send">쪽지 내보내기 →</button>
-          <button type="button" class="btn" data-go="3" id="to-outside" hidden>방 밖에서는 어떻게 보였을까? →</button>
+        <!-- 책상: 답 쪽지와 버튼은 화면 아래에 붙어 있어서 규칙서나 카드를 보는 동안에도 보인다 -->
+        <div class="desk">
+          <div class="slip slip--out">
+            <span class="label label--a">내보낼 답 쪽지 <span style="font-weight: 400">(칸을 누르면 빠진다)</span></span>
+            <div class="slip__body" id="answer"></div>
+          </div>
+          <div class="desk__side">
+            <p class="feedback" id="feedback" aria-live="polite"></p>
+            <div class="actions">
+              <button type="button" class="btn btn--ghost" id="clear">다시 고르기</button>
+              <button type="button" class="btn btn--a" id="send">쪽지 내보내기 →</button>
+              <button type="button" class="btn" data-go="3" id="to-outside" hidden>방 밖에서는 어떻게 보였을까? →</button>
+            </div>
+          </div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--rule); padding-top: 16px">
@@ -244,7 +272,7 @@
         <span class="label label--a">반전 · 방 밖에서 본 장면</span>
         <h1 class="scene-title" tabindex="-1">밖에 있던 사람에게는 이런 대화였다</h1>
         <div class="transcript" id="transcript"></div>
-        <p class="quote">“방 안 사람은 이 언어를 유창하게 하는 게 분명해!”</p>
+        <p class="quote" id="quote">“방 안 사람은 이 언어를 유창하게 하는 게 분명해!”</p>
       </div>
       <div class="ask">
         <h2 style="font-size: 22px; line-height: 1.5">방 안의 당신은 이 언어를 전혀 몰랐다. 그럼 <strong>이 방</strong>은 이 언어를 이해한 걸까?</h2>
