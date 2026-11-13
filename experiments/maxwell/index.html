@@ -14,7 +14,8 @@
     .scene-title { font-size: 28px; }
     .story { font-size: 18px; line-height: 1.8; }
     .ask { display: flex; flex-direction: column; gap: 16px; }
-    .next { border-top: 1px dashed var(--dash); padding-top: 16px; }
+    .next { border-top: 1px dashed var(--dash); padding-top: 16px; scroll-margin-bottom: 16px; }
+    #to-result { scroll-margin-bottom: 16px; }
     .scene-title:focus, .report-title:focus { outline: none; }
 
     /* 실험 */
@@ -28,16 +29,18 @@
 
     /* 노트북처럼 낮은 화면에서도 캔버스와 문 버튼이 한 화면에 들어오게 높이를 제한한다 (2:1 비율 유지) */
     .chamber {
-      width: 100%; max-width: max(400px, calc((100vh - 470px) * 2)); margin-inline: auto;
+      width: 100%; max-width: max(400px, calc((100vh - 530px) * 2)); margin-inline: auto;
       aspect-ratio: 2 / 1; display: block; border: 2px solid var(--ink); background: var(--white);
     }
 
     .controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
-    .legend-inline { display: flex; gap: 16px; font-size: 14px; color: var(--muted); }
+    .legend-inline { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; color: var(--muted); }
     .legend-inline span { display: inline-flex; align-items: center; gap: 6px; }
     .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
     .dot--fast { background: var(--a); }
     .dot--slow { background: var(--white); border: 2.5px solid var(--b); }
+    .dot--eye { width: 16px; height: 16px; border: 2px dashed var(--c); }
+    .hint { font-size: 15px; line-height: 1.5; }
 
     .door-btn {
       font-family: var(--mono); font-size: 16px; font-weight: 600;
@@ -96,6 +99,8 @@
 
     @media (max-width: 480px) {
       .card svg.scene-art text { font-size: 26px; }
+      /* 그림이 1/3로 줄어드니 입자만 키운다 */
+      .card svg.scene-art .dots circle { transform-box: fill-box; transform-origin: center; transform: scale(1.8); }
       .only-wide { display: none; }
       .only-narrow { display: inline; }
       .scene-title { font-size: 24px; }
@@ -128,8 +133,8 @@
           <rect x="40" y="40" width="800" height="190" fill="#FFFFFF"/>
           <path d="M440 40 V110 M440 160 V230" stroke-width="6"/>
           <rect x="437" y="110" width="6" height="50" fill="#B4470F" stroke="none"/>
-          <g fill="#B4470F" stroke="none"><circle cx="110" cy="90" r="7"/><circle cx="250" cy="170" r="7"/><circle cx="350" cy="80" r="7"/><circle cx="560" cy="190" r="7"/><circle cx="700" cy="100" r="7"/><circle cx="780" cy="170" r="7"/></g>
-          <g stroke="#1F4E9C" stroke-width="2.5" fill="#FFFFFF"><circle cx="160" cy="180" r="7"/><circle cx="300" cy="120" r="7"/><circle cx="520" cy="90" r="7"/><circle cx="640" cy="150" r="7"/><circle cx="760" cy="70" r="7"/><circle cx="200" cy="70" r="7"/></g>
+          <g fill="#B4470F" stroke="none" class="dots"><circle cx="110" cy="90" r="7"/><circle cx="250" cy="170" r="7"/><circle cx="350" cy="80" r="7"/><circle cx="560" cy="190" r="7"/><circle cx="700" cy="100" r="7"/><circle cx="780" cy="170" r="7"/></g>
+          <g stroke="#1F4E9C" stroke-width="2.5" fill="#FFFFFF" class="dots"><circle cx="160" cy="180" r="7"/><circle cx="300" cy="120" r="7"/><circle cx="520" cy="90" r="7"/><circle cx="640" cy="150" r="7"/><circle cx="760" cy="70" r="7"/><circle cx="200" cy="70" r="7"/></g>
           <g stroke="#B4470F" stroke-width="1.5"><path d="M118 90 H140"/><path d="M342 80 H320"/><path d="M708 100 H730"/></g>
           <!-- 악마 -->
           <path d="M428 78 L424 62 L436 72 M452 78 L456 62 L444 72" stroke-width="2.5"/>
@@ -189,12 +194,18 @@
           <div class="temp temp--right"><span class="label label--muted">오른쪽 방</span><span class="temp__value" id="temp-right">—</span></div>
         </div>
 
+        <div class="row" id="sort-footer">
+          <span class="hint" id="hint">빠른 입자는 오른쪽에서, 느린 입자는 왼쪽에서 문에 다가올 때 열자</span>
+          <button type="button" class="skip" id="skip" hidden>어려우면 건너뛰기</button>
+        </div>
+
         <canvas class="chamber" id="chamber" role="img" aria-label="두 방과 문, 움직이는 입자들. 문 열기 버튼을 누르고 있으면 문이 열린다."></canvas>
 
         <div class="controls">
           <div class="legend-inline">
             <span><i class="dot dot--fast"></i>빠른 입자</span>
             <span><i class="dot dot--slow"></i>느린 입자</span>
+            <span><i class="dot dot--eye"></i>지금 열면 좋은 입자</span>
           </div>
           <button type="button" class="door-btn" id="door" aria-pressed="false">
             <span class="door-open-text">문 열기 <span class="only-wide">(누르고 있기 · Space)</span><span class="only-narrow">(누르고 있기)</span></span>
@@ -207,10 +218,6 @@
           <div class="meter__track"><div class="meter__fill" id="room-fill" style="background: var(--b-light)"></div><div class="meter__start" id="room-start"></div></div>
         </div>
 
-        <div class="row" id="sort-footer">
-          <span class="label label--muted" id="hint">문 근처에 빠른 입자가 오른쪽에서 다가올 때 열어 보자</span>
-          <button type="button" class="skip" id="skip" hidden>어려우면 건너뛰기</button>
-        </div>
       </div>
 
       <div class="banner" id="banner" hidden>
