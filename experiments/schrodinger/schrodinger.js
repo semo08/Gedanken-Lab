@@ -1,5 +1,6 @@
 import { stance, STANCES } from './stance.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
+import { stanceWhy } from '../../js/stance-why.js';
 import { percentages } from '../../js/percentages.js';
 import { BULK, tally, observationLine } from './observe.js';
 
@@ -152,7 +153,7 @@ function renderStance() {
     const head = el('div', 'row');
     head.append(el('span', isMine ? 'label' : 'label label--muted', s.who));
     if (isMine) head.append(el('span', 'mine-badge', '나의 입장'));
-    card.append(head, el('h3', '', s.name), el('p', '', s.line));
+    card.append(head, el('h3', '', s.name), el('p', '', s.line), ...stanceWhy(s));
     return card;
   }));
 }

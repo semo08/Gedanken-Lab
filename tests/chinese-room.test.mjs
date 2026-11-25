@@ -63,3 +63,7 @@ test('PAGE_HINTS는 PAGES의 모든 키를 가진다', () => {
   assert.deepEqual(Object.keys(PAGE_HINTS).sort(), Object.keys(PAGES).sort());
   for (const hint of Object.values(PAGE_HINTS)) assert.ok(typeof hint === 'string' && hint.length > 0);
 });
+
+test('모든 입장에 "이 입장의 논리"(why)와 설의 재반박(reply)이 있다', () => {
+  for (const s of STANCES) assert.ok(s.why && s.reply, s.key);
+});
