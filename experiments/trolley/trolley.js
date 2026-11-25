@@ -95,9 +95,7 @@ function statRow(scene, mine, { A, B }) {
   const head = el('div', 'stat__head');
   const title = el('span');
   title.append(el('strong', '', `장면 ${scene.step}`), ` · ${scene.pick[mine]}`);
-  const mineTag = el('span', 'stat__mine', '나의 선택 ✓');
-  mineTag.style.color = mine === 'A' ? 'var(--a)' : 'var(--b)';
-  head.append(title, mineTag);
+  head.append(title, el('span', 'mine-badge', '나의 선택'));
   row.append(head);
 
   const total = A + B;
@@ -111,13 +109,13 @@ function statRow(scene, mine, { A, B }) {
 
   const bar = el('div', 'stat__bar');
   bar.setAttribute('role', 'img');
-  bar.setAttribute('aria-label', `${scene.A} ${pct.A}%, ${scene.B} ${pct.B}%`);
+  bar.setAttribute('aria-label', `${scene.A} ${pct.A}%, ${scene.B} ${pct.B}%. 나의 선택: ${scene[mine]}`);
   for (const side of ['A', 'B']) {
     if (pct[side] === 0) continue;
     const isMine = side === mine;
     // 좁은 칸에는 글자를 넣지 않는다. 숫자는 아래 범례에 항상 있다.
     const hasText = pct[side] >= 25;
-    const seg = el('div', 'stat__seg', hasText ? `${scene[side]} ${pct[side]}%` : '');
+    const seg = el('div', isMine ? 'stat__seg is-mine' : 'stat__seg', hasText ? `${scene[side]} ${pct[side]}%` : '');
     seg.style.flexGrow = String(pct[side]);
     seg.style.flexBasis = '0';
     if (!hasText) seg.style.padding = '0';

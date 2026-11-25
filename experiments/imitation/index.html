@@ -73,7 +73,7 @@
 
     .acc { display: flex; flex-direction: column; gap: 6px; }
     .acc__head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 15px; }
-    .acc__mine { font-family: var(--mono); font-size: 13px; }
+    .acc__mine { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
     .stat__bar { display: flex; height: 24px; font-family: var(--mono); font-size: 12px; border: 1px solid var(--ink); background: #ECEEF2; }
     .stat__seg { display: flex; align-items: center; padding: 0 8px; overflow: hidden; white-space: nowrap; color: var(--white); background: var(--b); }
     .stat__legend { font-family: var(--mono); font-size: 13px; color: var(--muted); }
@@ -236,7 +236,7 @@
       <div class="card card--tight" aria-live="polite">
         <div class="row">
           <span class="label">비교 데이터 · 튜링의 질문</span>
-          <span class="label label--muted" id="turing-mine"></span>
+          <span id="turing-mine" style="font-size: 14px; font-weight: 700"></span>
         </div>
         <div id="turing-stats"><p class="stat-status">기록 불러오는 중…</p></div>
       </div>

@@ -151,7 +151,7 @@ function renderStance() {
     const card = el('div', isMine ? 'stance stance--mine' : 'stance');
     const head = el('div', 'row');
     head.append(el('span', isMine ? 'label' : 'label label--muted', s.who));
-    if (isMine) head.append(el('span', 'label', '나의 입장 ✓'));
+    if (isMine) head.append(el('span', 'mine-badge', '나의 입장'));
     card.append(head, el('h3', '', s.name), el('p', '', s.line));
     return card;
   }));
@@ -190,10 +190,10 @@ async function renderStats() {
 
     const bar = el('div', 'bar');
     bar.setAttribute('role', 'img');
-    bar.setAttribute('aria-label', keys.map((k) => `${ANSWERS[k].label} ${pct[k]}%`).join(', '));
+    bar.setAttribute('aria-label', `${keys.map((k) => `${ANSWERS[k].label} ${pct[k]}%`).join(', ')}. 나의 선택: ${ANSWERS[answer].label}`);
     for (const k of keys) {
       if (tally[k] === 0) continue;
-      const seg = el('div');
+      const seg = el('div', k === answer ? 'is-mine' : '');
       seg.style.flex = `${tally[k]} 1 0`;
       seg.style.background = ANSWERS[k].color;
       bar.append(seg);
@@ -201,11 +201,11 @@ async function renderStats() {
 
     const legend = el('ul', 'legend');
     for (const k of keys) {
-      const li = el('li');
+      const li = el('li', k === answer ? 'is-mine-row' : '');
       const swatch = el('span', 'legend__swatch');
       swatch.style.background = ANSWERS[k].color;
       li.append(swatch, el('span', '', `${k} · ${ANSWERS[k].label}`));
-      if (k === answer) li.append(el('span', 'legend__mine', '← 나'));
+      if (k === answer) li.append(el('span', 'mine-badge', '나'));
       li.append(el('span', 'legend__pct', `${pct[k]}%`));
       legend.append(li);
     }

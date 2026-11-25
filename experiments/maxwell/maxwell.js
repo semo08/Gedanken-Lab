@@ -334,12 +334,12 @@ async function renderStats() {
     const bar = document.createElement('div');
     bar.className = 'stat__bar';
     bar.setAttribute('role', 'img');
-    bar.setAttribute('aria-label', `${label.A} ${share.A}%, ${label.B} ${share.B}%`);
+    bar.setAttribute('aria-label', `${label.A} ${share.A}%, ${label.B} ${share.B}%. 나의 예측: ${label[prediction]}`);
     for (const side of ['A', 'B']) {
       if (share[side] === 0) continue;
       const mine = side === prediction;
       const seg = document.createElement('div');
-      seg.className = 'stat__seg';
+      seg.className = mine ? 'stat__seg is-mine' : 'stat__seg';
       seg.textContent = share[side] >= 25 ? `${label[side]} ${share[side]}%` : '';
       if (share[side] < 25) seg.style.padding = '0';
       seg.style.flex = `${share[side]} 1 0`;
@@ -351,7 +351,13 @@ async function renderStats() {
     legend.className = 'stat__legend';
     // 막대에 글자가 들어간 쪽은 다시 쓰지 않는다. 좁아서 비운 쪽만 적는다
     const hidden = ['A', 'B'].filter((side) => share[side] > 0 && share[side] < 25).map((side) => `${label[side]} ${share[side]}%`);
-    legend.textContent = [...hidden, `${total}명 참여`, `나의 예측: ${label[prediction]}`].join(' · ');
+    const mineTag = document.createElement('span');
+    mineTag.className = 'mine-badge';
+    mineTag.textContent = '나의 예측';
+    const mineText = document.createElement('strong');
+    mineText.className = 'is-mine-row';
+    mineText.textContent = ` ${label[prediction]}`;
+    legend.append(mineTag, mineText, ` · ${[...hidden, `${total}명 참여`].join(' · ')}`);
     list.replaceChildren(bar, legend);
   } catch (err) {
     if (run !== statsRun) return;
