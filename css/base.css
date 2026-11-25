@@ -260,6 +260,17 @@ svg { display: block; max-width: 100%; height: auto; }
 .vote-notice { margin: 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
 .vote-notice .term::after { content: none; } /* 이미 "자세히"라서 ⓘ는 뺀다 */
 
+/* ── 결과의 "내 선택" 표시 (전 실험 공통) ── */
+/* 색만으로 구분하지 않도록 채운 칩 모양으로 단다 */
+.mine-badge {
+  display: inline-block; padding: 2px 8px; background: var(--ink); color: var(--white);
+  font-family: var(--mono); font-size: 12px; font-weight: 700; line-height: 1.5; white-space: nowrap;
+}
+/* 막대에서 내 칸: 안쪽 잉크 테두리 + 굵은 글자 */
+.is-mine { box-shadow: inset 0 0 0 3px var(--ink); font-weight: 700; }
+/* 범례에서 내 항목 */
+.is-mine-row { font-weight: 700; color: var(--ink); }
+
 /* ── 실험 카드 (메인, 다른 실험) ── */
 
 .experiments { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }

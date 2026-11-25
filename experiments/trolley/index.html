@@ -41,7 +41,6 @@
 
     .stat { display: flex; flex-direction: column; gap: 8px; }
     .stat__head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 15px; }
-    .stat__mine { font-family: var(--mono); }
     .stat__bar { display: flex; height: 28px; font-family: var(--mono); font-size: 13px; }
     .stat__seg { display: flex; align-items: center; padding: 0 10px; overflow: hidden; white-space: nowrap; transition: flex-grow 0.6s ease-out; }
     .stat__legend { font-family: var(--mono); font-size: 13px; color: var(--muted); }
@@ -49,8 +48,6 @@
 
     .refs { font-size: 13px; line-height: 1.7; color: var(--muted); margin: 0; padding-left: 18px; }
     .refs cite { font-style: italic; }
-
-    .only-narrow { display: none; }
 
     @media (max-width: 480px) {
       /* 그림이 1/3 크기로 줄어드니 라벨만 키운다 (26 → 약 9px) */
@@ -61,8 +58,6 @@
       .card svg .person { transform-origin: 50% 100%; }
       .card svg .walker { transform-origin: 50% 50%; }
       .route { stroke-width: 14; opacity: 0.55; }
-      .only-wide { display: none; }
-      .only-narrow { display: inline; }
       .scene-title { font-size: 24px; }
       .story { font-size: 16px; }
       .report-title { font-size: 28px; }
@@ -138,18 +133,22 @@
           <span class="label">관찰 기록 · 변수 변경</span>
           <span class="label label--muted label--a">레버 → 육교</span>
         </div>
-        <svg role="img" aria-label="일직선 철로 위로 육교가 있고, 육교 위에 몸집이 큰 사람과 당신이 서 있다. 선로 끝에 5명" viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
-          <path d="M20 160 H860"/><path d="M20 172 H860"/>
-          <path class="route route--A" pathLength="1" d="M150 166 H340"/><path class="route route--B" pathLength="1" d="M150 166 H860"/>
-          <rect x="60" y="130" width="90" height="38" rx="4" fill="#F7F6F0"/><circle cx="80" cy="174" r="7" fill="#FFFFFF"/><circle cx="130" cy="174" r="7" fill="#FFFFFF"/>
-          <path d="M160 148 H200 M185 140 L200 148 L185 156" stroke="#B4470F" stroke-width="2.5"/>
-          <path d="M330 80 H530"/><path d="M340 80 V160"/><path d="M520 80 V160"/><path d="M330 60 H530" stroke-dasharray="4 4"/>
-          <circle cx="420" cy="40" r="14" fill="#1B1F2A" stroke="none"/><rect x="404" y="52" width="32" height="28" rx="8" fill="#1B1F2A" stroke="none"/>
-          <circle cx="470" cy="50" r="8" fill="#FFFFFF" stroke="#1F4E9C" stroke-width="2.5"/><path d="M470 58 V80" stroke="#1F4E9C" stroke-width="3"/>
-          <g class="person"><circle cx="680" cy="138" r="7" fill="#1B1F2A" stroke="none"/><path d="M680 146 V160" stroke-width="3"/></g><g class="person"><circle cx="710" cy="138" r="7" fill="#1B1F2A" stroke="none"/><path d="M710 146 V160" stroke-width="3"/></g><g class="person"><circle cx="740" cy="138" r="7" fill="#1B1F2A" stroke="none"/><path d="M740 146 V160" stroke-width="3"/></g><g class="person"><circle cx="770" cy="138" r="7" fill="#1B1F2A" stroke="none"/><path d="M770 146 V160" stroke-width="3"/></g><g class="person"><circle cx="800" cy="138" r="7" fill="#1B1F2A" stroke="none"/><path d="M800 146 V160" stroke-width="3"/></g>
-          <text x="820" y="146" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none">5명</text>
-          <text x="320" y="46" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="end">덩치 큰 사람</text>
-          <text x="470" y="30" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1F4E9C" stroke="none" text-anchor="middle">당신</text>
+        <svg role="img" aria-label="선로 위를 가로지르는 육교. 육교 위에 당신과 덩치 큰 사람이 서 있고, 덩치 큰 사람을 밀면 육교 앞 선로로 떨어져 트롤리를 막는다. 왼쪽에서 트롤리가 달려오고, 육교 너머 선로에 5명이 있다." viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <rect x="346" y="112" width="14" height="80" fill="#F7F6F0"/><rect x="520" y="112" width="14" height="80" fill="#F7F6F0"/>
+          <path d="M330 76 H550" stroke-width="2.5"/><path d="M340 76 V100 M360 76 V100 M380 76 V100 M400 76 V100 M420 76 V100 M440 76 V100 M460 76 V100 M480 76 V100 M500 76 V100 M520 76 V100 M540 76 V100" stroke="#8A90A0" stroke-width="1.5"/>
+          <rect x="326" y="100" width="228" height="12" fill="#E6E8EC"/>
+          <path d="M20 172 H860"/><path d="M20 184 H860"/>
+          <path class="route route--A" pathLength="1" d="M150 178 H296"/><path class="route route--B" pathLength="1" d="M150 178 H860"/>
+          <rect x="60" y="142" width="90" height="38" rx="4" fill="#F7F6F0"/><circle cx="80" cy="186" r="7" fill="#FFFFFF"/><circle cx="130" cy="186" r="7" fill="#FFFFFF"/>
+          <path d="M160 160 H200 M185 152 L200 160 L185 168" stroke="#B4470F" stroke-width="2.5"/>
+          <g fill="#1B1F2A" stroke="none"><circle cx="410" cy="48" r="12"/><rect x="388" y="60" width="44" height="28" rx="10"/></g><path d="M401 86 V100 M419 86 V100" stroke-width="5"/>
+          <circle cx="478" cy="66" r="9" fill="#FFFFFF" stroke="#1F4E9C" stroke-width="2.5"/><path d="M478 75 V100" stroke="#1F4E9C" stroke-width="3.5"/><path d="M478 84 L452 78" stroke="#1F4E9C" stroke-width="3"/>
+          <path d="M386 70 C 330 62 300 110 300 158" stroke="#B4470F" stroke-width="2.5" stroke-dasharray="6 5"/><path d="M290 148 L300 162 L310 148" stroke="#B4470F" stroke-width="2.5"/>
+          <g class="person"><circle cx="680" cy="150" r="7" fill="#1B1F2A" stroke="none"/><path d="M680 158 V172" stroke-width="3"/></g><g class="person"><circle cx="710" cy="150" r="7" fill="#1B1F2A" stroke="none"/><path d="M710 158 V172" stroke-width="3"/></g><g class="person"><circle cx="740" cy="150" r="7" fill="#1B1F2A" stroke="none"/><path d="M740 158 V172" stroke-width="3"/></g><g class="person"><circle cx="770" cy="150" r="7" fill="#1B1F2A" stroke="none"/><path d="M770 158 V172" stroke-width="3"/></g><g class="person"><circle cx="800" cy="150" r="7" fill="#1B1F2A" stroke="none"/><path d="M800 158 V172" stroke-width="3"/></g>
+          <text x="820" y="158" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none">5명</text>
+          <text x="394" y="34" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="end">덩치 큰 사람</text>
+          <text x="478" y="48" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1F4E9C" stroke="none" text-anchor="middle">당신</text>
+          <text x="288" y="100" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#B4470F" stroke="none" text-anchor="end">밀면</text>
         </svg>
         <p class="story">이번엔 레버가 없다. 당신은 선로 위 육교에 서 있고, 옆에는 덩치 큰 사람이 있다. 그를 <strong>밀어 떨어뜨리면</strong> 트롤리가 멈추고 5명이 산다. 숫자는 장면 1과 똑같다. <strong>1명 vs 5명.</strong></p>
       </div>
@@ -188,20 +187,21 @@
           <span class="label">관찰 기록 · 현대 버전</span>
           <span class="label label--muted label--a">당신 → 프로그래머</span>
         </div>
-        <svg role="img" aria-label="도로를 달리는 자율주행차. 탑승자 1명. 앞 횡단보도에 보행자 5명, 옆에는 벽" viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
-          <path d="M20 60 H860"/><path d="M20 180 H860"/><path d="M20 120 H860" stroke-dasharray="20 14"/>
-          <path class="route route--A" pathLength="1" d="M230 108 Q 330 108 400 44"/><path class="route route--B" pathLength="1" d="M230 108 H600"/>
-          <g stroke-width="2"><path d="M600 64 V176"/><path d="M620 64 V176"/><path d="M640 64 V176"/><path d="M660 64 V176"/></g>
-          <rect x="100" y="80" width="130" height="56" rx="14" fill="#F7F6F0"/><rect x="150" y="90" width="44" height="22" rx="4"/><circle cx="172" cy="101" r="6" fill="#1F4E9C" stroke="none"/>
-          <circle cx="130" cy="140" r="9" fill="#FFFFFF"/><circle cx="200" cy="140" r="9" fill="#FFFFFF"/>
-          <path d="M240 108 H300 M285 100 L300 108 L285 116" stroke="#B4470F" stroke-width="2.5"/>
-          <g fill="#1B1F2A" stroke="none"><circle class="walker" cx="610" cy="88" r="7"/><circle class="walker" cx="630" cy="108" r="7"/><circle class="walker" cx="650" cy="128" r="7"/><circle class="walker" cx="612" cy="146" r="7"/><circle class="walker" cx="645" cy="152" r="7"/></g>
-          <path d="M300 40 L360 20" stroke="#B4470F" stroke-dasharray="5 5"/>
-          <rect x="360" y="4" width="160" height="40" fill="#F7F6F0" stroke="#8A90A0"/>
-          <text class="only-wide" x="440" y="29" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="13" fill="#5B6170" stroke="none" text-anchor="middle">벽 (회피 시 충돌)</text>
-          <text class="only-narrow" x="440" y="33" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="13" fill="#5B6170" stroke="none" text-anchor="middle">벽</text>
-          <text x="630" y="196" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">보행자 5명</text>
-          <text x="165" y="74" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1F4E9C" stroke="none" text-anchor="middle">탑승자 1명</text>
+        <svg role="img" aria-label="위에서 내려다본 도로. 자율주행차 안에 탑승자 1명이 타고 있다. 그대로 가면 앞 횡단보도의 보행자 5명에게, 핸들을 꺾으면 도로 가장자리의 벽으로 간다." viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <path d="M20 38 H860"/><path d="M20 190 H860"/><path d="M20 114 H860" stroke-dasharray="20 14" stroke="#8A90A0"/>
+          <rect x="340" y="14" width="230" height="24" fill="#E9E4DA" stroke-width="2.5"/><path d="M340 26 H570 M360 14 V26 M390 14 V26 M420 14 V26 M450 14 V26 M480 14 V26 M510 14 V26 M540 14 V26 M375 26 V38 M405 26 V38 M435 26 V38 M465 26 V38 M495 26 V38 M525 26 V38 M555 26 V38" stroke-width="1.2"/>
+          <g fill="#DDE1E8" stroke="none"><rect x="620" y="46" width="70" height="11"/><rect x="620" y="68" width="70" height="11"/><rect x="620" y="90" width="70" height="11"/><rect x="620" y="112" width="70" height="11"/><rect x="620" y="134" width="70" height="11"/><rect x="620" y="156" width="70" height="11"/><rect x="620" y="178" width="70" height="11"/></g>
+          <path class="route route--A" pathLength="1" d="M232 140 Q 330 140 400 44"/><path class="route route--B" pathLength="1" d="M232 149 H630"/>
+          <g fill="#1B1F2A" stroke="none"><rect x="124" y="118" width="22" height="7" rx="2"/><rect x="196" y="118" width="22" height="7" rx="2"/><rect x="124" y="173" width="22" height="7" rx="2"/><rect x="196" y="173" width="22" height="7" rx="2"/></g>
+          <rect x="110" y="122" width="122" height="54" rx="14" fill="#F7F6F0"/><rect x="146" y="130" width="54" height="38" rx="6" fill="#FFFFFF"/><circle cx="168" cy="149" r="9" fill="#1F4E9C" stroke="none"/>
+          <path d="M236 138 Q 330 136 392 54" stroke="#B4470F" stroke-width="2.5" stroke-dasharray="6 5"/><path d="M380 56 L396 46 L398 64" stroke="#B4470F" stroke-width="2.5"/>
+          <path d="M236 149 H596" stroke="#1F4E9C" stroke-width="2.5" stroke-dasharray="6 5"/><path d="M584 141 L598 149 L584 157" stroke="#1F4E9C" stroke-width="2.5"/>
+          <g fill="#1B1F2A" stroke="none"><circle class="walker" cx="640" cy="74" r="7"/><circle class="walker" cx="668" cy="98" r="7"/><circle class="walker" cx="646" cy="124" r="7"/><circle class="walker" cx="672" cy="150" r="7"/><circle class="walker" cx="642" cy="168" r="7"/></g>
+          <text x="330" y="34" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#5B6170" stroke="none" text-anchor="end">벽</text>
+          <text x="655" y="30" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">보행자 5명</text>
+          <text x="171" y="106" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1F4E9C" stroke="none" text-anchor="middle">탑승자 1명</text>
+          <text x="410" y="84" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#B4470F" stroke="none">핸들을 꺾으면</text>
+          <text x="420" y="178" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1F4E9C" stroke="none" text-anchor="middle">그대로</text>
         </svg>
         <p class="story">당신은 자율주행차 프로그래머다. 브레이크가 고장 난 차 앞에 보행자 <strong>5명</strong>이 있다. 핸들을 꺾으면 벽에 부딪혀 <strong>탑승자 1명</strong>이 죽는다. 이 상황이 오기 <strong>전에</strong>, 차가 어떻게 판단할지 미리 정해야 한다.</p>
       </div>

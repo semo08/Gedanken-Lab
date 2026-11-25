@@ -257,8 +257,10 @@ function showResult() {
     const head = el('div', 'acc__head');
     const title = el('span');
     title.append(el('strong', '', `라운드 ${i + 1}`), ` · ${round.era} ${round.label}`);
-    const mine = el('span', 'acc__mine', `나: ${state.results[i] ? '정답 ✓' : '오답 ✗'}`);
-    mine.style.color = state.results[i] ? 'var(--b)' : 'var(--a)';
+    const mine = el('span', 'acc__mine');
+    const verdict = el('strong', '', state.results[i] ? '정답 ✓' : '오답 ✗');
+    verdict.style.color = state.results[i] ? 'var(--b)' : 'var(--a)';
+    mine.append(el('span', 'mine-badge', '나'), verdict);
     head.append(title, mine);
     row.append(head);
     const tally = state.tallies[i];
@@ -276,7 +278,7 @@ function showResult() {
     link.append(a);
   }
 
-  $('turing-mine').textContent = `나의 답 · ${state.turing === 'A' ? '그렇다' : '아니다'}`;
+  $('turing-mine').replaceChildren(el('span', 'mine-badge', '나의 선택'), ` ${state.turing === 'A' ? '그렇다' : '아니다'}`);
   loadTuringStats();
   show('result');
 }
@@ -295,10 +297,10 @@ async function loadTuringStats() {
     const pctA = Math.round((A / total) * 100);
     const bar = el('div', 'stat__bar');
     bar.setAttribute('role', 'img');
-    bar.setAttribute('aria-label', `그렇다 ${pctA}%, 아니다 ${100 - pctA}%`);
+    bar.setAttribute('aria-label', `그렇다 ${pctA}%, 아니다 ${100 - pctA}%. 나의 선택: ${state.turing === 'A' ? '그렇다' : '아니다'}`);
     for (const [key, pct, color] of [['A', pctA, 'var(--a)'], ['B', 100 - pctA, 'var(--b)']]) {
       if (pct === 0) continue;
-      const seg = el('div', 'stat__seg', pct >= 20 ? `${key === 'A' ? '그렇다' : '아니다'} ${pct}%` : '');
+      const seg = el('div', key === state.turing ? 'stat__seg is-mine' : 'stat__seg', pct >= 20 ? `${key === 'A' ? '그렇다' : '아니다'} ${pct}%` : '');
       seg.style.width = `${pct}%`;
       seg.style.background = color;
       bar.append(seg);
