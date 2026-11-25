@@ -1,10 +1,16 @@
-import { trip, diagram, formatYears, formatAge } from './relativity.js';
+import { trip, loopTrip, diagram, formatYears, formatAge } from './relativity.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
+import { renderDeepEntry } from '../../js/deep-entry.js';
 import { percentages } from '../../js/percentages.js';
 
 const VOTE_ID = 'twin';
+const DEEP_VOTE_ID = 'twin_deep';
 const START_AGE = 20;
 const TRIP_MS = 4000;
+// 심화: 닫힌 우주 한 바퀴
+const LOOP_LY = 10;
+const LOOP_V = 0.8;
+const LOOP_PX = 760; // 그림에서 띠 한 바퀴의 길이(viewBox 단위)
 
 const DESTINATIONS = [
   { key: 'proxima', name: '프록시마 센타우리', ly: 4.2, note: '태양에서 가장 가까운 별' },
@@ -25,10 +31,11 @@ const sections = [...document.querySelectorAll('[data-step]')];
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 let prediction = null;
+let deepPrediction = null;
 let dest = DESTINATIONS[0];
 let speedIndex = 3;
 let travelling = false;
-let statsRun = 0;
+const statsRuns = {};
 
 const speed = () => SPEEDS[speedIndex];
 const speedLabel = (v) => `광속의 ${+(v * 100).toFixed(1)}%`;
@@ -50,12 +57,13 @@ function el(tag, className, text) {
 
 // ── 1단계: 예측 ──
 
-function pick(choice) {
-  prediction = choice;
-  for (const btn of document.querySelectorAll('[data-step="1"] .choice')) {
+function pick(step, choice) {
+  if (step === 'deep-1') deepPrediction = choice;
+  else prediction = choice;
+  for (const btn of document.querySelectorAll(`[data-step="${step}"] .choice`)) {
     btn.setAttribute('aria-pressed', String(btn.dataset.choice === choice));
   }
-  reveal(document.querySelector('[data-step="1"] .next'));
+  reveal(document.querySelector(`[data-step="${step}"] .next`));
 }
 
 // 새로 나타난 버튼이 화면 밖이면 보이게 스크롤한다
@@ -173,8 +181,74 @@ function showResult() {
     ` (시간이 ${t.gamma.toFixed(2)}배 느리게 갔다)`);
 
   drawDiagram(v, t);
-  renderStats();
+  renderStats(VOTE_ID, prediction, $('stats-status'), $('stats'));
   show('result');
+}
+
+// ── 심화: 닫힌 우주 ──
+
+function setLooping(on) {
+  travelling = on;
+  for (const node of [$('loop-launch'), $('deep-back'), ...document.querySelectorAll('[data-step="deep-1"] .choice')]) node.disabled = on;
+}
+
+function resetLoop() {
+  $('deep-run-earth').textContent = '0년';
+  $('deep-run-ship').textContent = '0년';
+  $('loop-status').textContent = '';
+}
+
+// 우주선은 처음부터 끝까지 같은 속도로 직진한다(easing linear). 가속이 없다는 게 이 실험의 핵심이다
+function launchLoop() {
+  if (travelling) return;
+  if (reduceMotion.matches) { showDeepResult(); return; }
+
+  setLooping(true);
+  $('deep-clocks').scrollIntoView({ block: 'end', behavior: 'smooth' });
+  const t = loopTrip(LOOP_LY, LOOP_V);
+  const status = $('loop-status');
+  status.textContent = '지구 옆을 지나며 시계를 맞췄다 · 직진 중';
+  const anim = $('loop-ship').animate(
+    [{ transform: 'translateX(0)' }, { transform: `translateX(${LOOP_PX}px)` }],
+    { duration: TRIP_MS, easing: 'linear' },
+  );
+  const begin = performance.now();
+  const tickClocks = (now) => {
+    const p = Math.min(1, (now - begin) / TRIP_MS);
+    $('deep-run-earth').textContent = formatYears(p * t.earthYears);
+    $('deep-run-ship').textContent = formatYears(p * t.shipYears);
+    if (p > 0.72 && p < 1) status.textContent = '오른쪽 끝으로 나가 왼쪽 끝으로 들어왔다';
+    if (p < 1) requestAnimationFrame(tickClocks);
+  };
+  requestAnimationFrame(tickClocks);
+
+  anim.finished.then(() => {
+    status.textContent = '다시 지구 옆을 지난다';
+    setTimeout(() => {
+      setLooping(false);
+      showDeepResult();
+    }, 900);
+  });
+}
+
+function showDeepResult() {
+  const t = loopTrip(LOOP_LY, LOOP_V);
+  const right = deepPrediction === 'B';
+  const tag = $('deep-verdict-tag');
+  tag.textContent = right ? '예측 적중' : '예측 빗나감';
+  tag.style.color = right ? 'var(--b)' : 'var(--a)';
+  $('deep-verdict-text').textContent = {
+    A: '당신은 지구에 남은 쪽이 더 젊을 거라고 예측했다. 반대였다. 우주에 대해 멈춰 있던 지구의 시계가 가장 많이 갔다.',
+    B: '당신은 우주에 다녀온 쪽이 더 젊을 거라고 예측했다. 맞다. 아무도 가속하지 않았는데도 우주선의 시계가 덜 갔다.',
+    C: '당신은 가속이 없으니 둘이 똑같을 거라고 예측했다. 그럴듯하지만 아니었다. 닫힌 우주에서는 둘의 처지가 대칭이 아니다.',
+  }[deepPrediction];
+  $('deep-earth').textContent = formatYears(t.earthYears);
+  $('deep-ship').textContent = formatYears(t.shipYears);
+  $('deep-diff').replaceChildren('다시 만났을 때 나이 차: ', el('strong', '', formatYears(t.diffYears)),
+    ` (시간이 ${(t.earthYears / t.shipYears).toFixed(2)}배 느리게 갔다)`);
+  resetLoop();
+  renderStats(DEEP_VOTE_ID, deepPrediction, $('deep-stats-status'), $('deep-stats'));
+  show('deep-result');
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -231,10 +305,8 @@ function drawDiagram(v, t) {
   $('tick-note').textContent = `점 하나 = 각자의 시계로 ${g.tick}년`;
 }
 
-async function renderStats() {
-  const run = ++statsRun;
-  const status = $('stats-status');
-  const list = $('stats');
+async function renderStats(voteId, choice, status, list) {
+  const run = (statsRuns[voteId] = (statsRuns[voteId] ?? 0) + 1);
   status.textContent = '기록 불러오는 중…';
   status.hidden = false;
   list.replaceChildren();
@@ -242,10 +314,10 @@ async function renderStats() {
   try {
     // 동적으로 불러와서 Firebase CDN이 막혀도 나머지 결과는 그대로 보이게 한다
     const { vote, getCounts } = await import('../../js/firebase.js');
-    await vote(VOTE_ID, prediction);
+    await vote(voteId, choice);
     const keys = Object.keys(ANSWERS);
-    const { [VOTE_ID]: tally } = await getCounts([VOTE_ID], keys);
-    if (run !== statsRun) return;
+    const { [voteId]: tally } = await getCounts([voteId], keys);
+    if (run !== statsRuns[voteId]) return;
 
     const total = keys.reduce((sum, k) => sum + tally[k], 0);
     if (total === 0) { status.textContent = '아직 기록이 없어요'; return; }
@@ -254,10 +326,10 @@ async function renderStats() {
 
     const bar = el('div', 'bar');
     bar.setAttribute('role', 'img');
-    bar.setAttribute('aria-label', `${keys.map((k) => `${ANSWERS[k].label} ${pct[k]}%`).join(', ')}. 나의 선택: ${ANSWERS[prediction].label}`);
+    bar.setAttribute('aria-label', `${keys.map((k) => `${ANSWERS[k].label} ${pct[k]}%`).join(', ')}. 나의 선택: ${ANSWERS[choice].label}`);
     for (const k of keys) {
       if (tally[k] === 0) continue;
-      const seg = el('div', k === prediction ? 'is-mine' : '');
+      const seg = el('div', k === choice ? 'is-mine' : '');
       seg.style.flex = `${tally[k]} 1 0`;
       seg.style.background = ANSWERS[k].color;
       bar.append(seg);
@@ -265,18 +337,18 @@ async function renderStats() {
 
     const legend = el('ul', 'legend');
     for (const k of keys) {
-      const li = el('li', k === prediction ? 'is-mine-row' : '');
+      const li = el('li', k === choice ? 'is-mine-row' : '');
       const swatch = el('span', 'legend__swatch');
       swatch.style.background = ANSWERS[k].color;
       li.append(swatch, el('span', '', `${k} · ${ANSWERS[k].label}`));
-      if (k === prediction) li.append(el('span', 'mine-badge', '나'));
+      if (k === choice) li.append(el('span', 'mine-badge', '나'));
       li.append(el('span', 'legend__pct', `${pct[k]}%`));
       legend.append(li);
     }
 
     list.replaceChildren(bar, legend, el('p', 'stat-total', `${total}명 참여`));
   } catch (err) {
-    if (run !== statsRun) return;
+    if (run !== statsRuns[voteId]) return;
     console.error(err);
     status.textContent = '다른 실험자들의 기록을 불러오지 못했어요.';
   }
@@ -284,6 +356,8 @@ async function renderStats() {
 
 function restart() {
   prediction = null;
+  deepPrediction = null;
+  resetLoop();
   for (const btn of document.querySelectorAll('.choice')) btn.setAttribute('aria-pressed', 'false');
   for (const next of document.querySelectorAll('.next')) next.hidden = true;
   show(1);
@@ -291,14 +365,17 @@ function restart() {
 
 // ── 연결 ──
 
-for (const btn of document.querySelectorAll('[data-step="1"] .choice')) {
-  btn.addEventListener('click', () => pick(btn.dataset.choice));
+for (const step of ['1', 'deep-1']) {
+  for (const btn of document.querySelectorAll(`[data-step="${step}"] .choice`)) {
+    btn.addEventListener('click', () => pick(step, btn.dataset.choice));
+  }
 }
 for (const btn of document.querySelectorAll('[data-go]')) {
   btn.addEventListener('click', () => show(btn.dataset.go));
 }
 $('speed').addEventListener('input', (e) => { speedIndex = Number(e.target.value); syncPlan(); });
 $('launch').addEventListener('click', launch);
+$('loop-launch').addEventListener('click', launchLoop);
 document.querySelector('[data-restart]').addEventListener('click', restart);
 
 // 폰에서는 현장 기록을 접어 둔다(제목을 누르면 펼쳐진다)
@@ -308,3 +385,5 @@ renderDestinations();
 renderSpeedMarks();
 syncPlan();
 renderOtherExperiments($('other-experiments'), 'twin', '../../');
+renderOtherExperiments($('deep-other-experiments'), 'twin', '../../');
+renderDeepEntry($('deep-entry'), 'twin');

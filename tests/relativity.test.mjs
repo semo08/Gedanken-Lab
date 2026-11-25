@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { gamma, trip, tickYears, diagram, formatYears, formatAge } from '../experiments/twin/relativity.js';
+import { gamma, trip, loopTrip, tickYears, diagram, formatYears, formatAge } from '../experiments/twin/relativity.js';
 
 const close = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${a} ≈ ${b}`);
 
@@ -64,4 +64,11 @@ test('formatAge: 1,000살 미만은 소수 한 자리(104.0 vs 103.6을 구별),
   assert.equal(formatAge(103.6), '103.6살');
   assert.equal(formatAge(20 + 6.3), '26.3살');
   assert.equal(formatAge(20 + 1101.1), '1,121살');
+});
+
+test('loopTrip: 닫힌 우주 10광년, 광속 80% → 지구 12.5년, 우주선 7.5년', () => {
+  const t = loopTrip(10, 0.8);
+  close(t.earthYears, 12.5);
+  close(t.shipYears, 7.5);
+  close(t.diffYears, 5);
 });

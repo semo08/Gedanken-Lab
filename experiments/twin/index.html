@@ -99,6 +99,9 @@
     .legend__pct { font-family: var(--mono); margin-left: auto; }
     .stat-status, .stat-total { font-family: var(--mono); font-size: 14px; color: var(--muted); }
 
+    /* 심화: 닫힌 우주 띠. 우주선 두 개(한 바퀴 간격)를 한 묶음으로 옮겨, 오른쪽으로 나간 만큼 왼쪽에서 들어온다 */
+    .loop-ship { transform-box: view-box; }
+
     .refs { font-size: 13px; line-height: 1.7; color: var(--muted); margin: 0; padding-left: 18px; }
     .refs cite { font-style: italic; }
 
@@ -336,9 +339,139 @@
         <button type="button" class="btn" data-go="2">다른 목적지로 다시 여행 →</button>
       </div>
 
+      <div class="card card--tight deep-entry" id="deep-entry">
+        <span class="label">심화 · 한 단계 더</span>
+        <h2 class="deep-entry__title"></h2>
+        <p class="deep-entry__teaser"></p>
+        <div><button type="button" class="btn" data-go="deep-1">심화 실험 →</button></div>
+      </div>
+
       <div style="display: flex; flex-direction: column; gap: 16px; border-top: 2px solid var(--ink); padding-top: 28px; margin-top: 12px">
         <h2 style="font-size: 22px">다른 실험 해보기</h2>
         <div class="experiments" id="other-experiments"></div>
+      </div>
+    </section>
+
+
+    <!-- ── 심화: 닫힌 우주 ── -->
+    <section class="container" data-step="deep-1" hidden>
+      <div class="row">
+        <button type="button" class="back-link" data-go="result" id="deep-back">← 기본 결과로</button>
+        <div class="progress">
+          <span class="label label--muted">EXP #04 · 심화 1 / 1</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="label">관찰 기록 · 심화</span>
+        <svg class="scene-art loop-art" role="img" aria-label="가로 띠 모양의 닫힌 우주. 띠의 오른쪽 끝과 왼쪽 끝은 같은 곳이다. 지구는 띠의 한 지점에 있고, 우주선은 지구 옆을 지나 오른쪽으로 직진해 오른쪽 끝으로 나가면 왼쪽 끝으로 다시 들어와 지구로 돌아온다." viewBox="0 0 880 190" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <defs><clipPath id="loop-band"><rect x="60" y="40" width="760" height="90"/></clipPath></defs>
+          <rect x="60" y="40" width="760" height="90" fill="#F4F6FA" stroke="none"/>
+          <path d="M60 40 H820 M60 130 H820"/>
+          <path d="M60 40 V130 M820 40 V130" stroke="#8A90A0" stroke-dasharray="5 5"/>
+          <path d="M60 85 H820" stroke="#B4470F" stroke-width="1.5" stroke-dasharray="6 8"/>
+          <circle cx="240" cy="85" r="22" fill="#EEF3FB" stroke="#1F4E9C"/>
+          <path d="M224 78 Q236 70 246 80 T262 78 M222 94 Q234 88 244 98" stroke="#1F4E9C" stroke-width="1.5"/>
+          <g clip-path="url(#loop-band)"><g class="loop-ship" id="loop-ship"><g transform="translate(300 85)"><g><path d="M-32 0 L8 -14 L32 0 L8 14 Z" fill="#FFFFFF" stroke="#B4470F" stroke-width="2"/><circle cx="6" cy="0" r="5" fill="#B4470F" stroke="none"/></g></g><g transform="translate(-460 85)"><g><path d="M-32 0 L8 -14 L32 0 L8 14 Z" fill="#FFFFFF" stroke="#B4470F" stroke-width="2"/><circle cx="6" cy="0" r="5" fill="#B4470F" stroke="none"/></g></g></g></g>
+          <g font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="middle">
+            <text x="240" y="28" fill="#1F4E9C">지구</text>
+            <text x="440" y="160">한 바퀴 10광년 · 광속 80%</text>
+            <text x="60" y="160" fill="#5B6170" text-anchor="start">⇠ 이어짐</text>
+            <text x="820" y="160" fill="#5B6170" text-anchor="end">이어짐 ⇢</text>
+          </g>
+        </svg>
+        <div class="clocks" id="deep-clocks">
+          <div class="clock clock--earth"><span class="label label--muted">지구 시계</span><span class="clock__value" id="deep-run-earth">0년</span></div>
+          <div class="clock clock--ship"><span class="label label--muted">우주선 시계</span><span class="clock__value" id="deep-run-ship">0년</span></div>
+        </div>
+        <p class="story">이번 우주는 한 방향으로 닫혀 있다. 게임 화면 오른쪽 끝으로 나가면 왼쪽 끝으로 다시 들어오는 것처럼, 계속 직진하면 출발한 곳으로 돌아온다. 한 바퀴의 길이는 10광년이다. 우주 쌍둥이는 이미 빛의 80% 속도로 날던 우주선을 타고 지구 옆을 스쳐 지나가며 시계를 맞춘다. 그리고 방향을 한 번도 바꾸지 않고 직진해, 한 바퀴를 돌아 다시 지구 옆을 지난다. <strong>이번에는 아무도 가속하지 않는다.</strong></p>
+      </div>
+      <div class="ask">
+        <h1 class="scene-title" tabindex="-1">다시 만났을 때, 누가 더 젊을까?</h1>
+        <div class="choices choices--three">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">지구에 남은 쪽</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">우주에 다녀온 쪽</span>
+          </button>
+          <button type="button" class="choice" data-choice="C" aria-pressed="false">
+            <span class="choice__tag">선택 C</span>
+            <span class="choice__title">똑같다</span>
+            <span class="choice__desc">가속이 없으니 완전히 대칭이다</span>
+          </button>
+        </div>
+        <p class="vote-notice">선택은 이름 없이 숫자로만 집계되어 다른 실험자들과의 비교에 쓰여요. <button type="button" class="term" data-term="vote-notice">자세히</button></p>
+        <p class="trip-status" id="loop-status" aria-live="polite"></p>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 예측이 기록되었다</span>
+          <button type="button" class="btn btn--a" id="loop-launch">한 바퀴 출발 →</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="container" data-step="deep-result" hidden>
+      <div class="report-head">
+        <span class="label label--muted label--spaced">EXP #04 · 심화 결과 보고서</span>
+        <h1 class="report-title" tabindex="-1">다시 만났을 때, 이번에도 우주에 다녀온 쪽이 더 젊었다</h1>
+        <p class="lead">한 바퀴 10광년인 닫힌 우주를 광속의 80%로 직진해 한 바퀴 돈 경우</p>
+      </div>
+
+      <div class="card card--tight">
+        <div class="row">
+          <span class="label">측정값 · 예측과 결과</span>
+          <span class="verdict-tag" id="deep-verdict-tag"></span>
+        </div>
+        <p style="font-size: 17px; line-height: 1.7" id="deep-verdict-text"></p>
+      </div>
+
+      <div class="card card--tight">
+        <span class="label">측정값 · 다시 만난 날</span>
+        <div class="ages">
+          <div class="age age--earth">
+            <span class="label label--muted">지구에 남은 쪽</span>
+            <span class="age__value" id="deep-earth"></span>
+            <span class="age__clock">지구 시계로 흐른 시간</span>
+          </div>
+          <div class="age age--ship">
+            <span class="label label--muted">우주에 다녀온 쪽</span>
+            <span class="age__value" id="deep-ship"></span>
+            <span class="age__clock">우주선 시계로 흐른 시간</span>
+          </div>
+        </div>
+        <p class="age-diff" id="deep-diff"></p>
+      </div>
+
+      <div class="card card--tight card--note">
+        <span class="label label--a">고찰 · 우주의 모양</span>
+        <h2 style="font-size: 22px">가속이 없는데 왜 대칭이 아닐까?</h2>
+        <p style="font-size: 16px; line-height: 1.8">기본 실험의 답은 "방향을 바꾼 쪽이 다르다"였다. 그런데 이번엔 아무도 방향을 바꾸지 않았다. 그래도 둘은 똑같지 않다. 닫힌 우주에는 "우주에 대해 멈춰 있는 쪽"이 따로 있기 때문이다.</p>
+        <p style="font-size: 16px; line-height: 1.8">지구에서 빛을 앞뒤로 동시에 쏘면, 두 빛은 우주를 한 바퀴 돌아 반대쪽에서 동시에 돌아온다. 우주선에서 똑같이 쏘면 한쪽 빛이 먼저 돌아온다. 이 차이로 누가 우주에 대해 움직이고 있었는지 가릴 수 있고, 우주에 대해 멈춰 있던 쪽이 가장 많이 늙는다. 이 실험에서는 지구가 그쪽이다.</p>
+        <p style="font-size: 16px; line-height: 1.8">상대성이론은 "어디서 봐도 물리 법칙은 똑같다"고 말한다. 하지만 그건 좁은 동네에서의 이야기다. 우주 전체의 모양이 닫혀 있으면, 그 모양이 특별한 기준 하나를 골라 준다. 2001년 물리학자 존 배로와 재나 레빈이 이 문제를 논문으로 정리했다. 우리 우주가 실제로 이렇게 닫혀 있는지는 아직 모른다.</p>
+      </div>
+
+      <div class="card card--tight" aria-live="polite">
+        <span class="label">비교 데이터 · 다른 실험자들의 예측</span>
+        <p class="stat-status" id="deep-stats-status">기록 불러오는 중…</p>
+        <div id="deep-stats" style="display: flex; flex-direction: column; gap: 16px"></div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span class="label label--muted">참고 문헌</span>
+        <ol class="refs">
+          <li>John D. Barrow &amp; Janna Levin, <cite>The twin paradox in compact spaces</cite>, Physical Review A (2001)</li>
+        </ol>
+      </div>
+
+      <div>
+        <button type="button" class="btn btn--ghost" data-go="result">← 기본 결과로</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; border-top: 2px solid var(--ink); padding-top: 28px; margin-top: 12px">
+        <h2 style="font-size: 22px">다른 실험 해보기</h2>
+        <div class="experiments" id="deep-other-experiments"></div>
       </div>
     </section>
 
