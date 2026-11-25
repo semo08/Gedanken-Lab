@@ -14,6 +14,16 @@ export function trip(distanceLy, v) {
   return { earthYears, shipYears, diffYears: earthYears - shipYears, gamma: g };
 }
 
+/**
+ * 닫힌 우주 한 바퀴(심화). 아무도 가속하지 않고, 우주선이 둘레를 한 바퀴 돌아 지구 옆을 다시 지난다.
+ * 지구는 우주에 대해 멈춰 있는 쪽이라 지구 시계 = 둘레 / v, 우주선 시계는 γ배 덜 간다.
+ */
+export function loopTrip(circumferenceLy, v) {
+  const earthYears = circumferenceLy / v;
+  const shipYears = earthYears / gamma(v);
+  return { earthYears, shipYears, diffYears: earthYears - shipYears };
+}
+
 const TICKS = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
 
 /** 다이어그램 점 간격: 지구 쪽 점(0년 제외)이 20개 이하가 되는 가장 작은 값 */

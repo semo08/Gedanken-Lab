@@ -281,6 +281,17 @@ svg { display: block; max-width: 100%; height: auto; }
 .stance-why__body[hidden] { display: none; }
 .stance-why__label { color: var(--ink); }
 
+/* ── 심화 장면 ("한 단계 더") 진입 카드 (js/deep-entry.js) ── */
+/* 기본 실험의 일부가 아니라 고를 수 있는 추가 실험이라 점선 테두리로 구분한다 */
+.deep-entry { border-style: dashed; background: rgba(255, 255, 255, 0.7); }
+.deep-entry__title { font-size: 22px; line-height: 1.4; }
+.deep-entry__teaser { font-size: 16px; line-height: 1.7; color: var(--muted); }
+/* 심화 결과: 기본 실험 답과 나란히 놓은 줄. 달라진 줄은 굵게 + 칩 */
+.compare { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 16px; line-height: 1.6; }
+.compare li { padding: 10px 14px; border-left: 3px solid var(--rule); background: var(--paper); }
+.compare li.is-changed { border-left-color: var(--a); font-weight: 700; }
+.compare__chip { display: inline-block; margin-left: 8px; padding: 0 6px; border: 1px solid var(--a); color: var(--a); font-family: var(--mono); font-size: 12px; font-weight: 400; vertical-align: 2px; }
+
 /* ── 실험 카드 (메인, 다른 실험) ── */
 
 .experiments { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
@@ -301,6 +312,9 @@ a.exp:hover { color: var(--ink); transform: translate(-2px, -2px); box-shadow: 8
 .exp h2 { font-size: 24px; }
 .exp p { font-size: 15px; line-height: 1.6; color: var(--muted); }
 .exp__tag { font-family: var(--mono); font-size: 12px; padding: 4px 10px; border: 1px solid currentColor; }
+.exp__tags { display: flex; gap: 6px; align-items: center; }
+/* 심화 장면이 있는 실험: 분야 태그 옆 점선 태그 */
+.exp__tag--deep { color: var(--ink); border-style: dashed; }
 .exp__cta { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--b); }
 
 /* 결과 화면의 "다른 실험 해보기": 폰에서는 제목만 남겨 결과보다 길어지지 않게 한다 */

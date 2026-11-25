@@ -21,7 +21,20 @@
     .route { fill: none; stroke-width: 6; opacity: 0.45; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 0.7s ease-out; }
     .route--A { stroke: var(--a); }
     .route--B { stroke: var(--b); }
-    [data-picked="A"] .route--A, [data-picked="B"] .route--B { stroke-dashoffset: 0; }
+    .route--C { stroke: var(--c); }
+    [data-picked="A"] .route--A, [data-picked="B"] .route--B, [data-picked="C"] .route--C { stroke-dashoffset: 0; }
+    /* 심화 2: 세 번째 선택지 */
+    .choices--three { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .choice[data-choice="C"] .choice__tag { color: var(--c); }
+    .choice[data-choice="C"][aria-pressed="true"] { background: #EEF4F0; box-shadow: 6px 6px 0 var(--c); }
+    .bar { display: flex; height: 28px; border: 1px solid var(--ink); }
+    .legend { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 15px; }
+    .legend li { display: flex; align-items: center; gap: 10px; }
+    .legend__swatch { width: 14px; height: 14px; border: 1px solid var(--ink); flex: none; }
+    .legend__pct { font-family: var(--mono); margin-left: auto; }
+    .stat-head { margin: 0; font-size: 16px; }
+    .cross { font-size: 17px; line-height: 1.6; }
+    .cross strong { font-family: var(--mono); font-size: 22px; }
     .lever { transform-origin: 382px 152px; transition: transform 0.3s ease-out; }
     [data-picked="A"] .lever { transform: rotate(-62deg); }
     @media (prefers-reduced-motion: reduce) { .route, .lever { transition: none; } }
@@ -272,9 +285,170 @@
         <button type="button" class="btn btn--ghost" data-restart>↺ 다시 실험하기</button>
       </div>
 
+      <div class="card card--tight deep-entry" id="deep-entry">
+        <span class="label">심화 · 한 단계 더</span>
+        <h2 class="deep-entry__title"></h2>
+        <p class="deep-entry__teaser"></p>
+        <div><button type="button" class="btn" data-go="deep-1">심화 실험 →</button></div>
+      </div>
+
       <div style="display: flex; flex-direction: column; gap: 16px; border-top: 2px solid var(--ink); padding-top: 28px; margin-top: 12px">
         <h2 style="font-size: 22px">다른 실험 해보기</h2>
         <div class="experiments" id="other-experiments"></div>
+      </div>
+    </section>
+
+
+    <!-- ── 심화 1: 가족이라면 ── -->
+    <section class="container" data-step="deep-1" hidden>
+      <div class="row">
+        <button type="button" class="back-link" data-go="result-back">← 기본 결과로</button>
+        <div class="progress">
+          <span class="label label--muted">EXP #01 · 심화 1 / 2</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <span class="label">관찰 기록 · 심화</span>
+          <span class="label label--muted label--a">낯선 사람 → 사랑하는 사람</span>
+        </div>
+        <svg role="img" aria-label="장면 1과 같은 갈림길 철로. 위쪽 선로에 5명, 아래쪽 선로에는 하트가 그려진 사랑하는 사람 1명, 갈림길 앞에 레버" viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <path d="M20 70 H420"/><path d="M20 82 H420"/>
+          <path d="M420 70 H860"/><path d="M420 82 H860"/>
+          <path d="M420 82 L860 170"/><path d="M432 82 L860 182"/>
+          <path class="route route--A" pathLength="1" d="M150 76 H400 L860 176"/><path class="route route--B" pathLength="1" d="M150 76 H860"/>
+          <rect x="60" y="40" width="90" height="38" rx="4" fill="#F7F6F0"/><circle cx="80" cy="84" r="7" fill="#FFFFFF"/><circle cx="130" cy="84" r="7" fill="#FFFFFF"/>
+          <path d="M160 58 H200 M185 50 L200 58 L185 66" stroke="#B4470F" stroke-width="2.5"/>
+          <g class="person"><circle cx="640" cy="48" r="7" fill="#1B1F2A" stroke="none"/><path d="M640 56 V70" stroke-width="3"/></g><g class="person"><circle cx="670" cy="48" r="7" fill="#1B1F2A" stroke="none"/><path d="M670 56 V70" stroke-width="3"/></g><g class="person"><circle cx="700" cy="48" r="7" fill="#1B1F2A" stroke="none"/><path d="M700 56 V70" stroke-width="3"/></g><g class="person"><circle cx="730" cy="48" r="7" fill="#1B1F2A" stroke="none"/><path d="M730 56 V70" stroke-width="3"/></g><g class="person"><circle cx="760" cy="48" r="7" fill="#1B1F2A" stroke="none"/><path d="M760 56 V70" stroke-width="3"/></g>
+          <g class="person"><path d="M760 126 C 753 119 746 124 752 131 L760 138 L768 131 C 774 124 767 119 760 126 Z" transform="translate(0 -14)" fill="#B4470F" stroke="none"/><circle cx="760" cy="138" r="7" fill="#1B1F2A" stroke="none"/><path d="M760 146 V160" stroke-width="3"/></g>
+          <g class="lever"><path d="M400 120 L380 150" stroke="#B4470F" stroke-width="4"/><circle cx="400" cy="120" r="7" fill="#B4470F" stroke="none"/></g><rect x="368" y="150" width="28" height="10" fill="#1B1F2A" stroke="none"/>
+          <text x="780" y="56" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none">5명</text>
+          <text x="760" y="196" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#B4470F" stroke="none" text-anchor="middle">사랑하는 사람</text>
+          <text x="380" y="186" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#B4470F" stroke="none" text-anchor="middle">레버</text>
+        </svg>
+        <p class="story">장면 1과 똑같다. 이대로 가면 5명이 죽고, 레버를 당기면 옆 선로의 1명이 죽는다. 다만 이번에 옆 선로에 서 있는 사람은 <strong>당신이 가장 사랑하는 사람</strong>이다.</p>
+      </div>
+      <div class="ask">
+        <h1 class="scene-title" tabindex="-1">레버를 당길 것인가?</h1>
+        <div class="choices">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">레버를 당긴다</span>
+            <span class="choice__desc">사랑하는 사람이 희생되고 5명이 산다</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">그대로 둔다</span>
+            <span class="choice__desc">5명이 희생된다</span>
+          </button>
+        </div>
+        <p class="vote-notice">선택은 이름 없이 숫자로만 집계되어 다른 실험자들과의 비교에 쓰여요. <button type="button" class="term" data-term="vote-notice">자세히</button></p>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 기록됨 · 장면 1과 답이 같았나?</span>
+          <button type="button" class="btn" data-go="deep-2">다음 장면 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 심화 2: 세 갈래 선로 ── -->
+    <section class="container" data-step="deep-2" hidden>
+      <div class="row">
+        <button type="button" class="back-link" data-go="deep-1">← 이전 장면</button>
+        <div class="progress">
+          <span class="label label--muted">EXP #01 · 심화 2 / 2</span>
+          <div class="progress__bars" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <span class="label">관찰 기록 · 심화</span>
+          <span class="label label--muted label--a">두 갈래 → 세 갈래</span>
+        </div>
+        <svg role="img" aria-label="세 갈래로 나뉜 철로. 그대로 가면 가운데 선로의 5명, 레버를 왼쪽으로 당기면 위쪽 선로의 낯선 사람 1명, 오른쪽으로 당기면 아래쪽 선로 옆에 선 당신에게 간다." viewBox="0 0 880 200" fill="none" stroke="#1B1F2A" stroke-width="2">
+          <path d="M20 94 H380"/><path d="M20 106 H380"/>
+          <path d="M380 94 H860"/><path d="M380 106 H860"/>
+          <path d="M380 94 L860 24"/><path d="M392 106 L860 38"/>
+          <path d="M392 94 L860 162"/><path d="M380 106 L860 176"/>
+          <path class="route route--A" pathLength="1" d="M150 100 H860"/><path class="route route--B" pathLength="1" d="M150 100 H380 L860 31"/><path class="route route--C" pathLength="1" d="M150 100 H380 L860 169"/>
+          <rect x="60" y="64" width="90" height="38" rx="4" fill="#F7F6F0"/><circle cx="80" cy="108" r="7" fill="#FFFFFF"/><circle cx="130" cy="108" r="7" fill="#FFFFFF"/>
+          <path d="M160 82 H200 M185 74 L200 82 L185 90" stroke="#B4470F" stroke-width="2.5"/>
+          <g class="person"><circle cx="620" cy="72" r="7" fill="#1B1F2A" stroke="none"/><path d="M620 80 V94" stroke="#1B1F2A" stroke-width="3"/></g><g class="person"><circle cx="650" cy="72" r="7" fill="#1B1F2A" stroke="none"/><path d="M650 80 V94" stroke="#1B1F2A" stroke-width="3"/></g><g class="person"><circle cx="680" cy="72" r="7" fill="#1B1F2A" stroke="none"/><path d="M680 80 V94" stroke="#1B1F2A" stroke-width="3"/></g><g class="person"><circle cx="710" cy="72" r="7" fill="#1B1F2A" stroke="none"/><path d="M710 80 V94" stroke="#1B1F2A" stroke-width="3"/></g><g class="person"><circle cx="740" cy="72" r="7" fill="#1B1F2A" stroke="none"/><path d="M740 80 V94" stroke="#1B1F2A" stroke-width="3"/></g>
+          <g class="person"><circle cx="760" cy="17" r="7" fill="#1B1F2A" stroke="none"/><path d="M760 25 V39" stroke="#1B1F2A" stroke-width="3"/></g>
+          <g class="person"><circle cx="760" cy="137" r="7" fill="#1F4E9C" stroke="none"/><path d="M760 145 V159" stroke="#1F4E9C" stroke-width="3"/></g>
+          <path d="M330 128 L310 158" stroke="#B4470F" stroke-width="4"/><circle cx="330" cy="128" r="7" fill="#B4470F" stroke="none"/><rect x="298" y="158" width="28" height="10" fill="#1B1F2A" stroke="none"/>
+          <text x="760" y="80" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none">5명</text>
+          <text x="740" y="20" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1B1F2A" stroke="none" text-anchor="end">낯선 사람 1명</text>
+          <text x="782" y="166" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#1F4E9C" stroke="none">당신</text>
+          <text x="312" y="194" font-family="IBM Plex Mono, Noto Sans KR, monospace" font-size="14" fill="#B4470F" stroke="none" text-anchor="middle">레버</text>
+        </svg>
+        <p class="story">이번엔 선로가 세 갈래다. 그대로 가면 <strong>5명</strong>이 죽는다. 레버를 왼쪽으로 당기면 <strong>낯선 사람 1명</strong>이, 오른쪽으로 당기면 선로 옆에 서 있던 <strong>당신 자신</strong>이 희생된다.</p>
+      </div>
+      <div class="ask">
+        <h1 class="scene-title" tabindex="-1">어떻게 할 것인가?</h1>
+        <div class="choices choices--three">
+          <button type="button" class="choice" data-choice="A" aria-pressed="false">
+            <span class="choice__tag">선택 A</span>
+            <span class="choice__title">그대로 둔다</span>
+            <span class="choice__desc">5명이 희생된다</span>
+          </button>
+          <button type="button" class="choice" data-choice="B" aria-pressed="false">
+            <span class="choice__tag">선택 B</span>
+            <span class="choice__title">왼쪽으로 당긴다</span>
+            <span class="choice__desc">낯선 사람 1명이 희생된다</span>
+          </button>
+          <button type="button" class="choice" data-choice="C" aria-pressed="false">
+            <span class="choice__tag">선택 C</span>
+            <span class="choice__title">오른쪽으로 당긴다</span>
+            <span class="choice__desc">내가 희생된다</span>
+          </button>
+        </div>
+        <div class="row next" hidden>
+          <span class="label label--muted">✓ 기록됨</span>
+          <button type="button" class="btn btn--a" data-go="deep-result">심화 결과 보기 →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 심화 결과 ── -->
+    <section class="container" data-step="deep-result" hidden>
+      <div class="report-head">
+        <span class="label label--muted label--spaced">EXP #01 · 심화 결과 보고서</span>
+        <h1 class="report-title" tabindex="-1" id="deep-title"></h1>
+      </div>
+
+      <div class="card card--tight">
+        <span class="label">측정값 · 장면 1과 비교</span>
+        <ul class="compare" id="deep-compare"></ul>
+      </div>
+
+      <div class="card card--tight" aria-live="polite">
+        <span class="label">비교 데이터 · 다른 실험자들</span>
+        <p class="stat-status" id="deep-stats-status">기록 불러오는 중…</p>
+        <div id="deep-stats" style="display: flex; flex-direction: column; gap: 20px"></div>
+      </div>
+
+      <div class="card card--tight card--note">
+        <span class="label label--a">고찰 · 특별한 관계</span>
+        <h2 style="font-size: 22px">숫자는 같은데, 왜 망설여질까?</h2>
+        <p style="font-size: 16px; line-height: 1.8">공리주의로 보면 사랑하는 사람 1명도 낯선 사람 1명도 똑같은 1명이다. 그런데 많은 사람이 가족 앞에서는 레버를 당기지 못한다. 가까운 사람을 더 챙기는 것이 잘못일까, 아니면 도덕에는 원래 "특별한 관계"가 들어 있는 걸까?</p>
+        <p style="font-size: 16px; line-height: 1.8">세 갈래 선로는 철학자 주디스 자비스 톰슨이 2008년에 낸 질문이다. 그녀는 이렇게 물었다. 나를 희생할 생각이 없다면, 왜 낯선 사람에게는 그 희생을 떠넘겨도 될까? 이 질문 때문에 톰슨은 장면 1의 레버를 당기는 것도 옳지 않을 수 있다고 생각을 바꿨다.</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span class="label label--muted">참고 문헌</span>
+        <ol class="refs">
+          <li>Judith Jarvis Thomson, <cite>Turning the Trolley</cite>, Philosophy &amp; Public Affairs (2008)</li>
+        </ol>
+      </div>
+
+      <div>
+        <button type="button" class="btn btn--ghost" data-go="result-back">← 기본 결과로</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; border-top: 2px solid var(--ink); padding-top: 28px; margin-top: 12px">
+        <h2 style="font-size: 22px">다른 실험 해보기</h2>
+        <div class="experiments" id="deep-other-experiments"></div>
       </div>
     </section>
 

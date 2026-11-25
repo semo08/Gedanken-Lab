@@ -14,11 +14,12 @@ function card(exp, rootPath) {
   if (exp.ready) node.href = `${rootPath}experiments/${exp.slug}/`;
 
   const head = el('div', 'row');
-  head.append(
-    el('span', exp.ready ? 'label' : 'label label--muted', `EXPERIMENT #${exp.num}`),
-    el('span', 'exp__tag', exp.field),
-  );
-  head.lastChild.style.color = exp.ready ? FIELD_COLOR[exp.field] : 'var(--muted)';
+  const tags = el('span', 'exp__tags');
+  if (exp.deep) tags.append(el('span', 'exp__tag exp__tag--deep', '심화'));
+  const field = el('span', 'exp__tag', exp.field);
+  field.style.color = exp.ready ? FIELD_COLOR[exp.field] : 'var(--muted)';
+  tags.append(field);
+  head.append(el('span', exp.ready ? 'label' : 'label label--muted', `EXPERIMENT #${exp.num}`), tags);
 
   node.append(head, el('h2', '', exp.title), el('p', '', exp.blurb));
   node.append(exp.ready ? el('span', 'exp__cta', '실험 시작 →') : el('span', 'label label--muted', '[ 준비 중 ]'));
