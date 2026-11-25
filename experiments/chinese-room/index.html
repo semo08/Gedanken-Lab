@@ -92,8 +92,15 @@
     .stances { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
     .stance { border: 2px dashed var(--dash); padding: 20px; display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.6); }
     .stance h3 { margin: 0; font-size: 18px; }
+    /* 결과 고찰: 방과 컴퓨터 대응표. 폰에서도 2열을 유지하고 글자만 줄바꿈한다 */
+    .map { width: 100%; border-collapse: collapse; table-layout: fixed; background: var(--white); font-size: 15px; }
+    .map caption { text-align: left; padding-bottom: 8px; }
+    .map th, .map td { border: 1.5px solid var(--ink); padding: 8px 12px; text-align: left; vertical-align: top; word-break: keep-all; overflow-wrap: anywhere; }
+    .map th { font-family: var(--mono); font-size: 13px; font-weight: 600; background: var(--paper); }
+    .map td:first-child { color: var(--muted); }
+    .map td:last-child { font-weight: 700; }
+    .map__note { font-size: 14px; line-height: 1.7; color: var(--muted); }
     .stance p { font-size: 15px; line-height: 1.6; color: var(--muted); }
-    .stance .stance__reply { font-size: 13px; border-top: 1px dashed var(--rule); padding-top: 8px; }
     .stance--mine { border: 2px solid var(--ink); background: var(--b-tint); box-shadow: 6px 6px 0 var(--b); }
     .stance--mine p { color: var(--ink); }
     .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 0; }
@@ -192,7 +199,7 @@
           </g>
         </svg>
         <p class="story">당신은 작은 방에 갇혀 있다. 방에는 규칙서 한 권과 기호 카드 상자가 있다. 기호는 <strong>한 번도 본 적 없는 글자</strong>다. 문 틈으로 기호가 적힌 쪽지가 들어오면, 규칙서에서 같은 모양을 찾아 거기 적힌 대로 카드를 골라 답 쪽지를 내보내면 된다. 기호의 뜻은 어디에도 적혀 있지 않다.</p>
-        <p style="font-size: 14px; line-height: 1.7; color: var(--muted)">철학자 존 설(1980)의 원래 실험은 중국어를 모르는 사람이 중국어 쪽지에 답하는 이야기다. 한국 사람은 한자를 조금씩 알아서, 이 실험에서는 정말로 아무도 모르는 <strong>가상의 문자</strong>를 쓴다.</p>
+        <p style="font-size: 14px; line-height: 1.7; color: var(--muted)">철학자 존 설(1980)의 원래 실험은 중국어를 모르는 사람이 중국어 쪽지에 답하는 이야기다. 한국 사람은 한자를 조금씩 알아서, 이 실험에서는 정말로 아무도 모르는 <strong>가상의 문자</strong>를 쓴다. 설은 이 실험으로 "컴퓨터가 언어를 이해할 수 있는가"를 물었다. 방 안에서 당신이 할 일은, 컴퓨터가 하는 일과 똑같다.</p>
       </div>
       <div class="row">
         <span class="label label--muted">쪽지는 모두 5장</span>
@@ -314,7 +321,7 @@
           <span class="label label--muted" id="my-answer"></span>
         </div>
         <div class="stances" id="stances"></div>
-        <p style="font-size: 13px; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 12px">설은 1980년 논문에서 두 반론을 직접 소개하고 다시 반박했다(카드 아래 줄). 이 논쟁은 40년이 넘은 지금도 결론이 나지 않았다.</p>
+        <p style="font-size: 13px; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: 12px">설은 1980년 논문에서 두 반론을 직접 소개하고 다시 반박했다(카드의 '이 입장의 논리'에서 볼 수 있다). 이 논쟁은 40년이 넘은 지금도 결론이 나지 않았다.</p>
       </div>
 
       <div class="card card--tight" aria-live="polite">
@@ -336,7 +343,19 @@
       <div class="card card--tight card--note">
         <span class="label label--a">고찰 · 모양과 뜻</span>
         <h2 style="font-size: 22px">사람처럼 대답하는 것과 이해하는 것은 같을까?</h2>
-        <p style="font-size: 16px; line-height: 1.8">설의 핵심 주장은 <strong>문법(기호의 모양을 다루는 규칙)만으로는 의미가 생기지 않는다</strong>는 것이다. 컴퓨터 프로그램이 하는 일이 방 안의 당신이 한 일과 같다면, <button type="button" class="term" data-term="turing-test">튜링 테스트</button>를 통과할 만큼 대답을 잘해도 이해했다고 할 수는 없다는 것이다.</p>
+        <table class="map">
+          <caption class="label">대응표 · 방과 컴퓨터</caption>
+          <thead><tr><th scope="col">방 안</th><th scope="col">컴퓨터</th></tr></thead>
+          <tbody>
+            <tr><td>방 안의 당신</td><td>계산 장치(CPU)</td></tr>
+            <tr><td>규칙서</td><td>프로그램</td></tr>
+            <tr><td>기호 카드 상자</td><td>메모리</td></tr>
+            <tr><td>문 틈으로 들어온 쪽지</td><td>입력</td></tr>
+            <tr><td>내보낸 답 쪽지</td><td>출력</td></tr>
+          </tbody>
+        </table>
+        <p class="map__note">컴퓨터도 속으로는 0과 1의 모양만 규칙대로 바꾼다. 그 규칙이 아무리 정교해도, 계산 장치가 뜻을 알 필요는 없다.</p>
+        <p style="font-size: 16px; line-height: 1.8">설의 핵심 주장은 <strong>기호의 모양만 다루는 규칙만으로는 의미가 생기지 않는다</strong>는 것이다. 컴퓨터 프로그램이 하는 일이 방 안의 당신이 한 일과 같다면, <button type="button" class="term" data-term="turing-test">튜링 테스트</button>를 통과할 만큼 대답을 잘해도 이해했다고 할 수는 없다는 것이다.</p>
         <p style="font-size: 16px; line-height: 1.8">요즘 <button type="button" class="term" data-term="llm">대규모 언어 모델</button>에도 똑같은 질문이 던져지고 있다. 엄청나게 많은 글에서 익힌 규칙으로 자연스럽게 대답하지만, 그것이 이해인지는 여전히 의견이 갈린다.</p>
         <p style="font-size: 15px; line-height: 1.7" id="imitation-link"></p>
       </div>
