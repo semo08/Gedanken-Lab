@@ -3,6 +3,7 @@ import { NOTES, PAGES, PAGE_HINTS, expected, check } from './rules.js';
 import { stance, STANCES } from './stance.js';
 import { EXPERIMENTS } from '../../js/experiments.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
+import { stanceWhy } from '../../js/stance-why.js';
 import { percentages } from '../../js/percentages.js';
 
 const VOTE_ID = 'chinese_room';
@@ -269,7 +270,7 @@ function showResult() {
     const head = el('div', 'row');
     head.append(el('span', isMine ? 'label' : 'label label--muted', s.who));
     if (isMine) head.append(el('span', 'mine-badge', '나의 입장'));
-    card.append(head, el('h3', '', s.name), el('p', '', s.line), el('p', 'stance__reply', s.reply));
+    card.append(head, el('h3', '', s.name), el('p', '', s.line), ...stanceWhy(s));
     return card;
   }));
 

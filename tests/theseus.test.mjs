@@ -58,3 +58,7 @@ test('입장: A 연속성, B 재료, C 규약', () => {
   assert.deepEqual(STANCES.map((s) => s.key), ['continuity', 'material', 'convention']);
   for (const s of STANCES) assert.ok(s.name && s.line);
 });
+
+test('모든 입장에 "이 입장의 논리"(why)와 반대쪽 말(against)이 있다', () => {
+  for (const s of STANCES) assert.ok(s.why && s.against, s.key);
+});

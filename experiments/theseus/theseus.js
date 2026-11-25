@@ -1,6 +1,7 @@
 import { PLANKS, KEYS, boundary, voteKey, survival } from './line.js';
 import { stance, STANCES } from './stance.js';
 import { renderOtherExperiments } from '../../js/other-experiments.js';
+import { stanceWhy } from '../../js/stance-why.js';
 import { percentages } from '../../js/percentages.js';
 
 const LINE_ID = 'theseus_line';
@@ -318,7 +319,7 @@ function showResult() {
     const isMine = s.key === mine.key;
     const card = el('div', isMine ? 'stance stance--mine' : 'stance');
     if (isMine) card.append(el('span', 'mine-badge', '나의 입장'));
-    card.append(el('h3', '', s.name), el('p', '', s.line));
+    card.append(el('h3', '', s.name), el('p', '', s.line), ...stanceWhy(s));
     return card;
   }));
 

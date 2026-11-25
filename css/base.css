@@ -271,6 +271,16 @@ svg { display: block; max-width: 100%; height: auto; }
 /* 범례에서 내 항목 */
 .is-mine-row { font-weight: 700; color: var(--ink); }
 
+/* ── 입장 카드의 "이 입장의 논리" 펼치기 (js/stance-why.js) ── */
+/* 카드마다 글 길이가 달라도 버튼이 카드 아래쪽에 맞춰 선다 */
+.stance-why {
+  align-self: flex-start; margin-top: auto; padding: 8px 0 0; background: none; border: 0; cursor: pointer;
+  font-family: var(--mono); font-size: 13px; color: var(--b); text-decoration: underline; text-underline-offset: 3px;
+}
+.stance-why__body { display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--rule); padding-top: 10px; }
+.stance-why__body[hidden] { display: none; }
+.stance-why__label { color: var(--ink); }
+
 /* ── 실험 카드 (메인, 다른 실험) ── */
 
 .experiments { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
