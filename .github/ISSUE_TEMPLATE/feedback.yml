@@ -1,0 +1,61 @@
+name: 피드백
+description: 사이트를 써 본 사람에게 받은 피드백을 기록한다
+title: "[피드백] "
+labels: ["피드백"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        받은 말을 최대한 그대로 옮겨 적는다. 해결 방법은 몰라도 된다.
+        제출한 뒤 오른쪽 Labels에서 실험 라벨(`exp:…`)과 종류 라벨(`설명`, `UI`, `심화`, `새 실험`)을 붙인다.
+  - type: input
+    id: who
+    attributes:
+      label: 누구에게 받았나
+      description: 이름 대신 관계만 적어도 된다. 공개 레포라 실명은 적지 않는다.
+      placeholder: "예: 친구 A (책 안 읽음), 회사 동료"
+  - type: dropdown
+    id: experiment
+    attributes:
+      label: 어느 실험인가
+      multiple: true
+      options:
+        - "#01 트롤리 문제"
+        - "#02 슈뢰딩거의 고양이"
+        - "#03 맥스웰의 악마"
+        - "#04 쌍둥이 역설"
+        - "#05 이미테이션 게임"
+        - "#06 중국어 방"
+        - "#07 테세우스의 배"
+        - "메인 페이지 / 공통"
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: 어느 화면인가
+      multiple: true
+      options:
+        - 소개
+        - 체험 / 선택
+        - 결과
+        - 심화
+        - 잘 모르겠음
+  - type: textarea
+    id: what
+    attributes:
+      label: 받은 피드백
+      description: 들은 말을 그대로. 여러 개면 한 줄에 하나씩.
+      placeholder: "예: 장면 2 그림만 봐서는 상황을 모르겠다. 글을 읽어야 이해된다."
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: 떠오른 해결 방향 (선택)
+      placeholder: "예: 육교를 다리 모양으로, 미는 방향 화살표 추가"
+  - type: input
+    id: device
+    attributes:
+      label: 기기 (선택)
+      placeholder: "예: 아이폰 사파리, 노트북 크롬"
