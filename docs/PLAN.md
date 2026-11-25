@@ -97,6 +97,24 @@ Built with vanilla JavaScript, Canvas, and Firebase Firestore, with a lab notebo
 3. 반전: 떼어낸 헌 판자로 배를 다시 조립 → "진짜는 어느 쪽?" → 수리한 배(연속성) / 다시 만든 배(재료) / 둘 다 진짜이거나 둘 다 아니다(규약)
 4. 결과: 나의 경계선 + 다른 사람들의 경계선 분포, 입장 카드 + 비율, 우리 몸의 세포 교체와 연결한 고찰
 
+### 심화 장면 ("한 단계 더")
+
+기본 실험은 입문자용으로 두고, 결과 화면 끝에 고를 수 있는 심화 장면을 붙인다. 설계: `docs/superpowers/specs/2026-11-25-deep-dive-design.md`
+
+- 진입: 기본 결과의 "다른 실험 해보기" 바로 위에 점선 카드 `.deep-entry`(라벨 `심화 · 한 단계 더`, 제목, 한 줄 소개, `심화 실험 →`)
+- 화면: 같은 페이지의 `<section data-step="deep-…">`, 진행 표시 `EXP #01 · 심화 1 / 2`. 끝에는 `← 기본 결과로`와 "다른 실험 해보기"
+- 투표: 별도 문서에 저장한다. 심화 첫 선택 화면에도 투표 안내를 보여 준다
+- 레지스트리 `deep: { title, teaser }`, 메인 카드에 `심화` 태그
+- 지금 있는 심화:
+  - 트롤리: 가족이라면 / 세 갈래 선로(나 자신). 장면 1 답과 묶은 교차 집계
+  - 쌍둥이: 닫힌 우주(가속 없이 한 바퀴)
+- 나중에 붙일 후보:
+  - 슈뢰딩거: 위그너의 친구 (상자를 연 친구를 밖에서 보면?)
+  - 맥스웰: 실라르드 엔진 (분자 1개짜리 악마)
+  - 이미테이션: 거꾸로 튜링 테스트 (내가 기계인 척 대화하기)
+  - 중국어 방: 뇌 시뮬레이터 반론 (규칙서가 뉴런 하나하나를 흉내 낸다면?)
+  - 테세우스: 순간이동 장치 (나를 분해해 화성에서 다시 조립하면, 그건 나일까?)
+
 ## 5. 디자인
 
 - 실험 노트 컨셉: 모눈종이 배경, 고정폭 폰트, `EXPERIMENT #01` 라벨
@@ -127,7 +145,10 @@ votes (컬렉션)
  ├─ imitation_turing → { A: 0, B: 0 }
  ├─ chinese_room     → { A: 0, B: 0, C: 0 }
  ├─ theseus_line     → { P1: 0, …, P10: 0, KEEP: 0 }
- └─ theseus_rebuilt  → { A: 0, B: 0, C: 0 }
+ ├─ theseus_rebuilt  → { A: 0, B: 0, C: 0 }
+ ├─ trolley_deep_1   → { AA, AB, BA, BB }          (앞 = 장면 1 답, 뒤 = 심화 1 답)
+ ├─ trolley_deep_2   → { AA, AB, AC, BA, BB, BC }  (앞 = 장면 1 답, 뒤 = 심화 2 답)
+ └─ twin_deep        → { A: 0, B: 0, C: 0 }
 ```
 
 - 보안 규칙(`firestore.rules`)에는 위 문서가 모두 들어 있다.
@@ -145,6 +166,7 @@ votes (컬렉션)
 - [x] **7단계** 이미테이션 게임 (설계: `docs/superpowers/specs/2026-11-10-imitation-design.md`)
 - [x] **8단계** 중국어 방 (설계: `docs/superpowers/specs/2026-11-10-chinese-room-design.md`)
 - [x] **9단계** 테세우스의 배 (설계: `docs/superpowers/specs/2026-11-11-theseus-design.md`)
+- [x] **10단계** 심화 장면 (트롤리, 쌍둥이) (설계: `docs/superpowers/specs/2026-11-25-deep-dive-design.md`)
 
 ## 9. 나중에 하고 싶은 것
 
